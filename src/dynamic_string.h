@@ -1,0 +1,8 @@
+//
+// Created by root on 10/17/19.
+//
+
+#ifndef UNTITLED_DYNAMIC_STRING_H
+#define UNTITLED_DYNAMIC_STRING_H
+
+#endif //UNTITLED_DYNAMIC_STRING_H
