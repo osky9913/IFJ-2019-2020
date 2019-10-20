@@ -7,9 +7,12 @@
 #  NOTE:
 #-------------------------------------------------
 
+PROJECT=IFJ
 CFLAGS= -std=c11 -Wall -Wextra -pedantic -g
-LFLAGS=
+CC=gcc
 
+all:
+	$(CC) $(CFLAGS) -o $(PROJECT) src/main.c src/scanner.c src/dynamic_string.c
 
 .PHONY: clean
 clean:
