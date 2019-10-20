@@ -56,4 +56,4 @@ typedef struct{
     Tattribute attr;
 } Ttoken;
 
-int get_token();
+int get_token(FILE* f, Ttoken* token);

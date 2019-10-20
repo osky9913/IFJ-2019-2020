@@ -5,15 +5,15 @@
 #include "scanner.h"
 
 //TODO  INDENT/DEDENT
-//      
-// 
+//      : operator
+//      cache for one token?
+//      allocation/deallocation
 
 #define LEX_ERROR 1
 #define LEX_SUCCES 0
 
 /**
  * [scans through the code, recognises different tokens, ignores comments]
- * @param  Tstring  [token->attr.string, saves names of identifiers, used for comparison to parse different tokens]
  * @param  f     [source file]
  * @param  token [processed token]
  * @return       [returns 0 on succes, else 1]
@@ -281,7 +281,6 @@ int get_token(FILE* f, Ttoken* token){
                 }
             //identifiers or keywords
             case 7:
-                //grc, mozno nejak inak
                 if(isspace(c) || c == EOF){
                     if(c == EOF)
                         ungetc(c, f);
