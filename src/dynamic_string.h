@@ -14,13 +14,11 @@ typedef struct{
     int real;
 } t_string;
 
-
+int str_find_char(t_string* s, char c);
+void string_clear(t_string *s);
 void string_init(t_string *s);
-
 void string_append(t_string *s, char c);
-
 void string_print(t_string *s);
-
 void string_free(t_string *s);
 
 #endif //UNTITLED_DYNAMIC_STRING_H

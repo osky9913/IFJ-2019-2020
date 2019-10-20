@@ -1,9 +1,27 @@
 //
 // Created by root on 10/17/19.
 //
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "dynamic_string.h"
 
+int str_find_char(t_string* s, char c){
+    int charFound = 0;
+    for(int i = 0; i < s->index; i++){
+        if(s->array[i] == c){
+            charFound++;
+        }
+    }
+    if(charFound >= 1)
+        return charFound;
+    else
+        return 0;
+} 
+
+void string_clear(t_string *s){
+    s->array[0] = '\0';
+    s->index = 0;
+}
 
 void string_init(t_string *s) {
     s->index = 0;
@@ -32,7 +50,6 @@ void string_append(t_string *s, char c) {
         }
     }
     s->array[s->index++] = c;
-
 }
 
 void string_free(t_string *s) {

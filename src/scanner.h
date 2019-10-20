@@ -2,6 +2,7 @@ typedef enum {
     TTYPE_ID,       		// ID
     TTYPE_KEYWORD,          // def/else/if,None,pass,return,while
     TTYPE_EOF,              // end of file
+    TTYPE_EOL,				// \n
 
     TTYPE_INT,              //whole number
     TTYPE_DOUBLE,           //desatinne čislo
@@ -32,11 +33,21 @@ typedef enum {
     TTYPE_IDIV,             // '//'
 } Ttype;
 
+typedef enum {
+	KEY_IF,					
+	KEY_DEF,
+	KEY_ELSE,
+	KEY_NONE,
+	KEY_PASS,
+	KEY_RETURN,
+	KEY_WHILE,
+} Tkeyword;
+
 typedef union {
 	long integer;
 	double decimal;
 	t_string string;
-
+	Tkeyword keyword;
 } Tattribute;
 
 
