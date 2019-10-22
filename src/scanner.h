@@ -56,4 +56,5 @@ typedef struct{
     Tattribute attr;
 } Ttoken;
 
+void hexa_escape(FILE* f, t_string* Tstring);
 int get_token(FILE* f, Ttoken* token);
