@@ -7,18 +7,14 @@
 #  NOTE:
 #-------------------------------------------------
 
-
-PROJECT=IFJ
-CC=gcc
+EXEC= ifj
 CFLAGS= -std=c11 -Wall -Wextra -pedantic -g
 
-all: $(PROJECT)
+all: string_test
 	
-
-$(PROJECT) :  src/main.c src/dynamic_string.c
-	$(CC) $(CFLAGS)  -o $@ src/main.c src/dynamic_string.c
-
+string_test: src/string_test.c src/dynamic_string.c
+	gcc $(CFLAGS) -o $@ src/string_test.c src/dynamic_string.c
 
 .PHONY: clean
 clean:
-	rm -f *.o
+	rm -f *.o ifj string_test
