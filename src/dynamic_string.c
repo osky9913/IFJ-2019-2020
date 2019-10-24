@@ -18,6 +18,8 @@ string_t *string_create_init() {
         string_free(s);
         return NULL;
     }
+    
+    return s;
 }
 
 int string_init(string_t *s) {
@@ -32,7 +34,7 @@ int string_init(string_t *s) {
 }
 
 
-int string_append(string_t *s, char c) {
+int string_append_char(string_t *s, char c) {
     if (s == NULL) {
         fprintf(stderr, "String WARNING: A pointer passed to string_append was NULL.\n");
         return STR_NULL_PASSED;
@@ -40,12 +42,14 @@ int string_append(string_t *s, char c) {
 
     if (s->index + 2 >= s->real) {
         s->real = s->real * 2;
-        if (!realloc(s->array, s->real))
+        char *tmp = realloc(s->array, s->real);
+        if (!tmp) {
             fprintf(stderr, "String ERROR: Could not append char to string.\n");
             return STR_ALLOC_ERROR;
         }
+        s->array = tmp;
     }
-    sprintf(&(s->array[s->index++]), "%c\0", c);
+    sprintf(&(s->array[s->index++]), "%c%c", c, '\0');
     return SUCCESS;
 }
 

@@ -5,19 +5,22 @@
 
 int main() {
 
-    struct tString my_string;
-    string_init(&my_string);
+
+
+    string_t *string = string_create_init();
+    if (!string) {
+        printf("Nepovedla se alokace\n");
+    }
 
 
     char helloworld[1000] = "ahhoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svethoj svetoj svet";
 
     for (size_t i = 0; i <= strlen(helloworld); i++) {
-        string_append(&my_string, helloworld[i]);
-
+        string_append_char(string, helloworld[i]);
     }
 
-    string_print(&my_string);
-    string_free(&my_string);
+    string_print(string, "\n");
+    string_free(string);
 
     return 0;
 }

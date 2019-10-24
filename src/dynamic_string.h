@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 /* Default string length for initialization */
-#define STR_DEFAULT_LEN 100
+#define STR_DEFAULT_LEN 20
 
 /* Return codes */
 #define SUCCESS 0
@@ -44,7 +44,7 @@ int string_init(string_t *s);
 /**
  * @brief Appends a character to s.
  */
-int string_append(string_t *s, char c);
+int string_append_char(string_t *s, char c);
 
 /**
  * @brief Prints out s->array.
