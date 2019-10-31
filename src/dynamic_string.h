@@ -7,11 +7,6 @@
 #ifndef DYNAMIC_STRING_H
 #define DYNAMIC_STRING_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-
 /* Default string length for initialization */
 #define STR_DEFAULT_LEN 20
 
@@ -73,5 +68,13 @@ void string_clear(string_t *s);
  * not be completed.
  */
 char *string_copy_data(string_t *s);
+
+/**
+ * @brief searches for character in string
+ * @param  s [string to be searched]
+ * @param  c [searched character]
+ * @return   [returns number of found characters]
+ */
+int str_find_char(string_t* s, char c);
 
 #endif

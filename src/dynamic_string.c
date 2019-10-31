@@ -7,6 +7,11 @@
 
 #include "dynamic_string.h"
 
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
 string_t *string_create_init() {
     string_t *s = malloc(sizeof(string_t));
     if (s == NULL) {
@@ -85,7 +90,8 @@ void string_free_array(string_t *s) {
 
 void string_clear(string_t *s) {
     if (s) {
-        s->array[0] = '\0';
+        for(int i = 0; i < s->index; i++)
+            s->array[i] = '\0';
         s->index = 0;
     } else {
         fprintf(stderr, "String WARNING: A pointer passed to string_clear was NULL.\n");
@@ -107,3 +113,14 @@ char *string_copy_data(string_t *s) {
     strcpy(new, s->array);
     return new;
 }
+
+int str_find_char(string_t* s, char c) {
+    int charFound = 0;
+    for(int i = 0; i < s->index; i++){
+        if(s->array[i] == c){
+            charFound++;
+        }
+    }
+    return charFound;
+
+} 

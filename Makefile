@@ -7,14 +7,16 @@
 #  NOTE:
 #-------------------------------------------------
 
-EXEC= ifj
-CFLAGS= -std=c11 -Wall -Wextra -pedantic -g
+EXEC=ifj
+CFLAGS=-std=c11 -Wall -Wextra -pedantic -g
 
-all: string_test
+all: scanner_test
 	
-string_test: src/string_test.c src/dynamic_string.c
-	gcc $(CFLAGS) -o $@ src/string_test.c src/dynamic_string.c
+scanner_test: src/scanner_test.c src/dynamic_string.c src/scanner.c src/indent_stack.c
+	gcc $(CFLAGS) -o $@ src/scanner_test.c src/dynamic_string.c src/scanner.c src/indent_stack.c
+
+
 
 .PHONY: clean
 clean:
-	rm -f *.o ifj string_test
+	rm -f *.o ifj scanner_test
