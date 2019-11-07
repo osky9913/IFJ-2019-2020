@@ -12,18 +12,32 @@
 #include <string.h>
 #include <stdlib.h>
 
+//global varialbe to determine if we are on new line(time to evaluate indent/dedent)
 int new_line = 0;
 
-int calculate_dent(FILE* f, int c){
-    int dent = 0;
-    while(isspace(c)){
-        if(c == '\n'){
+//global variable do determine if there are more dedent tokens to be generated
+int indents_to_pop = 0; 
+
+//actual line indentation 
+int dent = 0;
+
+int calculate_dent(FILE* f, int* c){
+    dent = 0;
+    while(isspace(*c)){
+        if(*c == '\n'){
             return dent;
         }
         else{
             dent++;
         }
-        c = getc(f);
+        *c = getc(f);
+    }
+    //ignore indentation of comments
+    if(*c == '#'){
+        while(*c != '\n'){
+            *c = getc(f);
+        }
+        return indent_stack_top(dent_stack);
     }
     return dent;
 }
@@ -66,35 +80,66 @@ void hexa_escape(FILE* f, string_t* token_string){
     string_free(&tmp);                                      
 }
 
+int process_dedents(){
+    int pop_indent;
+    while(dent != indent_stack_top(dent_stack)){
+        pop_indent = indent_stack_top(dent_stack);
+        indent_stack_pop(dent_stack);
+        //indentation is smaller than one or more indents 
+        if(dent_stack->top == -1){
+            fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
+            return 0;
+        }
+        if(pop_indent != indent_stack_top(dent_stack)){
+            indents_to_pop = 1;
+            return 1;
+        }
+    }
+    indents_to_pop = 0;
+    new_line = 0;
+    return 2;
+}
+
 int get_token(FILE* f, token_t* token){
     int state = 0;
-    int c;
+    int c, ret_code;
     string_t* tmp = string_create_init();
     string_t* token_string = string_create_init();
+
+    if(indents_to_pop){
+        token->type = TTYPE_DEDENT;
+        ret_code = process_dedents();
+        if(ret_code == 1){
+            return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+        }
+        else if(ret_code == 0){
+            indents_to_pop = 0; //len kvoli tomu aby sa to nezacykliklo, odstranit z finalnej verzie
+            return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+        }
+    }
 
     while(1){
         c = getc(f);
         //indent dedent
         if(new_line){
-            int dent = calculate_dent(f, c);
+            dent = calculate_dent(f, &c);
             if(dent > indent_stack_top(dent_stack)){
+                ungetc(c, f);
                 indent_stack_push(dent_stack, dent);
                 token->type = TTYPE_INDENT;
-                ungetc(c, f);
                 new_line = 0;
                 return finish_free_resources(LEX_SUCCES, token, tmp, token_string); 
             }
             else if(dent < indent_stack_top(dent_stack)){
-                while(dent != indent_stack_top(dent_stack)){
-                    indent_stack_pop(dent_stack);
-                    if(dent_stack->top == -1){
-                        fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
-                    }
-                }
+                ungetc(c, f);
                 token->type = TTYPE_DEDENT;
-                new_line = 0;
-                return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                ret_code = process_dedents();
+                if(ret_code == 1){
+                    return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                }
+                else if(ret_code == 0){
+                    return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                }
             }
             new_line = 0;
         }
@@ -253,7 +298,6 @@ int get_token(FILE* f, token_t* token){
                 }
                 if((strcmp(tmp->array, "\"\"\"")) == 0){
                     state = 0;
-                    token->type = TTYPE_STR;
                     return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                 }
                 break;

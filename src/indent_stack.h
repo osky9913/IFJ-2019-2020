@@ -1,6 +1,6 @@
 /**
- * @file stack.h
- * @brief This is header file of stack.c
+ * @file indent_stack.h
+ * @brief This is header file of indent_stack.c
  * @author xziska03
  */
 #ifndef _INDENT_STACK_H_
