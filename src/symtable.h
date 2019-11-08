@@ -139,8 +139,12 @@ typedef struct symtable_iterator {
     unsigned idx;
 } symtable_iterator_t;
 
-// rozptylovací (hash) funkce
-unsigned int symtable_hash_function(const char *str);
+/**
+ * @brief Hash funkce pro ziskani indexu do tabulky symbolu.
+ *
+ * @return Vraci hash hodnotu pro zadany klic
+ */
+unsigned int symtable_elf_hash(const char *str);
 
 // funkce pro práci s tabulkou:
 void symtable_init(symtable_t *t);

@@ -43,12 +43,15 @@ void symtable_free(symtable_t *t) {
     free(t);
 }
 
-unsigned int symtable_hash_function(const char *str) {
-    uint32_t h = 0;
-    const unsigned char *p;
+unsigned int symtable_elf_hash(const char *str) {
+    unsigned long   h = 0, high;
 
-    for (p = (const unsigned char*)str; *p != '\0'; p++)
-        h = (65599 * h) + *p;
+    while (*str) {
+        h = (h << 4) + *str++;
+        if (high = h & 0xF0000000)
+            h ^= high >> 24;
+        h &= ~high;
+    }
 
     return h;
 }
