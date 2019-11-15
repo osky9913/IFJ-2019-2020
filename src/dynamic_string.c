@@ -70,7 +70,7 @@ void string_print(string_t *s, const char *append) {
 
 void string_free(string_t *s) {
     if (s) {
-        free(s->array);
+        string_free_array(s);
         free(s);
     } else {
         fprintf(stderr, "String WARNING: A pointer passed to string_free was NULL.\n");

@@ -14,7 +14,9 @@ indent_stack_t* dent_stack;
 #define LEX_ERROR 301
 #define LEX_SUCCES 0
 
-extern int new_line;     
+extern int new_line;
+extern int indents_to_pop;
+extern int dent;
 
 /**
  * @brief This enum represents types of processed token.
@@ -85,7 +87,7 @@ typedef struct{
     attribute_t attribute;
 } token_t;
 
-int calculate_dent(FILE* f, int c);
+int calculate_dent(FILE* f, int* c);
 
 /**
  * [Frees all allocated resources, converts string into token's attribute]
@@ -103,6 +105,12 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
  * @param token_string [token's string attribute]
  */
 void hexa_escape(FILE* f, string_t* Tstring);
+
+/**
+ * [Generates DEDENT tokens until dedent is equal to indent on top of stack]
+ * @return [1 - found one dedent, 0 - indentation error, 2 - found all dedents(LA continues)
+ */
+int process_dedents();
 
 /**
  * [scans through the code, recognises different tokens, ignores comments]

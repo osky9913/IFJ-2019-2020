@@ -12,18 +12,45 @@
 #include <string.h>
 #include <stdlib.h>
 
-int new_line = 0;
+//global variable to determine if we are on new line(time to evaluate indent/dedent)
+//  -1 -> when beginning of the file
+//   0 -> when LA found token thats not EOL
+//   1 -> when LA found token that is EOL
+int new_line = -1;
 
-int calculate_dent(FILE* f, int c){
-    int dent = 0;
-    while(isspace(c)){
-        if(c == '\n'){
-            return dent;
+//global variable do determine if there are more dedent tokens to be generated
+int indents_to_pop = 0; 
+
+//actual line indentation 
+int dent = 0;
+
+
+int calculate_dent(FILE* f, int* c){
+    dent = 0;
+    if(*c == '\n'){
+        return indent_stack_top(dent_stack);
+    }
+    while(isspace(*c)){
+        if(*c == '\n'){
+            dent = 0;
+            *c = getc(f);
         }
         else{
             dent++;
+            *c = getc(f);
         }
-        c = getc(f);
+    }
+    //ignore indentation of comments
+    if(*c == '#'){
+        while(*c != '\n'){
+            *c = getc(f);
+        }
+        *c = getc(f);
+        return indent_stack_top(dent_stack);
+    }
+    if(*c == '"'){
+        ungetc(*c, f);
+        return indent_stack_top(dent_stack);
     }
     return dent;
 }
@@ -32,8 +59,18 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
     if(token->type == TTYPE_STR || token->type == TTYPE_DOCSTR || token->type == TTYPE_ID){
         token->attribute.string = string_copy_data(token_string);
     }
-    string_free(tmp);
-    string_free(token_string);
+    if(token->type == TTYPE_EOL){
+        new_line = 1;
+    }
+    else{
+        new_line = 0;
+    }
+    if(token_string){
+        string_free(token_string);
+    }
+    if(tmp){
+        string_free(tmp);
+    }
     return exit_code;
 }
 
@@ -66,42 +103,82 @@ void hexa_escape(FILE* f, string_t* token_string){
     string_free(&tmp);                                      
 }
 
+int process_dedents(){
+    int pop_indent;     //indentation that will be removed from indent_stack
+    while(dent != indent_stack_top(dent_stack)){
+        pop_indent = indent_stack_top(dent_stack);
+        if((indent_stack_pop(dent_stack)) < 0 || pop_indent < 0){
+            printf("lolololo\n");
+        }
+        if(dent_stack->top == -1){
+            fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
+            return 0;
+        }
+        //after first indent was popped, dedent indentation was found on top of stack(there is no more indents to be popped)
+        if(dent == (indent_stack_top(dent_stack))){
+            indents_to_pop = 0;
+            return 1;
+        }
+        //indentation of dedent is smaller than one or more indents(there is more indents to be popped from stack)
+        if(pop_indent != (indent_stack_top(dent_stack))){
+            indents_to_pop = 1;
+            return 1;
+        }
+    }
+    indents_to_pop = 0;
+    new_line = 0;
+    return 2;
+}
+
 int get_token(FILE* f, token_t* token){
-    int state = 0;
-    int c;
-    string_t* tmp = string_create_init();
     string_t* token_string = string_create_init();
+    int state = 0;
+    int c, ret_code;
+    string_t* tmp = string_create_init();
+
+    if(indents_to_pop){
+        token->type = TTYPE_DEDENT;
+        ret_code = process_dedents();
+        if(ret_code == 1){
+            return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+        }
+        else if(ret_code == 0){
+            indents_to_pop = 0; //len kvoli tomu aby sa to nezacykliklo, odstranit z finalnej verzie
+            return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+        }
+    }
 
     while(1){
         c = getc(f);
-        //indent dedent
-        if(new_line){
-            int dent = calculate_dent(f, c);
-            if(dent > indent_stack_top(dent_stack)){
-                indent_stack_push(dent_stack, dent);
-                token->type = TTYPE_INDENT;
-                ungetc(c, f);
-                new_line = 0;
-                return finish_free_resources(LEX_SUCCES, token, tmp, token_string); 
-            }
-            else if(dent < indent_stack_top(dent_stack)){
-                while(dent != indent_stack_top(dent_stack)){
-                    indent_stack_pop(dent_stack);
-                    if(dent_stack->top == -1){
-                        fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+       
+        switch(state){
+            //default state
+            case 0:
+                 //indent dedent
+                if(new_line == 1){
+                    dent = calculate_dent(f, &c);
+                    if(dent > indent_stack_top(dent_stack)){
+                        ungetc(c, f);
+                        indent_stack_push(dent_stack, dent);
+                        token->type = TTYPE_INDENT;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string); 
+                    }
+                    else if(dent < indent_stack_top(dent_stack)){
+                        ungetc(c, f);
+                        token->type = TTYPE_DEDENT;
+                      //  printf("totalna chujovina1 |%s|\n", token_string->array);
+                      //  printf("totalna chujovina2 |%s|\n", tmp->array);
+                        ret_code = process_dedents();
+                      //  printf("totalna chujovina1 |%s|\n", token_string->array);
+                      //  printf("totalna chujovina2 |%s|\n", tmp->array);
+                        if(ret_code == 1){
+                            return finish_free_resources(LEX_SUCCES, token, NULL, token_string);
+                        }
+                        else if(ret_code == 0){
+                            return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        }
                     }
                 }
-                token->type = TTYPE_DEDENT;
-                new_line = 0;
-                return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
-            }
-            new_line = 0;
-        }
-        switch(state){
-
-            //default state
-            case 0:   
                 switch(c){
                     //comments
                     case '#':
@@ -151,27 +228,30 @@ int get_token(FILE* f, token_t* token){
                         break;
                     case '(':
                         token->type = TTYPE_LTBRAC;
-                        return LEX_SUCCES;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                     case ')':
                         token->type = TTYPE_RTBRAC;
-                        return LEX_SUCCES;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                     case '\'':
                         token->type = TTYPE_STR;
                         state = 8;
                         break;
                     case EOF:
                         token->type = TTYPE_EOF;
-                        return LEX_SUCCES;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                     case ',':
                         token->type = TTYPE_COMMA;
-                        return LEX_SUCCES;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                     case '\n':
-                        new_line = 1;
+                        if(new_line){
+                            state = 0;
+                            break;
+                        }
                         token->type = TTYPE_EOL;
-                        return LEX_SUCCES;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                     case ':':
                         token->type = TTYPE_COLUMN;
-                        return LEX_SUCCES;
+                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                     default:
                         //identifiers
                         if(isalpha(c) || c == '_'){
@@ -193,7 +273,19 @@ int get_token(FILE* f, token_t* token){
                 break;           
             //inline comments
             case 1:
-                if(c == '\n' || c == EOF){
+                if(c == '\n'){
+                    if(new_line == 1){
+                        new_line = 1;
+                    }
+                    else if(new_line == -1){
+                        new_line = -1;
+                    }
+                    else{
+                        ungetc(c, f);
+                    }
+                    state = 0;
+                }
+                if(c == EOF){
                     state = 0;
                     ungetc(c, f);
                 }
@@ -253,7 +345,11 @@ int get_token(FILE* f, token_t* token){
                 }
                 if((strcmp(tmp->array, "\"\"\"")) == 0){
                     state = 0;
-                    token->type = TTYPE_STR;
+                    if(new_line){
+                        string_clear(tmp);
+                        string_clear(token_string);
+                        break;
+                    }
                     return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                 }
                 break;

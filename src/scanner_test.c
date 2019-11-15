@@ -31,14 +31,25 @@ int main(int argc, char const *argv[])
         if(token.type == TTYPE_EOL){
             printf("NEWLINE\n");
         }
-        else if(token.type == TTYPE_STR || token.type == TTYPE_DOCSTR){
-            printf("STRING found |%s|\n", token.attribute.string);
+        else if(token.type == TTYPE_STR || token.type == TTYPE_DOCSTR || token.type == TTYPE_ID){
+            printf("STRING or ID found |%s|\n", token.attribute.string);
         }
         else if(token.type == TTYPE_INDENT){
-            printf("INDEEENT was found\n");
+            printf("INDEEENT \n");
+        }
+        else if(token.type == TTYPE_EOF){
+            printf("EOF\n");
+        }
+        else if(token.type == TTYPE_DOUBLE){
+            printf("NUM %f\n", token.attribute.decimal);
         }
         else if(token.type == TTYPE_DEDENT){
-            printf("DEDEEENT was found\n");
+            if(result){
+                printf("Dedent error!\n");
+            }
+            else{
+                printf("DEDEEENT \n");
+            }
         }
         else if(result){
                 printf("ERROR, actual token\n");
