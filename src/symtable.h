@@ -1,13 +1,7 @@
-/**
- *	@file   symtable.h
- *	@author	Simon Sedlacek, xsedla1h
- *	@date	
- *	@brief  Hlavickovy soubor pro symtable.c
- *	@note	TODO: revidovat funkce, struktury
- */
 
-#ifndef __SYMTABLE_H__
-#define __SYMTABLE_H__
+
+#ifndef _HASHTABLE_H_
+#define _HASHTABLE_H_
 
 #include <string.h>
 #include <stdbool.h>
@@ -16,11 +10,9 @@
 #include <assert.h>
 #include "scanner.h"
 
-#define SYMTABLE_SIZE 1233
 
-/**
- * @brief Reprezentuje typ symbolu.
- */
+#define MAX_HTSIZE 101
+
 typedef enum {
     STYPE_VAR,
     STYPE_FUNC,
@@ -104,65 +96,30 @@ typedef union {
  * @var data Pocet zaznamu vazajicich se k danemu klici.
  * @var next Ukazatel na dalsi polozku seznamu.
  */
-struct symbol {
+typedef struct symbol {
     char *id;
     symbol_type_t type;
     symbol_attributes attributes;
-    int data;
     struct symbol *next;
 } symbol_t;
 
-/**
- * @struct symtable
- * @brief Struktura hashovaci tabulky.
- *
- * @var size     Aktualni pocet zaznamu v tabulce.
- * @var arr_size Pocet radku tabulky.
- * @var array    Pole seznamu se zaznamy.
- */
-typedef struct symtable {
-    size_t size;
-    symbol_t *array[SYMTABLE_SIZE];
-} symtable_t;
 
-/**
- * @struct symtable_iterator
- * @brief Struktura iteratoru pro pruchod tabulkou
- *
- * @var ptr Ukazatel na aktualni polozku v tabulce.
- * @var t   Ukazatel na prochazenou tabulku.
- * @var idx Index urcujici, v kterem seznamu tabulky se polozka nachazi.
- */
-typedef struct symtable_iterator {
-    symbol_t *ptr;
-    const symtable_t *t;
-    unsigned idx;
-} symtable_iterator_t;
+typedef symbol_t *hash_table[MAX_HTSIZE];
 
-/**
- * @brief Hash funkce pro ziskani indexu do tabulky symbolu.
- *
- * @return Vraci hash hodnotu pro zadany klic
- */
-unsigned int symtable_elf_hash(const char *str);
+extern int HTSIZE;
 
-// funkce pro práci s tabulkou:
-void symtable_init(symtable_t *t);
-void symtable_clear(symtable_t *t); // TODO
-void symtable_free(symtable_t *t); // TODO
+/* Hlavičky řešených procedur a funkcí. */
 
-size_t symtable_size(const symtable_t *t); // počet záznamů v tabulce
+int hashCode(char *id);
 
-symtable_iterator_t symtable_lookup_add(symtable_t *t, const char *key); // TODO
-symtable_iterator_t symtable_begin(const symtable_t *t);
-symtable_iterator_t symtable_end(const symtable_t *t);
-symtable_iterator_t symtable_iterator_next(symtable_iterator_t it);
+void symtable_init(hash_table *table);
 
-bool symtable_iterator_valid(symtable_iterator_t it);
-bool symtable_iterator_equal(symtable_iterator_t it1, symtable_iterator_t it2);
+symbol_t *symtable_search(hash_table *table, char *id);
 
-const char *symtable_iterator_get_key(symtable_iterator_t it);
-int symtable_iterator_get_value(symtable_iterator_t it);
-int symtable_iterator_set_value(symtable_iterator_t it, int val);
+void symtable_insert(hash_table *table, char *id, symbol_type_t type, symbol_attributes attributes);
 
-#endif
+void symtable_delete(hash_table *table, char *id);
+
+void symtable_clear_all(hash_table *table);
+
+#endif 
