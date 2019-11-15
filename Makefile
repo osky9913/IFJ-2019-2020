@@ -12,12 +12,9 @@ CFLAGS=-std=c11 -Wall -Wextra -pedantic -g
 TEST_SRC=tests/src
 TEST_BIN=tests/bin/
 
-all: scanner_test test_scanner test_general_stack test_symtable
-	
-scanner_test: src/scanner_test.c src/dynamic_string.c src/scanner.c src/indent_stack.c
-	$(CC) $(CFLAGS) -o $@ src/scanner_test.c src/dynamic_string.c src/scanner.c src/indent_stack.c
+all:  test_scanner test_general_stack test_symtable
 
-test_scanner: src/scanner_test.c src/dynamic_string.c src/scanner.c src/indent_stack.c
+test_scanner: src/dynamic_string.c src/scanner.c src/indent_stack.c $(TEST_SRC)/test_scanner.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^
 
 
@@ -33,8 +30,8 @@ test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 
 
 
-tests: $(TEST_BIN)*
-	for i in $(TEST_BIN)test*;do valgrind ./"$i" ;done
+tests: all
+	./tests.sh
 
 
 
