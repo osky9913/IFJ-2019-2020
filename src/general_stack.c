@@ -1,10 +1,9 @@
 #include "general_stack.h"
-
+#include "errors.h"
 
 stack_general_t *stack_general_init() {
     stack_general_t *stack = (stack_general_t *) malloc(sizeof(struct stack_general));
     if (stack == NULL) {
-        fprintf(stderr, "stack_general alloc failed.\n");
         return NULL;
     }
     stack->top = NULL;
@@ -19,12 +18,14 @@ void *stack_general_top(stack_general_t *stack) {
 }
 
 
-void stack_general_push(stack_general_t *stack, void *data) {
+int stack_general_push(stack_general_t *stack, void *data) {
 
     stack_general_item_t *new_item = (stack_general_item_t *) malloc(sizeof(struct stack_general_item));
     if (new_item == NULL) {
-        fprintf(stderr, " stack_general_push alloc failed.\n");
+        return ALLOC_ERROR;
     }
+
+    new_item->data = data;
 
     if (stack->top == NULL) {
         stack->top = new_item;
@@ -35,7 +36,7 @@ void stack_general_push(stack_general_t *stack, void *data) {
 
     stack->top = new_item;
     new_item->next = temp;
-    return;
+    return SUCCESS;
 
 }
 
@@ -60,4 +61,17 @@ bool stack_empty(stack_general_t *stack) {
     }
 
 
+}
+
+
+int stack_clear(stack_general_t *stack) {
+    if (stack == NULL) {
+        return NULL_PASSED;
+    }
+
+    while (!stack_empty(stack)) {
+        stack_pop(stack);
+    }
+    stack->top = NULL;
+    return SUCCESS;
 }

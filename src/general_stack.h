@@ -21,11 +21,15 @@ stack_general_t *stack_general_init();
 
 void *stack_general_top(stack_general_t *stack);
 
-void stack_general_push(stack_general_t *stack, stack_general_item_t *item);
+int stack_general_push(stack_general_t *stack, void *data);
 
 void stack_pop(stack_general_t *stack);
 
 bool stack_empty(stack_general_t *stack);
+
+int stack_clear(stack_general_t *stack);
+
+
 
 
 #endif
