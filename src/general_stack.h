@@ -1,0 +1,32 @@
+#ifndef STACK_GENERAL_H
+#define STACK_GENERAL_H
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+
+typedef struct stack_general_item {
+    void *data;
+    struct stack_general_item *next;
+} stack_general_item_t;
+
+
+typedef struct stack_general {
+    stack_general_item_t *top;
+} stack_general_t;
+
+
+stack_general_t *stack_general_init();
+
+void *stack_general_top(stack_general_t *stack);
+
+void stack_general_push(stack_general_t *stack, stack_general_item_t *item);
+
+void stack_pop(stack_general_t *stack);
+
+bool stack_empty(stack_general_t *stack);
+
+
+#endif
+
