@@ -1,3 +1,9 @@
+/**
+ *	@file   symtable.h
+ *	@author Simon Sedlacek Martin Osvald , xsedla1h , xosval03
+ *	@date
+ *	@brief Modul implementujici tabulku symbolu.
+ */
 
 
 #ifndef _HASHTABLE_H_
@@ -11,7 +17,8 @@
 #include "scanner.h"
 
 
-#define MAX_HTSIZE 101
+#define SYM_TABLE_SIZE 49157
+
 
 typedef enum {
     STYPE_VAR,
@@ -104,9 +111,9 @@ typedef struct symbol {
 } symbol_t;
 
 
-typedef symbol_t *hash_table[MAX_HTSIZE];
+typedef symbol_t *hash_table[SYM_TABLE_SIZE];
 
-extern int HTSIZE;
+extern int SYMTABLE_SIZE;
 
 /* Hlavičky řešených procedur a funkcí. */
 

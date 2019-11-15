@@ -1,6 +1,6 @@
 /**
  *	@file   symtable.c
- *	@author Simon Sedlacek, xsedla1h
+ *	@author Simon Sedlacek Martin Osvald , xsedla1h , xosval03
  *	@date
  *	@brief Modul implementujici tabulku symbolu.
  *	@note	TODO: revidovat funkce, struktury
@@ -9,7 +9,6 @@
 #include "symtable.h"
 #include <stdio.h>
 
-int HTSIZE = 49157;
 
 
 int hashCode(char *id) {
@@ -17,7 +16,7 @@ int hashCode(char *id) {
     int keylen = strlen(id);
     for (int i = 0; i < keylen; i++)
         retval += id[i];
-    return (retval % HTSIZE);
+    return (retval % SYM_TABLE_SIZE);
 }
 
 
@@ -26,7 +25,7 @@ void symtable_init(hash_table *table) {
         return;
     }
 
-    for (int i = 0; i < HTSIZE; i++) {
+    for (int i = 0; i < SYM_TABLE_SIZE; i++) {
         (*table)[i] = NULL;
     }
 }
@@ -49,7 +48,6 @@ symbol_t *symtable_search(hash_table *table, char *id) {
 }
 
 
-//void symtable_insert ( hash_table* table, tKey key, tData data )
 void symtable_insert(hash_table *table, char *id, symbol_type_t type, symbol_attributes attributes) {
 
     symbol_t *destination = symtable_search(table, id);
@@ -124,7 +122,7 @@ void symtable_clear_all(hash_table *table) {
     }
 
     // inac uvolni kazdy item
-    for (int i = 0; i < HTSIZE; i++) {
+    for (int i = 0; i < SYMTABLE_SIZE; i++) {
         while ((*table)[i] != NULL) {
             symbol_t *first = (*table)[i];
             symbol_t *second = first->next;
@@ -134,3 +132,4 @@ void symtable_clear_all(hash_table *table) {
         }
     }
 }
+

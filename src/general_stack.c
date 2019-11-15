@@ -1,3 +1,11 @@
+/**
+ *	@file   general_stack.c
+ *	@author Martin Osvald , xosval03
+ *	@date
+ *	@brief Modul implementujici stack.
+ */
+
+
 #include "general_stack.h"
 #include "errors.h"
 
