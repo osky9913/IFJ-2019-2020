@@ -1,3 +1,11 @@
+/**
+ *	@file   general_stack.h
+ *	@author Martin Osvald , xosval03
+ *	@date
+ *	@brief hlava implementujici stack.
+ */
+
+
 #ifndef STACK_GENERAL_H
 #define STACK_GENERAL_H
 
@@ -28,8 +36,6 @@ void stack_pop(stack_general_t *stack);
 bool stack_empty(stack_general_t *stack);
 
 int stack_clear(stack_general_t *stack);
-
-
 
 
 #endif

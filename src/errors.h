@@ -1,3 +1,11 @@
+/**
+ *	@file   errors.h
+ *	@author Martin Osvald , xosval03
+ *	@date
+ *	@brief hlava implementujuca chyby.
+ */
+
+
 #ifndef ERRORS_H
 #define ERRORS_H
 
