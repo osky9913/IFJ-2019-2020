@@ -122,7 +122,7 @@ void symtable_clear_all(hash_table *table) {
     }
 
     // inac uvolni kazdy item
-    for (int i = 0; i < SYMTABLE_SIZE; i++) {
+    for (int i = 0; i < SYM_TABLE_SIZE; i++) {
         while ((*table)[i] != NULL) {
             symbol_t *first = (*table)[i];
             symbol_t *second = first->next;
