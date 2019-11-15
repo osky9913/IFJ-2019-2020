@@ -29,7 +29,7 @@ int stack_general_push(stack_general_t *stack, void *data) {
 
     if (stack->top == NULL) {
         stack->top = new_item;
-        return;
+        return SUCCESS;
     }
 
     stack_general_item_t *temp = stack->top;
