@@ -20,7 +20,7 @@ indent_stack_t* indent_stack_init()
     	return NULL;
     }
     s->array[0] = 0;
-	s->top = 1;
+    s->top = 0;
 	s->size = STACK_DEFAULT_LEN;
 	return s;
 }
@@ -34,7 +34,7 @@ int indent_stack_top (indent_stack_t* s){
 	if(indent_stackEmpty(s)){
 		return -1;
 	}
-	return s->array[s->top-1];
+    return s->array[s->top];
 }
 
 int indent_stack_pop (indent_stack_t* s ) {
@@ -42,23 +42,24 @@ int indent_stack_pop (indent_stack_t* s ) {
 	if(indent_stackEmpty(s))
 		return -1;
 
-	s->array[s->top--] = '\0';
+    s->array[s->top--] = 0;
 	return 0;
 }
 
 int indent_stack_push (indent_stack_t* s, int c) {
 
-    if(s->top+2 >= s->size){
-        s->size += 2;
-        int *tmp = realloc(s->array, s->size);
+    if (s->top + 1 >= s->size) {
+
+        int *tmp = realloc(s->array, s->size * 2);
         if(!tmp){
         	fprintf(stderr, "Indent stack error: Could not push another item onto the indent_stack!\n");
         	return STACK_ALLOC_ERROR;
         }
+        s->size *= 2;
         s->array = tmp;
     }
 
-	s->array[s->top++] = c;
+    s->array[++(s->top)] = c;
 	return 0;
 }
 
