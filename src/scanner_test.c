@@ -40,6 +40,9 @@ int main(int argc, char const *argv[])
         else if(token.type == TTYPE_EOF){
             printf("EOF\n");
         }
+        else if(token.type == TTYPE_DOUBLE){
+            printf("NUM %f\n", token.attribute.decimal);
+        }
         else if(token.type == TTYPE_DEDENT){
             if(result){
                 printf("Dedent error!\n");

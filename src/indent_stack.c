@@ -40,7 +40,7 @@ int indent_stack_top (indent_stack_t* s){
 int indent_stack_pop (indent_stack_t* s ) {
 
 	if(indent_stackEmpty(s))
-		return STACK_ERROR;
+		return -1;
 
 	s->array[s->top--] = '\0';
 	return 0;
