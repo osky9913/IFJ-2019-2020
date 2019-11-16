@@ -9,7 +9,8 @@
 #define R '>' //reduce by rule
 #define X '0' //expresion error 
 #define M '$' //money$$$$$
-
+#define TRUE 1
+#define FALSE 0
 
 
 /**
