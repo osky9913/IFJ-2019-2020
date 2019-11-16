@@ -4,3 +4,7 @@
  *	@date
  *	@brief Parser prekladace.
  */
+
+
+int recursive_dedent() {
+}
