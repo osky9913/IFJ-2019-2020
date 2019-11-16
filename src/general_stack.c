@@ -20,22 +20,45 @@ stack_general_t *stack_general_init() {
 }
 
 
-void *stack_general_top(stack_general_t *stack) {
+stack_general_item_t *stack_general_top(stack_general_t *stack) {
+    return stack->top;
 
-    return (void *) stack->top;
 }
+
+int stack_general_push_int(stack_general_t *stack, int data) {
+    int *temp = (int *) malloc(sizeof(int));
+    if (temp == NULL) {
+        return ALLOC_ERROR;
+    }
+    *temp = data;
+    return stack_general_push(stack, (void *) temp);
+}
+
+int stack_general_push_char(stack_general_t *stack, char data) {
+    char *temp = (char *) malloc(sizeof(char));
+    if (temp == NULL) {
+        return ALLOC_ERROR;
+    }
+    *temp = data;
+    return stack_general_push(stack, (void *) temp);
+}
+
+
+
+
 
 
 int stack_general_push(stack_general_t *stack, void *data) {
 
-    stack_general_item_t *new_item = (stack_general_item_t *) malloc(sizeof(struct stack_general_item));
+    stack_general_item_t *new_item = malloc(sizeof(struct stack_general_item));
     if (new_item == NULL) {
         return ALLOC_ERROR;
     }
-
+    new_item->next = NULL;
     new_item->data = data;
 
     if (stack->top == NULL) {
+        printf("PUSH TOP.\n");
         stack->top = new_item;
         return SUCCESS;
     }
@@ -55,6 +78,7 @@ void stack_pop(stack_general_t *stack) {
 
     stack_general_item_t *temp = stack->top;
     stack->top = temp->next;
+    free(temp->data);
     free(temp);
     temp = NULL;
 
@@ -82,4 +106,14 @@ int stack_clear(stack_general_t *stack) {
     }
     stack->top = NULL;
     return SUCCESS;
+}
+
+
+int stack_free(stack_general_t *stack) {
+    stack_clear(stack);
+    free(stack);
+    stack = NULL;
+    return SUCCESS;
+
+
 }
