@@ -54,9 +54,12 @@ int get_prec_table_symbol(FILE* f){
     }
 }
 
-char get_prec_table_rule(int i, int j){
-    
-
+char get_prec_table_rule(stack_general_t* PAStack, int newSymbol){
+    stack_general_t* top = stack_general_top(PAStack);
+    int stackTerm =  *(int*)top->data;
+    if(stackTerm == E){
+        term = *(int*)top->next->data;
+    }
 
 
 }
@@ -76,7 +79,7 @@ int placeholder(FILE* f){
         //stack push placeholder
         return 2;//gimme more
     }
-    else if(rule == E){
+    else if(rule == X){
         printf("FUCK YOU TABLE RULE ERROR\n");
         return 3;//its fucked up
     }

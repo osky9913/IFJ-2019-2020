@@ -4,7 +4,7 @@
 
 #define P '<' // push to stack
 #define R '>' //reduce by rule
-#define E '0' //expresion error 
+#define X '0' //expresion error 
 #define M '$' //money$$$$$
 
 
@@ -14,11 +14,11 @@
 const char prec_table[7][7] = {
     {R, P, P, R, P, R, R},
     {R, R, P, R, P, R, R},
-    {P, P, P, P, P, P, E},
-    {R, R, E, R, E, R, R},
-    {R, R, E, R, E, R, R},
-    {P, P, P, R, P, E, R},
-    {P, P, P, E, P, P, M}
+    {P, P, P, P, P, P, X},
+    {R, R, X, R, X, R, R},
+    {R, R, X, R, X, R, R},
+    {P, P, P, R, P, X, R},
+    {P, P, P, X, P, P, M}
 };
 
 
@@ -52,8 +52,7 @@ typedef enum {
     L_BRACKET,      //(
     R_BRACKET,      //)
     REL_OP,         //<,>,<=,>=,==,!=
-    //should be here "E"?
-    E,
+    E,                //should be here "E"?
     B,
 
 } prec_analysis_symbol_t;
