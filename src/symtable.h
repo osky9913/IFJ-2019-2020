@@ -14,11 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-//#include "scanner.h"
 
-
-//#define  SYM_TABLE_SIZE 49157 
-#define SYM_TABLE_SIZE 19
+#define  SYM_TABLE_SIZE 49157 
 
 
 typedef enum {
@@ -112,21 +109,21 @@ typedef struct symbol {
 } symbol_t;
 
 
-typedef symbol_t *hash_table[SYM_TABLE_SIZE];
+typedef symbol_t *symtable_t[SYM_TABLE_SIZE];
 
 
 /* Hlavičky řešených procedur a funkcí. */
 
 int hashCode(char *id);
 
-void symtable_init(hash_table *table);
+void symtable_init(symtable_t *table);
 
-symbol_t *symtable_search(hash_table *table, char *id);
+symbol_t *symtable_search(symtable_t *table, char *id);
 
-void symtable_insert(hash_table *table, char *id, symbol_type_t type, symbol_attributes attributes);
+void symtable_insert(symtable_t *table, char *id, symbol_type_t type, symbol_attributes attributes);
 
-void symtable_delete(hash_table *table, char *id);
+void symtable_delete(symtable_t *table, char *id);
 
-void symtable_clear_all(hash_table *table);
+void symtable_clear_all(symtable_t *table);
 
 #endif 
