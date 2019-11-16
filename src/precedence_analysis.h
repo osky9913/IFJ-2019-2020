@@ -62,6 +62,7 @@ typedef enum {
  * @param f [Source file]
  * @return [returns precedence table symbol on succes, else -1]
  */
-int get_prec_table_symbol(FILE*f);
+int get_prec_table_symbol(token_t newToken);
 
+int seman_analysis_placeholder();
 #endif

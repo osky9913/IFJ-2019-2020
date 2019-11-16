@@ -5,14 +5,7 @@
 
 
 
-int get_prec_table_symbol(FILE* f){
-    token_t newToken ;
-    int lex_analysis = get_token(f, &newToken);
-    if(lex_analysis == 1){
-        printf("FUCK YOU TOKEN ERROR");
-        return -1;
-    }
-
+int get_prec_table_symbol(token_t newToken){
     switch(newToken.type){
         case TTYPE_ID:
         case TTYPE_INT:
@@ -54,27 +47,28 @@ int get_prec_table_symbol(FILE* f){
     }
 }
 
+
 char get_prec_table_rule(stack_general_t* PAStack, int newSymbol){
-    stack_general_t* top = stack_general_top(PAStack);
+    stack_general_item_t* top = stack_general_top(PAStack);
     int stackTerm =  *(int*)top->data;
     if(stackTerm == E){
-        term = *(int*)top->next->data;
+        stackTerm = *(int*)top->next->data;
     }
-
 
 }
 
 
-
-
-int placeholder(FILE* f){
-    int newSymbol = get_prec_table_symbol(f);
+int placeholder( stack_general_t* PAStack, token_t newToken){
+    //converting token to symbol for from precedence table
+    int newSymbol = get_prec_table_symbol(newToken);
     if(newSymbol == -1){
         printf("TABLE SYMBOL ERROR PLACEHOLDER");
     }
-    //precedence analysis stack of symbols
-    stack_general_t* PAStack = stack_general_init();
+
+    //precedence table rules for two terminals, one on stack on as input(newSymbol)
     char rule = get_prec_table_rule(PAStack, newSymbol);
+    
+    //rule handling
     if(rule == P){
         //stack push placeholder
         return 2;//gimme more
@@ -91,4 +85,31 @@ int placeholder(FILE* f){
         reduce_rule();
         return 0;//its ok
     }
+}
+
+
+int psa(FILE* f){
+    //declaration of needed data structures
+    stack_general_t* PAStack = stack_general_init();//precedence analysis stack of symbols
+    token_t newToken;
+
+    int lex_analysis = get_token(f, &newToken);
+    //if scanner return 1 as error
+    if(lex_analysis == 1){
+        printf("FUCK YOU TOKEN ERROR");
+        return -1;
+    }
+
+    while(newToken.type != TTYPE_COLUMN && newToken.type != TTYPE_EOL){
+        int placeholder(PAStack, newToken);
+        int seman_analysis_placeholder();
+        
+        //getting new token and checking for error
+        lex_analysis = get_token(f, &newToken);
+        if(lex_analysis == 1){
+            printf("FUCK YOU TOKEN ERROR");
+            return -1;
+        }
+    }
+
 }
