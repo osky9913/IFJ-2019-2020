@@ -1,6 +1,9 @@
 #ifndef PRECEDENCE_ANALYSIS
 #define PRECEDENCE_ANALYSIS
 
+#include "scanner.h"
+#include "symtable.h"
+#include "general_stack.h"
 
 #define P '<' // push to stack
 #define R '>' //reduce by rule
@@ -8,22 +11,9 @@
 #define M '$' //money$$$$$
 
 
-/**
- * @brief Precedence analysis table with operations with symbols
- */
-const char PREC_TABLE[7][7] = {
-    {R, P, P, R, P, R, R},
-    {R, R, P, R, P, R, R},
-    {P, P, P, P, P, P, X},
-    {R, R, X, R, X, R, R},
-    {R, R, X, R, X, R, R},
-    {P, P, P, R, P, X, R},
-    {P, P, P, X, P, P, M}
-};
-
 
 /**
- * @brief This enum represents type of rules for precedence analysis 
+ * @brief [This enum represents type of rules for precedence analysis] 
  */
 typedef enum {
     RULE_MUL,       //E->E*E
@@ -42,16 +32,16 @@ typedef enum {
 } prec_analysis_rule_t;
 
 /**
- * @brief This enum represents type of symbol of precedence analysis table
+ * @brief [This enum represents type of symbol of precedence analysis table]
  */
 typedef enum {
-    ID,             //i
-    DOLLAR,         //$
-    MUL_DIV,        //*,/,//
     PLUS_MINUS,     //+,-
+    MUL_DIV,        //*,/,//
     L_BRACKET,      //(
     R_BRACKET,      //)
+    ID,             //i
     REL_OP,         //<,>,<=,>=,==,!=
+    DOLLAR,         //$
     E,                //should be here "E"?
     B,
 
