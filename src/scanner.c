@@ -22,21 +22,22 @@ int new_line = -1;
 int indents_to_pop = 0; 
 
 //actual line indentation 
-int dent = 0;
+int indent = 0;
 
 
 int calculate_dent(FILE* f, int* c){
-    dent = 0;
+    indent = 0;
+ //   printf("CHARRR v CALC |%c|\n", *c);
     if(*c == '\n'){
         return indent_stack_top(dent_stack);
     }
     while(isspace(*c)){
         if(*c == '\n'){
-            dent = 0;
+            indent = 0;
             *c = getc(f);
         }
         else{
-            dent++;
+            indent++;
             *c = getc(f);
         }
     }
@@ -52,7 +53,7 @@ int calculate_dent(FILE* f, int* c){
         ungetc(*c, f);
         return indent_stack_top(dent_stack);
     }
-    return dent;
+    return indent;
 }
 
 int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t* token_string){
@@ -65,9 +66,8 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
         new_line = 0;
     }
     string_free(token_string);
-    if(tmp){
-        string_free(tmp);
-    }
+    string_free(tmp);
+
     return exit_code;
 }
 
@@ -102,17 +102,20 @@ void hexa_escape(FILE* f, string_t* token_string){
 
 int process_dedents(){
     int pop_indent;     //indentation that will be removed from indent_stack
-    while(dent != indent_stack_top(dent_stack)){
+    while(indent != indent_stack_top(dent_stack)){
         pop_indent = indent_stack_top(dent_stack);
-        if((indent_stack_pop(dent_stack)) < 0 || pop_indent < 0){
-            printf("lolololo\n");
-        }
-        if(dent_stack->top == -1){
+       // indent_stack_print(dent_stack, indent, pop_indent);
+        indent_stack_pop(dent_stack);
+
+
+     //   printf("PO POPE\n");
+     //   indent_stack_print(dent_stack, indent, pop_indent);
+        if(indent_stack_empty(dent_stack)){
             fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
             return 0;
         }
         //after first indent was popped, dedent indentation was found on top of stack(there is no more indents to be popped)
-        if(dent == (indent_stack_top(dent_stack))){
+        if(indent == (indent_stack_top(dent_stack))){
             indents_to_pop = 0;
             return 1;
         }
@@ -153,21 +156,17 @@ int get_token(FILE* f, token_t* token){
             case 0:
                  //indent dedent
                 if(new_line == 1){
-                    dent = calculate_dent(f, &c);
-                    if(dent > indent_stack_top(dent_stack)){
+                    indent = calculate_dent(f, &c);
+                    if(indent > indent_stack_top(dent_stack)){
                         ungetc(c, f);
-                        indent_stack_push(dent_stack, dent);
+                        indent_stack_push(dent_stack, indent);
                         token->type = TTYPE_INDENT;
                         return finish_free_resources(LEX_SUCCES, token, tmp, token_string); 
                     }
-                    else if(dent < indent_stack_top(dent_stack)){
+                    else if(indent < indent_stack_top(dent_stack)){
                         ungetc(c, f);
                         token->type = TTYPE_DEDENT;
-                      //  printf("totalna chujovina1 |%s|\n", token_string->array);
-                      //  printf("totalna chujovina2 |%s|\n", tmp->array);
                         ret_code = process_dedents();
-                      //  printf("totalna chujovina1 |%s|\n", token_string->array);
-                      //  printf("totalna chujovina2 |%s|\n", tmp->array);
                         if(ret_code == 1){
                             return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                         }

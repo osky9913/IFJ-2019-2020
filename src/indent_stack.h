@@ -14,11 +14,14 @@
 #define STACK_ERROR 202
 
 /* Zásobník integerov*/
-typedef struct {
+typedef struct indent_stack{
 	int *array;                            
 	int top; 								
 	int size;                               
 } indent_stack_t;
+
+void indent_stack_print(indent_stack_t* s, int dent, int pop_indent);
+
 
 /**
  * [Allocates memory for indent_stack structure, initializes it]
@@ -31,7 +34,7 @@ indent_stack_t* indent_stack_init();
  * @param  s [indent_stack]
  * @return   [returns 1 if indent_stack is empty, else 0]
  */
-int indent_stackEmpty ( indent_stack_t* s );
+int indent_stack_empty ( indent_stack_t* s );
 
 /**
  * [Looks whats on top of the indent_stack and returns it]

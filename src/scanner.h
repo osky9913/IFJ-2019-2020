@@ -16,7 +16,7 @@ indent_stack_t* dent_stack;
 
 extern int new_line;
 extern int indents_to_pop;
-extern int dent;
+extern int indent;
 
 /**
  * @brief This enum represents types of processed token.
