@@ -45,8 +45,8 @@ int get_prec_table_symbol(token_t newToken){
         case TTYPE_DIV:
         case TTYPE_IDIV:
             return MUL_DIV;
-        //not sure
-        case TTYPE_EOL:
+
+        case TTYPE_DOLLAR:
             return DOLLAR;
 
         default:
@@ -58,7 +58,7 @@ int get_prec_table_symbol(token_t newToken){
 char get_prec_table_rule(stack_general_t* PAStack, int newSymbol){
     stack_general_item_t* top = stack_general_top(PAStack);
     int stackTerm =  *(int*)top->data;
-    if(stackTerm == E){
+    if(stackTerm == E || stackTerm == B){
         stackTerm = *(int*)top->next->data;
     }
     else if(stackTerm == newSymbol){
@@ -244,6 +244,14 @@ int psa(FILE* f){
         }
     }
 
+    token_t lastToken;
+    lastToken.type = TTYPE_DOLLAR;
+    int psaCheck = apply_psa_rule(PAStack, lastToken);
+    if(psaCheck) {
+        printf("INCORRECT SYNTAX\n");
+        stack_free(PAStack);
+        return 1;
+    }
     stack_free(PAStack);
     return 0;
 
