@@ -1,0 +1,1623 @@
+==5645== Memcheck, a memory error detector
+==5645== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5645== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5645== Command: ./tests/bin/test_general_stack
+==5645== 
+==5645== 
+==5645== HEAP SUMMARY:
+==5645==     in use at exit: 0 bytes in 0 blocks
+==5645==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==5645== 
+==5645== All heap blocks were freed -- no leaks are possible
+==5645== 
+==5645== For counts of detected and suppressed errors, rerun with: -v
+==5645== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5646== Memcheck, a memory error detector
+==5646== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5646== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5646== Command: ./tests/bin/test_scanner examples/docstr1.in
+==5646== 
+==5646== 
+==5646== HEAP SUMMARY:
+==5646==     in use at exit: 0 bytes in 0 blocks
+==5646==   total heap usage: 8 allocs, 8 frees, 4,776 bytes allocated
+==5646== 
+==5646== All heap blocks were freed -- no leaks are possible
+==5646== 
+==5646== For counts of detected and suppressed errors, rerun with: -v
+==5646== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5653== Memcheck, a memory error detector
+==5653== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5653== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5653== Command: ./tests/bin/test_scanner examples/docstr1.src
+==5653== 
+SUCCES, actual token
+STRING or ID found |vypisOseknuty|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |oseknuty|
+SUCCES, actual token
+STRING or ID found ||
+NEWLINE
+STRING or ID found |i|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |delka|
+SUCCES, actual token
+STRING or ID found |len|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+STRING or ID found |delka|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |n|
+SUCCES, actual token
+STRING or ID found |delka|
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |si|
+SUCCES, actual token
+STRING or ID found |substr|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |oseknuty|
+SUCCES, actual token
+STRING or ID found |oseknuty|
+SUCCES, actual token
+STRING or ID found |si|
+NEWLINE
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |oseknuty|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |vypisOseknuty|
+SUCCES, actual token
+STRING or ID found |a = inputi()
+if a < 0.0:  # pred porovnanim probehne implicitni konverze int na float
+  print('Faktorial nelze spocitat')
+else:
+  vysl = factorial(a)
+  print('Vysledek je:', vysl)|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+==5653== 
+==5653== HEAP SUMMARY:
+==5653==     in use at exit: 0 bytes in 0 blocks
+==5653==   total heap usage: 467 allocs, 467 frees, 17,946 bytes allocated
+==5653== 
+==5653== All heap blocks were freed -- no leaks are possible
+==5653== 
+==5653== For counts of detected and suppressed errors, rerun with: -v
+==5653== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5656== Memcheck, a memory error detector
+==5656== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5656== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5656== Command: ./tests/bin/test_scanner examples/err_indentation1.err
+==5656== 
+STRING or ID found |Chyba|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |neocekavana|
+STRING or ID found |zmena|
+STRING or ID found |urovne|
+STRING or ID found |odsazeni|
+NEWLINE
+==5656== 
+==5656== HEAP SUMMARY:
+==5656==     in use at exit: 0 bytes in 0 blocks
+==5656==   total heap usage: 46 allocs, 46 frees, 9,488 bytes allocated
+==5656== 
+==5656== All heap blocks were freed -- no leaks are possible
+==5656== 
+==5656== For counts of detected and suppressed errors, rerun with: -v
+==5656== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5657== Memcheck, a memory error detector
+==5657== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5657== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5657== Command: ./tests/bin/test_scanner examples/err_indentation1.in
+==5657== 
+==5657== 
+==5657== HEAP SUMMARY:
+==5657==     in use at exit: 0 bytes in 0 blocks
+==5657==   total heap usage: 8 allocs, 8 frees, 4,776 bytes allocated
+==5657== 
+==5657== All heap blocks were freed -- no leaks are possible
+==5657== 
+==5657== For counts of detected and suppressed errors, rerun with: -v
+==5657== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5658== Memcheck, a memory error detector
+==5658== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5658== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5658== Command: ./tests/bin/test_scanner examples/err_indentation1.src
+==5658== 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |ahoj|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |svete|
+SUCCES, actual token
+==5658== 
+==5658== HEAP SUMMARY:
+==5658==     in use at exit: 0 bytes in 0 blocks
+==5658==   total heap usage: 53 allocs, 53 frees, 9,615 bytes allocated
+==5658== 
+==5658== All heap blocks were freed -- no leaks are possible
+==5658== 
+==5658== For counts of detected and suppressed errors, rerun with: -v
+==5658== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5659== Memcheck, a memory error detector
+==5659== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5659== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5659== Command: ./tests/bin/test_scanner examples/err_indentation2.err
+==5659== 
+STRING or ID found |Chyba|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |nevalidni|
+STRING or ID found |odsazeni|
+==5659== 
+==5659== HEAP SUMMARY:
+==5659==     in use at exit: 0 bytes in 0 blocks
+==5659==   total heap usage: 32 allocs, 32 frees, 9,257 bytes allocated
+==5659== 
+==5659== All heap blocks were freed -- no leaks are possible
+==5659== 
+==5659== For counts of detected and suppressed errors, rerun with: -v
+==5659== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5660== Memcheck, a memory error detector
+==5660== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5660== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5660== Command: ./tests/bin/test_scanner examples/err_indentation2.in
+==5660== 
+==5660== 
+==5660== HEAP SUMMARY:
+==5660==     in use at exit: 0 bytes in 0 blocks
+==5660==   total heap usage: 8 allocs, 8 frees, 4,776 bytes allocated
+==5660== 
+==5660== All heap blocks were freed -- no leaks are possible
+==5660== 
+==5660== For counts of detected and suppressed errors, rerun with: -v
+==5660== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5661== Memcheck, a memory error detector
+==5661== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5661== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5661== Command: ./tests/bin/test_scanner examples/err_indentation2.src
+==5661== 
+Indentation error: Indentation in commands sequence was not correct!
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |fun|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |test|
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+Dedent error!
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |chyba|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+==5661== 
+==5661== HEAP SUMMARY:
+==5661==     in use at exit: 0 bytes in 0 blocks
+==5661==   total heap usage: 230 allocs, 230 frees, 12,787 bytes allocated
+==5661== 
+==5661== All heap blocks were freed -- no leaks are possible
+==5661== 
+==5661== For counts of detected and suppressed errors, rerun with: -v
+==5661== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5662== Memcheck, a memory error detector
+==5662== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5662== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5662== Command: ./tests/bin/test_scanner examples/err_indentation3.err
+==5662== 
+STRING or ID found |Chyba|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |neocekavana|
+STRING or ID found |zmena|
+STRING or ID found |urovne|
+STRING or ID found |odsazeni|
+NEWLINE
+==5662== 
+==5662== HEAP SUMMARY:
+==5662==     in use at exit: 0 bytes in 0 blocks
+==5662==   total heap usage: 46 allocs, 46 frees, 9,488 bytes allocated
+==5662== 
+==5662== All heap blocks were freed -- no leaks are possible
+==5662== 
+==5662== For counts of detected and suppressed errors, rerun with: -v
+==5662== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5663== Memcheck, a memory error detector
+==5663== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5663== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5663== Command: ./tests/bin/test_scanner examples/err_indentation3.in
+==5663== 
+==5663== 
+==5663== HEAP SUMMARY:
+==5663==     in use at exit: 0 bytes in 0 blocks
+==5663==   total heap usage: 8 allocs, 8 frees, 4,776 bytes allocated
+==5663== 
+==5663== All heap blocks were freed -- no leaks are possible
+==5663== 
+==5663== For counts of detected and suppressed errors, rerun with: -v
+==5663== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5664== Memcheck, a memory error detector
+==5664== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5664== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5664== Command: ./tests/bin/test_scanner examples/err_indentation3.src
+==5664== 
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |spatne|
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |sem to nedojde|
+SUCCES, actual token
+==5664== 
+==5664== HEAP SUMMARY:
+==5664==     in use at exit: 0 bytes in 0 blocks
+==5664==   total heap usage: 89 allocs, 89 frees, 10,274 bytes allocated
+==5664== 
+==5664== All heap blocks were freed -- no leaks are possible
+==5664== 
+==5664== For counts of detected and suppressed errors, rerun with: -v
+==5664== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5665== Memcheck, a memory error detector
+==5665== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5665== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5665== Command: ./tests/bin/test_scanner examples/err_localglobal.err
+==5665== 
+STRING or ID found |Chyba|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |K|
+STRING or ID found |globalni|
+STRING or ID found |promenne|
+STRING or ID found |nelze|
+STRING or ID found |pristoupit|
+SUCCES, actual token
+STRING or ID found |kdyz|
+STRING or ID found |je|
+STRING or ID found |ve|
+STRING or ID found |funkci|
+STRING or ID found |vyuzita|
+STRING or ID found |stejnojmenna|
+STRING or ID found |lokalni|
+STRING or ID found |promenna|
+==5665== 
+==5665== HEAP SUMMARY:
+==5665==     in use at exit: 0 bytes in 0 blocks
+==5665==   total heap usage: 91 allocs, 91 frees, 10,195 bytes allocated
+==5665== 
+==5665== All heap blocks were freed -- no leaks are possible
+==5665== 
+==5665== For counts of detected and suppressed errors, rerun with: -v
+==5665== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5666== Memcheck, a memory error detector
+==5666== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5666== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5666== Command: ./tests/bin/test_scanner examples/err_localglobal.in
+==5666== 
+==5666== 
+==5666== HEAP SUMMARY:
+==5666==     in use at exit: 0 bytes in 0 blocks
+==5666==   total heap usage: 8 allocs, 8 frees, 4,776 bytes allocated
+==5666== 
+==5666== All heap blocks were freed -- no leaks are possible
+==5666== 
+==5666== For counts of detected and suppressed errors, rerun with: -v
+==5666== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5667== Memcheck, a memory error detector
+==5667== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5667== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5667== Command: ./tests/bin/test_scanner examples/err_localglobal.src
+==5667== 
+STRING or ID found |a|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |f|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |g|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |a|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |a|
+NEWLINE
+DEDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |f|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |g|
+SUCCES, actual token
+SUCCES, actual token
+==5667== 
+==5667== HEAP SUMMARY:
+==5667==     in use at exit: 0 bytes in 0 blocks
+==5667==   total heap usage: 218 allocs, 218 frees, 12,438 bytes allocated
+==5667== 
+==5667== All heap blocks were freed -- no leaks are possible
+==5667== 
+==5667== For counts of detected and suppressed errors, rerun with: -v
+==5667== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5668== Memcheck, a memory error detector
+==5668== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5668== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5668== Command: ./tests/bin/test_scanner examples/example1.in
+==5668== 
+SUCCES, actual token
+NEWLINE
+==5668== 
+==5668== HEAP SUMMARY:
+==5668==     in use at exit: 0 bytes in 0 blocks
+==5668==   total heap usage: 17 allocs, 17 frees, 9,016 bytes allocated
+==5668== 
+==5668== All heap blocks were freed -- no leaks are possible
+==5668== 
+==5668== For counts of detected and suppressed errors, rerun with: -v
+==5668== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5669== Memcheck, a memory error detector
+==5669== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5669== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5669== Command: ./tests/bin/test_scanner examples/example1.src
+==5669== 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Zadejte cislo pro vypocet faktorialu: |
+SUCCES, actual token
+NEWLINE
+STRING or ID found |a|
+SUCCES, actual token
+STRING or ID found |inputi|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |
+Faktorial nelze spocitat
+|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |vysl|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |vysl|
+SUCCES, actual token
+STRING or ID found |vysl|
+SUCCES, actual token
+STRING or ID found |a|
+NEWLINE
+STRING or ID found |a|
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Vysledek je:|
+SUCCES, actual token
+STRING or ID found |vysl|
+SUCCES, actual token
+STRING or ID found |
+|
+SUCCES, actual token
+==5669== 
+==5669== HEAP SUMMARY:
+==5669==     in use at exit: 0 bytes in 0 blocks
+==5669==   total heap usage: 269 allocs, 269 frees, 13,410 bytes allocated
+==5669== 
+==5669== All heap blocks were freed -- no leaks are possible
+==5669== 
+==5669== For counts of detected and suppressed errors, rerun with: -v
+==5669== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5670== Memcheck, a memory error detector
+==5670== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5670== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5670== Command: ./tests/bin/test_scanner examples/example2.in
+==5670== 
+SUCCES, actual token
+NEWLINE
+==5670== 
+==5670== HEAP SUMMARY:
+==5670==     in use at exit: 0 bytes in 0 blocks
+==5670==   total heap usage: 17 allocs, 17 frees, 9,016 bytes allocated
+==5670== 
+==5670== All heap blocks were freed -- no leaks are possible
+==5670== 
+==5670== For counts of detected and suppressed errors, rerun with: -v
+==5670== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5671== Memcheck, a memory error detector
+==5671== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5671== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5671== Command: ./tests/bin/test_scanner examples/example2.src
+==5671== 
+SUCCES, actual token
+STRING or ID found |factorial|
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |result|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |decremented_n|
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |temp_result|
+SUCCES, actual token
+STRING or ID found |factorial|
+SUCCES, actual token
+STRING or ID found |decremented_n|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |result|
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+STRING or ID found |temp_result|
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |result|
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Zadejte cislo pro vypocet faktorialu: |
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+STRING or ID found |a|
+SUCCES, actual token
+STRING or ID found |inputi|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+NUM 0.000000
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Faktorial nelze spocitat|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |vysl|
+SUCCES, actual token
+STRING or ID found |factorial|
+SUCCES, actual token
+STRING or ID found |a|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Vysledek je:|
+SUCCES, actual token
+STRING or ID found |vysl|
+SUCCES, actual token
+==5671== 
+==5671== HEAP SUMMARY:
+==5671==     in use at exit: 0 bytes in 0 blocks
+==5671==   total heap usage: 401 allocs, 401 frees, 15,733 bytes allocated
+==5671== 
+==5671== All heap blocks were freed -- no leaks are possible
+==5671== 
+==5671== For counts of detected and suppressed errors, rerun with: -v
+==5671== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5672== Memcheck, a memory error detector
+==5672== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5672== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5672== Command: ./tests/bin/test_scanner examples/example3.in
+==5672== 
+STRING or ID found |cbdefhga|
+NEWLINE
+STRING or ID found |abcdefgh|
+NEWLINE
+==5672== 
+==5672== HEAP SUMMARY:
+==5672==     in use at exit: 0 bytes in 0 blocks
+==5672==   total heap usage: 27 allocs, 27 frees, 9,178 bytes allocated
+==5672== 
+==5672== All heap blocks were freed -- no leaks are possible
+==5672== 
+==5672== For counts of detected and suppressed errors, rerun with: -v
+==5672== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5673== Memcheck, a memory error detector
+==5673== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5673== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5673== Command: ./tests/bin/test_scanner examples/example3.src
+==5673== 
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |Toto je nejaky text|
+NEWLINE
+STRING or ID found |s2|
+SUCCES, actual token
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |, ktery jeste trochu obohatime|
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |
+|
+SUCCES, actual token
+STRING or ID found |s2|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |s1len|
+SUCCES, actual token
+STRING or ID found |len|
+SUCCES, actual token
+STRING or ID found |s1|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |s1len|
+SUCCES, actual token
+STRING or ID found |s1len|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |substr|
+SUCCES, actual token
+STRING or ID found |s2|
+SUCCES, actual token
+STRING or ID found |s1len|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |s1len|
+SUCCES, actual token
+STRING or ID found |s1len|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |4 znaky od |
+SUCCES, actual token
+STRING or ID found |s1len|
+SUCCES, actual token
+STRING or ID found |. znaku v "|
+SUCCES, actual token
+STRING or ID found |s2|
+SUCCES, actual token
+STRING or ID found |":|
+SUCCES, actual token
+STRING or ID found |s1|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Zadejte serazenou posloupnost vsech malych pismen a-h, |
+SUCCES, actual token
+NEWLINE
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |pricemz se pismena nesmeji v posloupnosti opakovat: |
+SUCCES, actual token
+NEWLINE
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |inputs|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |s1|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |abcdefgh|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Spatne zadana posloupnost, zkuste znovu: |
+SUCCES, actual token
+NEWLINE
+STRING or ID found |s1|
+SUCCES, actual token
+STRING or ID found |inputs|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+==5673== 
+==5673== HEAP SUMMARY:
+==5673==     in use at exit: 0 bytes in 0 blocks
+==5673==   total heap usage: 507 allocs, 507 frees, 17,875 bytes allocated
+==5673== 
+==5673== All heap blocks were freed -- no leaks are possible
+==5673== 
+==5673== For counts of detected and suppressed errors, rerun with: -v
+==5673== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5674== Memcheck, a memory error detector
+==5674== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5674== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5674== Command: ./tests/bin/test_scanner examples/examples.sh
+==5674== 
+Lexical analysis error : Unknown operator!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error : Unknown operator!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : Unknown operator!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error : Unknown operator!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error : Unknown operator!
+STRING or ID found |COMPILER|
+ERROR, actual token
+STRING or ID found |cat|
+SUCCES, actual token
+STRING or ID found |ifj19|
+STRING or ID found |py|
+STRING or ID found ||
+NEWLINE
+STRING or ID found |INTERPRETER|
+ERROR, actual token
+STRING or ID found |python3|
+STRING or ID found ||
+NEWLINE
+STRING or ID found |for|
+STRING or ID found |i|
+STRING or ID found |in|
+ERROR, actual token
+STRING or ID found |src|
+STRING or ID found |do|
+NEWLINE
+INDEEENT 
+STRING or ID found |IN|
+ERROR, actual token
+STRING or ID found |echo|
+STRING or ID found |i|
+STRING or ID found |sed|
+STRING or ID found |s/\(.*\)\.src/\1.in/g|
+NEWLINE
+STRING or ID found |OUT|
+ERROR, actual token
+STRING or ID found |echo|
+STRING or ID found |i|
+STRING or ID found |sed|
+STRING or ID found |s/\(.*\)\.src/\1.out/g|
+NEWLINE
+STRING or ID found |PRG|
+ERROR, actual token
+STRING or ID found |echo|
+STRING or ID found |i|
+STRING or ID found |sed|
+STRING or ID found |s/\(.*\)\.src/\1.prg/g|
+NEWLINE
+DEDEEENT 
+STRING or ID found |COMPILER|
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |PRG|
+NEWLINE
+INDEEENT 
+STRING or ID found |RETURNED_COMPILER|
+ERROR, actual token
+NEWLINE
+STRING or ID found |echo|
+SUCCES, actual token
+STRING or ID found |n|
+STRING or ID found ||
+STRING or ID found |IFF|
+SUCCES, actual token
+STRING or ID found |INTERPRETER|
+STRING or ID found |PRG|
+SUCCES, actual token
+ERROR, actual token
+STRING or ID found |cat|
+STRING or ID found |IN|
+STRING or ID found |INTERPRETER|
+STRING or ID found |PRG|
+STRING or ID found |diff|
+SUCCES, actual token
+STRING or ID found |OUT|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |dev|
+SUCCES, actual token
+STRING or ID found |null|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |dev|
+SUCCES, actual token
+STRING or ID found |null|
+NEWLINE
+STRING or ID found |DIFFOK|
+ERROR, actual token
+NEWLINE
+SUCCES, actual token
+ERROR, actual token
+STRING or ID found |DIFFOK|
+STRING or ID found ||
+SUCCES, actual token
+ERROR, actual token
+SUCCES, actual token
+ERROR, actual token
+STRING or ID found |then|
+NEWLINE
+INDEEENT 
+STRING or ID found |echo|
+STRING or ID found ||
+STRING or ID found |K|
+STRING or ID found ||
+SUCCES, actual token
+NEWLINE
+STRING or ID found |echo|
+STRING or ID found ||
+STRING or ID found |IFFERENCE|
+STRING or ID found |to|
+STRING or ID found |OUT|
+STRING or ID found ||
+STRING or ID found |cat|
+STRING or ID found |IN|
+STRING or ID found |INTERPRETER|
+STRING or ID found |PRG|
+STRING or ID found |diff|
+SUCCES, actual token
+STRING or ID found |OUT|
+NEWLINE
+DEDEEENT 
+STRING or ID found |fi|
+NEWLINE
+INDEEENT 
+STRING or ID found |echo|
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |done|
+NEWLINE
+STRING or ID found |rm|
+ERROR, actual token
+STRING or ID found |prg|
+NEWLINE
+STRING or ID found |exit|
+SUCCES, actual token
+NEWLINE
+==5674== 
+==5674== HEAP SUMMARY:
+==5674==     in use at exit: 0 bytes in 0 blocks
+==5674==   total heap usage: 614 allocs, 614 frees, 18,889 bytes allocated
+==5674== 
+==5674== All heap blocks were freed -- no leaks are possible
+==5674== 
+==5674== For counts of detected and suppressed errors, rerun with: -v
+==5674== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5676== Memcheck, a memory error detector
+==5676== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5676== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5676== Command: ./tests/bin/test_scanner examples/ifj19.py
+==5676== 
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+Lexical analysis error: Quotation marks for documentation string were not written correctly!
+SUCCES, actual token
+STRING or ID found |inputs|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |try|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |input|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+STRING or ID found |except|
+STRING or ID found |Exception|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |inputi|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |try|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |line|
+SUCCES, actual token
+STRING or ID found |input|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |line|
+STRING or ID found |count|
+SUCCES, actual token
+ERROR, actual token
+STRING or ID found |x|
+STRING or ID found ||
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |int|
+SUCCES, actual token
+STRING or ID found |line|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |int|
+SUCCES, actual token
+STRING or ID found |line|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |except|
+STRING or ID found |Exception|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |inputf|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |try|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |line|
+SUCCES, actual token
+STRING or ID found |input|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+SUCCES, actual token
+STRING or ID found |line|
+STRING or ID found |count|
+SUCCES, actual token
+ERROR, actual token
+ERROR, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |float|
+STRING or ID found |fromhex|
+SUCCES, actual token
+STRING or ID found |line|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |float|
+SUCCES, actual token
+STRING or ID found |line|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |except|
+STRING or ID found |Exception|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |__len|
+SUCCES, actual token
+STRING or ID found |len|
+NEWLINE
+SUCCES, actual token
+STRING or ID found |len|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |try|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |__len|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+STRING or ID found |except|
+STRING or ID found |Exception|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |substr|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |try|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |or|
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |__len|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+STRING or ID found |or|
+STRING or ID found |n|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |s|
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, acLexical analysis error : Unknown operator!
+Lexical analysis error : String was not enclosed!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : String was not enclosed!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : String was not enclosed!
+Lexical analysis error : Unknown operator!
+Lexical analysis error : String was not enclosed!
+tual token
+STRING or ID found |n|
+NEWLINE
+DEDEEENT 
+STRING or ID found |except|
+STRING or ID found |Exception|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |__ord|
+SUCCES, actual token
+STRING or ID found |ord|
+NEWLINE
+SUCCES, actual token
+STRING or ID found |ord|
+SUCCES, actual token
+STRING or ID found |s|
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |try|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |__ord|
+SUCCES, actual token
+STRING or ID found |s|
+STRING or ID found |i|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+STRING or ID found |except|
+STRING or ID found |Exception|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |__print|
+SUCCES, actual token
+STRING or ID found |print|
+NEWLINE
+SUCCES, actual token
+STRING or ID found |print|
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |args|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |length|
+SUCCES, actual token
+STRING or ID found |__len|
+SUCCES, actual token
+STRING or ID found |args|
+SUCCES, actual token
+NEWLINE
+STRING or ID found |for|
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |arg|
+STRING or ID found |in|
+STRING or ID found |enumerate|
+SUCCES, actual token
+STRING or ID found |args|
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+STRING or ID found |arg|
+STRING or ID found |__class__|
+SUCCES, actual token
+STRING or ID found |float|
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |__print|
+SUCCES, actual token
+STRING or ID found |arg|
+STRING or ID found |hex|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+STRING or ID found |end|
+ERROR, actual token
+STRING or ID found |)|
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |__print|
+SUCCES, actual token
+STRING or ID found |arg|
+SUCCES, actual token
+STRING or ID found |end|
+ERROR, actual token
+STRING or ID found |)|
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |i|
+SUCCES, actual token
+STRING or ID found |length|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |__print|
+SUCCES, actual token
+STRING or ID found | |
+SUCCES, actual token
+STRING or ID found |end|
+ERROR, actual token
+STRING or ID found |)|
+NEWLINE
+DEDEEENT 
+DEDEEENT 
+STRING or ID found |__print|
+SUCCES, actual token
+STRING or ID found |
+|
+SUCCES, actual token
+STRING or ID found |end|
+ERROR, actual token
+STRING or ID found |)|
+NEWLINE
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+==5676== 
+==5676== HEAP SUMMARY:
+==5676==     in use at exit: 0 bytes in 0 blocks
+==5676==   total heap usage: 1,578 allocs, 1,578 frees, 35,737 bytes allocated
+==5676== 
+==5676== All heap blocks were freed -- no leaks are possible
+==5676== 
+==5676== For counts of detected and suppressed errors, rerun with: -v
+==5676== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5677== Memcheck, a memory error detector
+==5677== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5677== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5677== Command: ./tests/bin/test_scanner examples/README
+==5677== 
+STRING or ID found |Tento|
+STRING or ID found |adres|
+STRING or ID found |obsahuje|
+STRING or ID found |n|
+STRING or ID found |kolik|
+STRING or ID found |p|
+STRING or ID found |klad|
+STRING or ID found |program|
+STRING or ID found |napsan|
+STRING or ID found |ch|
+STRING or ID found |v|
+STRING or ID found |IFJ19|
+STRING or ID found |pro|
+STRING or ID found |dokreslen|
+STRING or ID found |zad|
+STRING or ID found |n|
+STRING or ID found |a|
+STRING or ID found |upozorn|
+STRING or ID found |n|
+STRING or ID found |na|
+STRING or ID found |n|
+STRING or ID found |kter|
+STRING or ID found |chybvy|
+STRING or ID found |ohledn|
+STRING or ID found |odsazen|
+NEWLINE
+STRING or ID found |Pro|
+STRING or ID found |spu|
+STRING or ID found |t|
+STRING or ID found |n|
+STRING or ID found |v|
+STRING or ID found |ech|
+STRING or ID found |test|
+STRING or ID found |m|
+STRING or ID found |ete|
+STRING or ID found |vyu|
+STRING or ID found |t|
+STRING or ID found |d|
+STRING or ID found |vku|
+STRING or ID found |examples|
+STRING or ID found |sh|
+SUCCES, actual token
+STRING or ID found |bash|
+STRING or ID found |script|
+SUCCES, actual token
+STRING or ID found |a|
+STRING or ID found |p|
+STRING or ID found |padn|
+STRING or ID found |si|
+STRING or ID found |jej|
+STRING or ID found |upravit|
+SUCCES, actual token
+STRING or ID found |roz|
+STRING or ID found |it|
+STRING or ID found |pro|
+STRING or ID found |sv|
+STRING or ID found |pot|
+STRING or ID found |eby|
+==5677== 
+==5677== HEAP SUMMARY:
+==5677==     in use at exit: 0 bytes in 0 blocks
+==5677==   total heap usage: 295 allocs, 295 frees, 13,285 bytes allocated
+==5677== 
+==5677== All heap blocks were freed -- no leaks are possible
+==5677== 
+==5677== For counts of detected and suppressed errors, rerun with: -v
+==5677== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5678== Memcheck, a memory error detector
+==5678== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5678== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5678== Command: ./tests/bin/test_scanner examples/relop+ext_BOOLOP.in
+==5678== 
+==5678== 
+==5678== HEAP SUMMARY:
+==5678==     in use at exit: 0 bytes in 0 blocks
+==5678==   total heap usage: 8 allocs, 8 frees, 4,776 bytes allocated
+==5678== 
+==5678== All heap blocks were freed -- no leaks are possible
+==5678== 
+==5678== For counts of detected and suppressed errors, rerun with: -v
+==5678== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5679== Memcheck, a memory error detector
+==5679== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5679== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5679== Command: ./tests/bin/test_scanner examples/relop+ext_BOOLOP.src
+==5679== 
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |None se nerovna zadnemu cislu.|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NUM 2.500000
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Ani desetinnemu, ale je kompatibilni se vsemi typy na porovnani.|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found ||
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Prazdny retezec neni None.|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+STRING or ID found |True|
+SUCCES, actual token
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+STRING or ID found |print|
+SUCCES, actual token
+STRING or ID found |Bool je pripadne implicitne konvertovan na cislo 1 nebo 1.0.|
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+SUCCES, actual token
+SUCCES, actual token
+NEWLINE
+INDEEENT 
+SUCCES, actual token
+NEWLINE
+DEDEEENT 
+==5679== 
+==5679== HEAP SUMMARY:
+==5679==     in use at exit: 0 bytes in 0 blocks
+==5679==   total heap usage: 345 allocs, 345 frees, 15,166 bytes allocated
+==5679== 
+==5679== All heap blocks were freed -- no leaks are possible
+==5679== 
+==5679== For counts of detected and suppressed errors, rerun with: -v
+==5679== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5680== Memcheck, a memory error detector
+==5680== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5680== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5680== Command: ./tests/bin/test_scanner
+==5680== 
+Neni zadan vstupni soubor
+==5680== 
+==5680== HEAP SUMMARY:
+==5680==     in use at exit: 0 bytes in 0 blocks
+==5680==   total heap usage: 1 allocs, 1 frees, 4,096 bytes allocated
+==5680== 
+==5680== All heap blocks were freed -- no leaks are possible
+==5680== 
+==5680== For counts of detected and suppressed errors, rerun with: -v
+==5680== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5681== Memcheck, a memory error detector
+==5681== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==5681== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==5681== Command: ./tests/bin/test_symtable
+==5681== 
+hello wordl
+hello wordl
+hello wordl
+hello wordl
+==5681== 
+==5681== HEAP SUMMARY:
+==5681==     in use at exit: 0 bytes in 0 blocks
+==5681==   total heap usage: 1 allocs, 1 frees, 4,096 bytes allocated
+==5681== 
+==5681== All heap blocks were freed -- no leaks are possible
+==5681== 
+==5681== For counts of detected and suppressed errors, rerun with: -v
+==5681== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

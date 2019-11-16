@@ -34,7 +34,7 @@ test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 
 
 tests: all
-	./tests.sh
+	rm output.txt ; touch output.txt ; ./tests.sh output.txt ; cat output.txt | grep "ERROR" ; cat output.txt | grep "usage"
 
 
 
