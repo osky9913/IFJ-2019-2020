@@ -17,7 +17,8 @@
 //#include "scanner.h"
 
 
-#define SYM_TABLE_SIZE 49157
+//#define  SYM_TABLE_SIZE 49157 
+#define SYM_TABLE_SIZE 19
 
 
 typedef enum {

@@ -27,15 +27,22 @@ typedef struct stack_general {
 
 stack_general_t *stack_general_init();
 
-void *stack_general_top(stack_general_t *stack);
+struct stack_general_item *stack_general_top(stack_general_t *stack);
 
 int stack_general_push(stack_general_t *stack, void *data);
+
+int stack_general_push_int(stack_general_t *stack, int data);
+
+int stack_general_push_char(stack_general_t *stack, char data);
+
 
 void stack_pop(stack_general_t *stack);
 
 bool stack_empty(stack_general_t *stack);
 
 int stack_clear(stack_general_t *stack);
+
+int stack_free(stack_general_t *stack);
 
 
 #endif
