@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "scanner.h"
+//#include "scanner.h"
 
 
 #define SYM_TABLE_SIZE 49157
@@ -113,7 +113,6 @@ typedef struct symbol {
 
 typedef symbol_t *hash_table[SYM_TABLE_SIZE];
 
-extern int SYMTABLE_SIZE;
 
 /* Hlavičky řešených procedur a funkcí. */
 
