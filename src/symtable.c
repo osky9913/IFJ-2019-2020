@@ -20,7 +20,7 @@ int hashCode(char *id) {
 }
 
 
-void symtable_init(hash_table *table) {
+void symtable_init(symtable_t *table) {
     if (table == NULL) {
         return;
     }
@@ -31,7 +31,7 @@ void symtable_init(hash_table *table) {
 }
 
 
-symbol_t *symtable_search(hash_table *table, char *id) {
+symbol_t *symtable_search(symtable_t *table, char *id) {
     symbol_t *destination = (*table)[hashCode(id)];
 
     if (destination == NULL) {
@@ -48,7 +48,7 @@ symbol_t *symtable_search(hash_table *table, char *id) {
 }
 
 
-void symtable_insert(hash_table *table, char *id, symbol_type_t type, symbol_attributes attributes) {
+void symtable_insert(symtable_t *table, char *id, symbol_type_t type, symbol_attributes attributes) {
 
     symbol_t *destination = symtable_search(table, id);
 
@@ -80,7 +80,7 @@ void symtable_insert(hash_table *table, char *id, symbol_type_t type, symbol_att
 }
 
 
-void symtable_delete(hash_table *table, char *id) {
+void symtable_delete(symtable_t *table, char *id) {
 
     // cielovy prvok pomocou pristupu indexoveho hasu
     symbol_t *destination = (*table)[hashCode(id)];
@@ -115,7 +115,7 @@ void symtable_delete(hash_table *table, char *id) {
 }
 
 
-void symtable_clear_all(hash_table *table) {
+void symtable_clear_all(symtable_t *table) {
     // ak je tabulka prazda tak null
     if (table == NULL) {
         return;
