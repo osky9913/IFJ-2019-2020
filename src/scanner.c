@@ -61,13 +61,10 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
     }
     if(token->type == TTYPE_EOL){
         new_line = 1;
-    }
-    else{
+    } else {
         new_line = 0;
     }
-    if(token_string){
-        string_free(token_string);
-    }
+    string_free(token_string);
     if(tmp){
         string_free(tmp);
     }
@@ -172,7 +169,7 @@ int get_token(FILE* f, token_t* token){
                       //  printf("totalna chujovina1 |%s|\n", token_string->array);
                       //  printf("totalna chujovina2 |%s|\n", tmp->array);
                         if(ret_code == 1){
-                            return finish_free_resources(LEX_SUCCES, token, NULL, token_string);
+                            return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
                         }
                         else if(ret_code == 0){
                             return finish_free_resources(LEX_ERROR, token, tmp, token_string);
@@ -273,7 +270,9 @@ int get_token(FILE* f, token_t* token){
                 break;           
             //inline comments
             case 1:
-                if(c == '\n'){
+                if (c == '\n') {
+                    state = 1;
+
                     if(new_line == 1){
                         new_line = 1;
                     }
