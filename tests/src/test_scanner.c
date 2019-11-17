@@ -27,27 +27,89 @@ int main(int argc, char const *argv[]) {
 
 
     while (token.type != TTYPE_EOF) {
+        if(result){
+            printf("Error\n");
+            break;
+        }
         if (token.type == TTYPE_EOL) {
             printf("NEWLINE\n");
-        } else if (token.type == TTYPE_STR || token.type == TTYPE_DOCSTR || token.type == TTYPE_ID) {
+        }
+        if (token.type == TTYPE_STR || token.type == TTYPE_DOCSTR || token.type == TTYPE_ID) {
             printf("STRING or ID found |%s|\n", token.attribute.string);
             free(token.attribute.string);
-        } else if (token.type == TTYPE_INDENT) {
+        }
+        if (token.type == TTYPE_INDENT) {
             printf("INDEEENT \n");
-        } else if (token.type == TTYPE_EOF) {
-            printf("EOF\n");
-        } else if (token.type == TTYPE_DOUBLE) {
-            printf("NUM %f\n", token.attribute.decimal);
-        } else if (token.type == TTYPE_DEDENT) {
+        }
+        if (token.type == TTYPE_DEDENT) {
             if (result) {
                 printf("Dedent error!\n");
             } else {
                 printf("DEDEEENT \n");
             }
-        } else if (result) {
-            printf("ERROR, actual token\n");
-        } else if (!result) {
-            printf("SUCCES, actual token\n");
+        }
+        if (token.type == TTYPE_IDIV) {
+            printf("IDIV \n");
+        }
+        if (token.type == TTYPE_DIV) {
+            printf("DIV \n");
+        }
+        if (token.type == TTYPE_MUL) {
+            printf("MUL \n");
+        }
+        if (token.type == TTYPE_SUB) {
+            printf("SUB \n");
+        }
+        if (token.type == TTYPE_ADD) {
+            printf("ADD \n");
+        }
+        if (token.type == TTYPE_LS) {
+            printf("LS \n");
+        }
+        if (token.type == TTYPE_GT) {
+            printf("GT \n");
+        }
+        if (token.type == TTYPE_LSOREQ) {
+            printf("LSOREQ \n");
+        }
+        if (token.type == TTYPE_GTOREQ) {
+            printf("GTOREQ \n");
+        }
+        if (token.type == TTYPE_ISNEQ) {
+            printf("ISNEQ \n");
+        }
+        if (token.type == TTYPE_ISEQ) {
+            printf("ISEQ \n");
+        }
+        if (token.type == TTYPE_ASSIGN) {
+            printf("ASSIGN \n");
+        }
+        if (token.type == TTYPE_RTBRAC) {
+            printf("RTBRAC \n");
+        }
+        if (token.type == TTYPE_LTBRAC) {
+            printf("LTBRAC \n");
+        }
+        if (token.type == TTYPE_COLUMN) {
+            printf("COLUMN \n");
+        }
+        if (token.type == TTYPE_COMMA) {
+            printf("COMMA \n");
+        }
+        if (token.type == TTYPE_NONE) {
+            printf("NONE \n");
+        }
+        if (token.type == TTYPE_KEYWORD) {
+            printf("KEYWORD \n");
+        }
+        if (token.type == TTYPE_EOF) {
+            printf("EOF\n");
+        }
+        if (token.type == TTYPE_DOUBLE) {
+            printf("NUM %f\n", token.attribute.decimal);
+        }
+        if (token.type == TTYPE_INT) {
+            printf("NUM %ld\n", token.attribute.integer);
         }
         result = get_token(f, &token);
 

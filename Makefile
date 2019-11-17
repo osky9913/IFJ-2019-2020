@@ -22,13 +22,13 @@ test_scanner: src/dynamic_string.c src/scanner.c src/indent_stack.c $(TEST_SRC)/
 
 
 
-test_general_stack: src/general_stack.c $(TEST_SRC)/test_general_stack.c
-	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
+#test_general_stack: src/general_stack.c $(TEST_SRC)/test_general_stack.c
+#	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
 
 
-test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
-	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
+#test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
+#	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
 
 
