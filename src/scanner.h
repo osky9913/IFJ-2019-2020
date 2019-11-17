@@ -7,7 +7,8 @@
 #define SCANNER_H
 
 #include <stdio.h>
-
+#include "dynamic_string.h"
+#include "indent_stack.h"
 indent_stack_t* dent_stack;
 
 /* Return codes */

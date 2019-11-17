@@ -4,8 +4,6 @@
  * @author xziska03
  */
 
-#include "dynamic_string.h"
-#include "indent_stack.h"
 #include "scanner.h"
 
 #include <ctype.h>

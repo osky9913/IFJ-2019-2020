@@ -58,7 +58,6 @@ int stack_general_push(stack_general_t *stack, void *data) {
     new_item->data = data;
 
     if (stack->top == NULL) {
-        printf("PUSH TOP.\n");
         stack->top = new_item;
         return SUCCESS;
     }

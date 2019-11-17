@@ -7,11 +7,12 @@
 #ifndef DYNAMIC_STRING_H
 #define DYNAMIC_STRING_H
 
+#include "errors.h"
+
 /* Default string length for initialization */
 #define STR_DEFAULT_LEN 20
 
 /* Return codes */
-#define SUCCESS 0
 #define STR_ALLOC_ERROR 1
 #define STR_NULL_PASSED 2
 
