@@ -12,6 +12,7 @@ EXEC=ifj
 CFLAGS=-std=c11 -Wall -Wextra -pedantic -g
 TEST_SRC=tests/src
 TEST_BIN=tests/bin/
+PARSER_C=src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c
 
 
 
@@ -36,8 +37,8 @@ test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 tests: all
 	./tests.sh
 
-parser: src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c
-	gcc $(CFLAGS) -o $@ $^
+parser: $(PARSER_C) src/*
+	gcc $(CFLAGS) -o $@ $(PARSER_C)
 
 
 .PHONY: clean

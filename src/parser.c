@@ -7,20 +7,28 @@
 
 #include "parser.h"
 
-bool in_function = false;
-token_t curr_token = {.type =TTYPE_EOF};
-token_t token_stash[2] = {{.type = TTYPE_EOF}, {.type = TTYPE_EOF}};
+bool in_function;
+token_t curr_token;
+token_t token_stash[2];
 
 
 int init_resources() {
-    return 0;
+    in_function = false;
+    curr_token.type = TTYPE_EOF;
+    token_stash[0].type = TTYPE_EOF;
+    token_stash[1].type = TTYPE_EOF;
 }
+
 void free_resources() {
+    next_token(true);
+    next_token(true);
+    next_token(true);
+    next_token(true);
 }
 
 int r_program() {
     int retvalue = 0;
-    next_token(false);
+    lex_check(next_token(false));
 
     switch (curr_token.type) {
         case TTYPE_EOF:
@@ -63,8 +71,11 @@ int r_program() {
     }
     return retvalue;
 }
+
 int r_statement() {
-    int retvalue = 0;
+    int retvalue;
+    if (curr_token.type == TTYPE_ID) return SUCCESS;
+    else retvalue = UNEXPECTED_TOKEN;
    // token_type_t type = current_token.type;
    // token_type_t att = current_token.attribute;
 
@@ -78,15 +89,51 @@ int r_statement() {
     return retvalue;
 }
 int r_statement_list() {
+    return SUCCESS;
 }
-int r_function_def() {
-    int retvalue = 0;
-    //next_token();
-    //if (type != TTYPE_ID) return UNEXPECTED_TOKEN;
 
-    //next_token();
+int r_function_def() {
+    int retvalue;
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_ID) return UNEXPECTED_TOKEN;
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;  /* ) */
+
+    lex_check(next_token(false)); // TODO: fix param list
+    retvalue = r_param_list_def(); /* <param_list_def> */
+    if (retvalue != SUCCESS) return retvalue;
+
+    printf("here\n");
+    /* params_list has already loaded this token */
+    if (curr_token.type != TTYPE_RTBRAC) return UNEXPECTED_TOKEN; /* ) */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* EOL */
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* INDENT */
+
+    lex_check(next_token(false));
+    retvalue = r_statement(); /* <statement> */
+    if (retvalue != SUCCESS) return retvalue;
+
+    lex_check(next_token(false));
+    retvalue = r_statement_list(); /* <statement_list> */
+    if (retvalue != SUCCESS) return retvalue;
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* DEDENT */
     
     return retvalue;
+}
+
+int r_param_list_def() {
+    //lex_check(next_token(false));
+    return SUCCESS;
+}
+int r_params_def() {
 }
 int r_param_list() {
 }
@@ -125,7 +172,9 @@ int next_token(bool load_from_stash) {
     } 
 
     /* Free token string attribute if loading with get_token */
-    if (curr_token.type == TTYPE_STR || curr_token.type == TTYPE_DOCSTR || curr_token.type == TTYPE_ID)
+    if (curr_token.type == TTYPE_STR
+            || curr_token.type == TTYPE_DOCSTR
+            || curr_token.type == TTYPE_ID)
         free(curr_token.attribute.string);
 
     int retvalue = get_token(stdin, &curr_token); // Get next token
@@ -139,5 +188,13 @@ void unget_token() {
         token_stash[0] = curr_token;
     } else {
         token_stash[1] = curr_token;
+    }
+}
+
+void lex_check(int retcode) {
+    if (retcode != SUCCESS) {
+        free_resources();
+        fprintf(stderr, "Lex error %d\n", retcode);
+        exit(retcode);
     }
 }
