@@ -58,23 +58,37 @@ int get_prec_table_symbol(token_t newToken){
 char get_prec_table_rule(stack_general_t* PAStack, int newSymbol){
     stack_general_item_t* top = stack_general_top(PAStack);
     int stackTerm =  *(int*)top->data;
+
+    //if on the top of the stack is non-terminal we grab next item which should be terminal
     if(stackTerm == E || stackTerm == B){
         stackTerm = *(int*)top->next->data;
     }
-    else if(stackTerm == newSymbol){
-        printf("SAME SYMBOL TO STRACK AS IS ON STACK\n");
-        return -1;
-    }
+
     printf("TABLE RULE:[%d][%d]\n",stackTerm, newSymbol);
+    //getting rule from the precedence table
     return PREC_TABLE[stackTerm][newSymbol];
 
 }
 
 int reduce_on_stack(stack_general_t* PAStack, int toPush){
-    printf("POPING 3 time\n");
+    printf("POPING 3 times\n");
+
+    //checking for empty stack after each pop, empty cause an error (should be syntax error ->
+    // cannot reduce 3 items if theres less then 4 on stack (3 symbols plus $)
     stack_pop(PAStack);
+    if(stack_empty(PAStack)){
+        return 1;
+    }
     stack_pop(PAStack);
+    if(stack_empty(PAStack)){
+        return 1;
+    }
     stack_pop(PAStack);
+    if(stack_empty(PAStack)){
+        return 1;
+    }
+
+    //allocation error handling when pushing on stack
     if(stack_general_push_int(PAStack, toPush) == ALLOC_ERROR){
         printf("ALLOC ERROR IN PRECEDENCE ANALYSIS REDUCING FUNCTION\n");
         return 1;
@@ -83,6 +97,8 @@ int reduce_on_stack(stack_general_t* PAStack, int toPush){
 }
 
 int reduce(stack_general_t* PAStack){
+
+    //getting first item on the stack to decide which rule to use
     stack_general_item_t* tempStackItem = stack_general_top(PAStack);
     int operand1 = *(int*)tempStackItem->data;
 
@@ -97,15 +113,26 @@ int reduce(stack_general_t* PAStack){
         }
         return 0;   
     }
-    //getting second operand and operator to check for the rules
+
+    //getting second operand and operator to check for the rules, check if there is less items on
+    //stack in that case cause error
     tempStackItem = tempStackItem->next;
+    if(tempStackItem == NULL){
+        return 1;
+    }
     int operator = *(int*)tempStackItem->data;
+
+
     tempStackItem = tempStackItem->next;
+    if(tempStackItem == NULL){
+        return 1;
+    }
     int operand2 = *(int*)tempStackItem->data;
 
     printf("TWO OPERAND RULES");
     printf("{%d}{%d}{%d}\n", operand1, operator, operand2);
 
+    //Applying rules to reduce items on stack
     if(operand1 == E && operand2 == E){
         //RULES E->E+E, E->E-E 
         if(operator == PLUS_MINUS){
@@ -132,12 +159,20 @@ int reduce(stack_general_t* PAStack){
         }
     }
     //RULE E->(E)
-    else if(operand1 == L_BRACKET && operand2 == R_BRACKET && operator == E){
+    //left bracket is operand2 because stack pop gives right bracket first
+    else if(operand1 == R_BRACKET && operand2 == L_BRACKET && operator == E){
         printf("RULE E->(E)\n");
         if(reduce_on_stack(PAStack, E) == 1){
             return 1;
         }
     }
+    else if(operand1 == R_BRACKET && operand2 == L_BRACKET && operator == B){
+        printf("RULE B->(B)\n");
+        if(reduce_on_stack(PAStack, B) == 1){
+            return 1;
+        }
+    }
+    //better handle or delete
     else{
         printf("SUM BULLSHIT\n");
         return 1;
@@ -149,13 +184,16 @@ int reduce(stack_general_t* PAStack){
 int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
     //converting token to symbol for from precedence table
     int newSymbol = get_prec_table_symbol(newToken);
+
     printf("TOKEN SYMBOL[%d]\n",newSymbol);
+
+    //error handling, symbol should not be inside of an expression
     if(newSymbol == -1){
         printf("TABLE SYMBOL ERROR - given symbol is not in the precedence symbol table");
         return 1;
     }
     
-    //precedence table rules for two terminals, one on stack on as input(newSymbol)
+    //precedence table rule chosen by newSymbol from the token and last terminal on stack
     char rule = get_prec_table_rule(PAStack, newSymbol);
     if(rule == -1){
         return 1;
@@ -165,22 +203,28 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
     //rule handling
     int reducing = FALSE;
     do{
+        //only pushes symbol to stack
         if(rule == P){
             printf("PUSH RULE\n");
             if(stack_general_push_int(PAStack, newSymbol) == ALLOC_ERROR) {
                 printf("ALLOC ERROR IN PRECEDENCE ANALYSIS REDUCING FUNCTION - when pushing to stack\n");
                 return 1;
             }
-            reducing = FALSE;//not sure
+            //select false to end loop
+            reducing = FALSE;
         }
+
+        //rule does not exist in the table -> cause an error
         else if(rule == X){
             printf("TABLE RULE ERROR\n");
             return 1;
         }
+        //rule chosen by two '$' symbols - end of the syntax expresion check everything is correct
         else if(rule == M){
             printf("STACK REDUCED CORRECTLY\n");
             reducing = FALSE;
         }
+        //stack has to be reduce by rules, reduce function is called
         else{
             printf("REDUCE RULE\n");
             if(reduce(PAStack)){
@@ -189,10 +233,14 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
             }
             //when stack is reduced, new rule have to be calculated
             rule = get_prec_table_rule(PAStack, newSymbol);
+
             printf("RULE %c\n", rule);
+            //new rule error handling
             if(rule == -1){
                 return 1;
             }
+
+            //select true to repeat process with new rule calculated and same new symbol from token
             reducing = TRUE;
         }
     }while(reducing);
@@ -206,13 +254,15 @@ int psa(FILE* f){
     stack_general_t* PAStack = stack_general_init();//precedence analysis stack of symbols
     token_t newToken;
 
+    //pushing starting symbol - DOLLAR '$'
     if(stack_general_push_int(PAStack, DOLLAR) == ALLOC_ERROR){
         printf("ALLOC ERROR IN PRECEDENCE ANALYSIS REDUCING FUNCTION\n");
         stack_free(PAStack);
         return 1;
     }
+
+    //getting token from scanner and checking for possible error
     int lex_analysis = get_token(f, &newToken);
-    //if scanner return 1 as error
     if(lex_analysis == 1){
         printf("TOKEN ERROR");
         stack_free(PAStack);
@@ -221,6 +271,8 @@ int psa(FILE* f){
 
     //loop through whole expression
     while(newToken.type != TTYPE_COLUMN && newToken.type != TTYPE_EOL){
+
+        //applying rules and checking for error indicating syntax error
         int psaCheck = apply_psa_rule(PAStack, newToken);
         printf("PSACHECK:%d\n",psaCheck);
 
@@ -231,11 +283,12 @@ int psa(FILE* f){
             return 1;
         }
 
+        //rewrite to the function to free resources
         if(newToken.type == TTYPE_ID || newToken.type == TTYPE_STR || newToken.type == TTYPE_DOCSTR){
             free(newToken.attribute.string);
         }
 
-        //getting new token and checking for error
+        //getting next token from scanner and checking for possible error
         lex_analysis = get_token(f, &newToken);
         if(lex_analysis == 1){
             printf("GET TOKEN ERROR\n");
@@ -244,14 +297,18 @@ int psa(FILE* f){
         }
     }
 
+    //insert '$' DOLLAR as last terminal and apply rules again to reduce remaining item on stack
     token_t lastToken;
     lastToken.type = TTYPE_DOLLAR;
+    //applying rules and check for possible errors
     int psaCheck = apply_psa_rule(PAStack, lastToken);
     if(psaCheck) {
         printf("INCORRECT SYNTAX\n");
         stack_free(PAStack);
         return 1;
     }
+
+    //free stack memory
     stack_free(PAStack);
     return 0;
 
