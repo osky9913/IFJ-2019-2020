@@ -2,11 +2,34 @@
  *	@file   parser.c
  *	@author Simon Sedlacek, xsedla1h
  *	@date
- *	@brief Parser prekladace.
+ *	@brief Parser 
  */
 
+#include "parser.h"
+
+int main(void) {
+    init_resources();
+    if (!r_program()) {
+        printf("correct\n");
+    } else {
+
+    }
+    return 0;
+}
+
+int init_resources() {
+    return 0;
+}
+void free_resources() {
+}
 
 int r_program() {
+    get_token(stdin, &pdata.current_token);
+    if (data.current_token.type == TTYPE_EOF) {
+        return SUCCESS;
+    } else if (data.current_token.type == TTYPE_KEYWORD) {
+        
+    }
 }
 int r_statement() {
 }
