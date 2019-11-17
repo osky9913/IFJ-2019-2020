@@ -36,8 +36,10 @@ test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 tests: all
 	./tests.sh
 
+parser: src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c
+	gcc $(CFLAGS) -o $@ $^
 
 
 .PHONY: clean
 clean:
-	rm -f *.o ifj scanner_test
+	rm -f *.o ifj scanner_test parser

@@ -1,6 +1,7 @@
 IFJ
 string_test
 tests/bin
+main.c
 # Prerequisites
 *.d
 

@@ -1,35 +1,35 @@
-<program> → ε
-<program> → <statement> <program>
-<program> → <function_def> <program>
-<statement_list> → ε
-<statement_list> → <statement> <statement_list>
-<function_def> → def id ( <param_list> ) : eol indent <statement> <statement_list> dedent
-<param_list> → ε
-<param_list> → TERM <params>
-<params> → ε
-<params> → , <term> <params>
-<statement> → pass eol
-<statement> → <if_else>
-<statement> → <cycle>
-<statement> → <function_ret> eol
-<statement> → <value> eol
-<value> → id <rest>
-<value> → expr
-<rest> → = expr
-<rest> → expr
-<rest> → <function_call>
-<function_call> → ( <param_list> )
-<function_call> → return <retvalue>
-<retvalue> → ε
-<retvalue> → expr
-<if_else> → if expr : eol indent <statement> <statement_list> dedent else : eol indent <statement> <statement_list> dedent
-<cycle> → while expr : eol indent <statement> <statement_list> dedent
-<term> → id
-<term> → <literal>
-<literal> → int
-<literal> → float
-<literal> → string
-<literal> → none
+1) <program> → ε
+2) <program> → <statement> <program>
+3) <program> → <function_def> <program>
+4) <statement_list> → ε
+5) <statement_list> → <statement> <statement_list>
+6) <function_def> → def id ( <param_list> ) : eol indent <statement> <statement_list> dedent
+7) <param_list> → ε
+8) <param_list> → TERM <params>
+9) <params> → ε
+10) <params> → , <term> <params>
+11) <statement> → pass eol
+12) <statement> → <if_else>
+13) <statement> → <cycle>
+14) <statement> → <function_ret> eol
+15) <statement> → <value> eol
+16) <value> → id <rest>
+17) <value> → expr
+18) <rest> → = expr
+19) <rest> → expr
+20) <rest> → <function_call>
+21) <function_call> → ( <param_list> )
+22) <function_call> → return <retvalue>
+23) <retvalue> → ε
+24) <retvalue> → expr
+25) <if_else> → if expr : eol indent <statement> <statement_list> dedent else : eol indent <statement> <statement_list> dedent
+26) <cycle> → while expr : eol indent <statement> <statement_list> dedent
+27) <term> → id
+28) <term> → <literal>
+29) <literal> → int
+30) <literal> → float
+31) <literal> → string
+32) <literal> → none
 
 
 PROGRAM → ε
