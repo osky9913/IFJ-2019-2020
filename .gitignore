@@ -4,6 +4,7 @@ tests/bin
 main.c
 parser_input.py
 vgcore*
+.gdb*
 # Prerequisites
 *.d
 

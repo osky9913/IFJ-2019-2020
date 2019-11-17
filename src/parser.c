@@ -13,6 +13,8 @@ token_t token_stash[2];
 
 
 int init_resources() {
+    dent_stack = indent_stack_init();
+    if (!dent_stack) return ERROR_INTERNAL;
     in_function = false;
     curr_token.type = TTYPE_EOF;
     token_stash[0].type = TTYPE_EOF;
@@ -23,7 +25,7 @@ void free_resources() {
     next_token(true);
     next_token(true);
     next_token(true);
-    next_token(true);
+    indent_stack_free(dent_stack);
 }
 
 int r_program() {
@@ -76,6 +78,7 @@ int r_statement() {
     int retvalue;
     if (curr_token.type == TTYPE_ID) return SUCCESS;
     else retvalue = UNEXPECTED_TOKEN;
+    next_token(false);
    // token_type_t type = current_token.type;
    // token_type_t att = current_token.attribute;
 
@@ -93,7 +96,8 @@ int r_statement_list() {
 }
 
 int r_function_def() {
-    int retvalue;
+    int retvalue = UNEXPECTED_TOKEN;
+    in_function = true;
 
     lex_check(next_token(false));
     if (curr_token.type != TTYPE_ID) return UNEXPECTED_TOKEN;
@@ -104,7 +108,6 @@ int r_function_def() {
     retvalue = r_param_list_def(); /* <param_list_def> */
     if (retvalue != SUCCESS) return retvalue;
 
-    printf("here\n");
     /* params_list has already loaded this token */
     if (curr_token.type != TTYPE_RTBRAC) return UNEXPECTED_TOKEN; /* ) */
 
@@ -126,19 +129,71 @@ int r_function_def() {
     lex_check(next_token(false));
     if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* DEDENT */
     
+    in_function = false;
     return retvalue;
 }
 
 int r_param_list_def() {
-    //lex_check(next_token(false));
-    return SUCCESS;
+    int retvalue = SUCCESS;
+
+    if (curr_token.type == TTYPE_ID) { /* id */
+        lex_check(next_token(false));
+        retvalue = r_params_def(); /* <params_def> */
+    }
+
+    return retvalue;
 }
 int r_params_def() {
+    int retvalue = SUCCESS;
+
+    if (curr_token.type == TTYPE_COMMA) { /* , */
+        lex_check(next_token(false));
+        if (curr_token.type == TTYPE_ID) { /* id */
+            lex_check(next_token(false));
+            retvalue = r_params_def(); /* <params_def> */
+        } else {
+            retvalue = UNEXPECTED_TOKEN;
+        }
+    }
+
+    return retvalue;
 }
 int r_param_list() {
+    int retvalue = SUCCESS;
+
+    switch (curr_token.type) {
+        case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
+        case TTYPE_DOCSTR: case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
+            lex_check(next_token(false));
+            retvalue = r_params(); /* <params> */
+        default:
+            break;
+    }
+
+    return retvalue;
 }
 int r_params() {
+    int retvalue = SUCCESS;
+
+    if (curr_token.type == TTYPE_COMMA) { /* , */
+        lex_check(next_token(false));
+
+        switch (curr_token.type) {
+            case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
+            case TTYPE_DOCSTR: case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
+                lex_check(next_token(false));
+                retvalue = r_params(); /* <params> */
+                break;
+
+            default:
+                retvalue = UNEXPECTED_TOKEN;
+                break;
+        }
+    }
+
+    return retvalue;
 }
+
 int r_if_else() {
 }
 int r_cycle() {
