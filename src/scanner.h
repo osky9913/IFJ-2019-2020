@@ -8,9 +8,9 @@
 
 #include <stdio.h>
 #include "dynamic_string.h"
-#include "indent_stack.h"
+#include "general_stack.h"
 
-indent_stack_t* dent_stack;
+stack_general_t* dent_stack;
 
 extern int new_line;
 extern int indents_to_pop;

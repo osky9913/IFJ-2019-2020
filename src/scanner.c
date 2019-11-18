@@ -27,9 +27,11 @@ int indent = 0;
 
 int calculate_dent(FILE* f, int* c){
     indent = 0;
+    stack_general_item_t* stack_top = NULL;
     //ignore newlines indentation
     if(*c == '\n'){
-        return indent_stack_top(dent_stack);
+        stack_top = stack_general_top(dent_stack);
+        return *(int*)stack_top->data;
     }
     while(isspace(*c)){
         if(*c == '\n'){
@@ -43,15 +45,14 @@ int calculate_dent(FILE* f, int* c){
     }
     //calculated indentation of comments, have to ignore it
     if(*c == '#'){
-        while(*c != '\n'){
-            *c = getc(f);
-        }
-        *c = getc(f);
-        return indent_stack_top(dent_stack);
+        ungetc(*c, f);
+        stack_top = stack_general_top(dent_stack);
+        return *(int*)stack_top->data;
     }
     if(*c == '"'){
         ungetc(*c, f);
-        return indent_stack_top(dent_stack);
+        stack_top = stack_general_top(dent_stack);
+        return *(int*)stack_top->data;
     }
     return indent;
 }
@@ -102,22 +103,26 @@ void hexa_escape(FILE* f, string_t* token_string){
 
 int process_dedents(){
     int pop_indent;     //indentation sequence that will be removed from indent_stack
+    stack_general_item_t* stack_top = stack_general_top(dent_stack);
+    int stack_top_int = *(int*)stack_top->data;
 
-    while(indent != indent_stack_top(dent_stack)){
-        pop_indent = indent_stack_top(dent_stack);
-        indent_stack_pop(dent_stack);
+    while(indent != stack_top_int){
+        pop_indent = stack_top_int;//indent_stack_top(dent_stack);
+        stack_pop(dent_stack);
 
-        if(indent_stack_empty(dent_stack)){
+        if(stack_empty(dent_stack)){
             fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
             return 0;
         }
-        //after first indent was popped, dedent indentation was found on top of stack(there is no more indents to be popped)
-        if(indent == (indent_stack_top(dent_stack))){
+        stack_top = stack_general_top(dent_stack);
+        stack_top_int = *(int*)stack_top->data;
+        //after first indent was popped, dedent indentation was equal to top of stack(there is no more indents to be popped)
+        if(indent == stack_top_int){
             indents_to_pop = 0;
             return 1;
         }
-        //indentation of dedent is smaller than one or more indents(there is more indents to be popped from stack)
-        if(pop_indent != (indent_stack_top(dent_stack))){
+        //indentation of dedent is smaller than one or more indents indentation(there is more indents to be popped from stack)
+        if(pop_indent != stack_top_int){
             indents_to_pop = 1;
             return 1;
         }
@@ -128,10 +133,12 @@ int process_dedents(){
 }
 
 int get_token(FILE* f, token_t* token){
-    string_t* token_string = string_create_init();
     int state = 0;
     int c, ret_code;
+    string_t* token_string = string_create_init();
     string_t* tmp = string_create_init();
+    stack_general_item_t* stack_top = NULL;
+    int stack_top_int;
 
     //there is more dedents to be generated
     if(indents_to_pop){
@@ -154,14 +161,22 @@ int get_token(FILE* f, token_t* token){
                 //indent dedent
                 if(new_line == 1){
                     indent = calculate_dent(f, &c);
-                    if(indent > indent_stack_top(dent_stack)){
+                    stack_top = stack_general_top(dent_stack);
+                    if(stack_top){
+                        stack_top_int = *(int*)stack_top->data;
+                    }
+                    else{
+                        stack_top_int = -1;
+                    }
+
+                    if(indent > stack_top_int){
                         //processed non-whitespace character we have to get it back
                         ungetc(c, f);
-                        indent_stack_push(dent_stack, indent);
+                        stack_general_push_int(dent_stack, indent);
                         token->type = TTYPE_INDENT;
                         return finish_free_resources(SUCCESS, token, tmp, token_string); 
                     }
-                    else if(indent < indent_stack_top(dent_stack)){
+                    else if(indent < stack_top_int){
                         //processed non-whitespace character we have to get it back
                         ungetc(c, f);
                         token->type = TTYPE_DEDENT;

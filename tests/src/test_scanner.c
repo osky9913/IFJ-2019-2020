@@ -1,7 +1,7 @@
 
 #include "../../src/dynamic_string.h"
-#include "../../src/indent_stack.h"
 #include "../../src/scanner.h"
+#include "../../src/general_stack.h"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -11,16 +11,19 @@
 int main(int argc, char const *argv[]) {
     FILE *f;
     if (argc == 1) {
-        printf("Neni zadan vstupni soubor\n");
+        printf("Neni zadan vstupni soubor");
         return 0;
     }
     if ((f = fopen(argv[1], "r")) == NULL) {
-        printf("Soubor se nepodarilo otevrit\n");
+        printf("Soubor se nepodarilo otevrit");
         return 0;
     }
-    dent_stack = indent_stack_init();
+    //dent_stack = indent_stack_init();
 
-    token_t token;
+
+    dent_stack = stack_general_init();
+    stack_general_push_int(dent_stack, 0);
+    token_t token; 
 
     int result;
     result = get_token(f, &token);
@@ -28,94 +31,97 @@ int main(int argc, char const *argv[]) {
 
     while (token.type != TTYPE_EOF) {
         if(result){
-            printf("Error\n");
+            printf("<Error>");
             break;
         }
         if (token.type == TTYPE_EOL) {
-            printf("NEWLINE\n");
+            printf("<NEWLINE> \n");
         }
         if (token.type == TTYPE_STR || token.type == TTYPE_DOCSTR || token.type == TTYPE_ID) {
-            printf("STRING or ID found |%s|\n", token.attribute.string);
+            printf("<STRING or ID |%s| >  ", token.attribute.string);
             free(token.attribute.string);
         }
         if (token.type == TTYPE_INDENT) {
-            printf("INDEEENT \n");
+            printf("<INDEEENT> ");
         }
         if (token.type == TTYPE_DEDENT) {
             if (result) {
-                printf("Dedent error!\n");
+                printf("Dedent error!");
             } else {
-                printf("DEDEEENT \n");
+                printf("<DEDENT> ");
             }
         }
         if (token.type == TTYPE_IDIV) {
-            printf("IDIV \n");
+            printf("<IDIV> ");
         }
         if (token.type == TTYPE_DIV) {
-            printf("DIV \n");
+            printf("<DIV> ");
         }
         if (token.type == TTYPE_MUL) {
-            printf("MUL \n");
+            printf("<MUL> ");
         }
         if (token.type == TTYPE_SUB) {
-            printf("SUB \n");
+            printf("<SUB> ");
         }
         if (token.type == TTYPE_ADD) {
-            printf("ADD \n");
+            printf("<ADD> ");
         }
         if (token.type == TTYPE_LS) {
-            printf("LS \n");
+            printf("<LS> ");
         }
         if (token.type == TTYPE_GT) {
-            printf("GT \n");
+            printf("<GT> ");
         }
         if (token.type == TTYPE_LSOREQ) {
-            printf("LSOREQ \n");
+            printf("<LSOREQ> ");
         }
         if (token.type == TTYPE_GTOREQ) {
-            printf("GTOREQ \n");
+            printf("<GTOREQ> ");
         }
         if (token.type == TTYPE_ISNEQ) {
-            printf("ISNEQ \n");
+            printf("<ISNEQ> ");
         }
         if (token.type == TTYPE_ISEQ) {
-            printf("ISEQ \n");
+            printf("<ISEQ> ");
         }
         if (token.type == TTYPE_ASSIGN) {
-            printf("ASSIGN \n");
+            printf("<ASSIGN> ");
         }
         if (token.type == TTYPE_RTBRAC) {
-            printf("RTBRAC \n");
+            printf("<RTBRAC> ");
         }
         if (token.type == TTYPE_LTBRAC) {
-            printf("LTBRAC \n");
+            printf("<LTBRAC> ");
         }
         if (token.type == TTYPE_COLUMN) {
-            printf("COLUMN \n");
+            printf("<COLUMN> ");
         }
         if (token.type == TTYPE_COMMA) {
-            printf("COMMA \n");
+            printf("<COMMA> ");
         }
         if (token.type == TTYPE_NONE) {
-            printf("NONE \n");
+            printf("<NONE> ");
         }
         if (token.type == TTYPE_KEYWORD) {
-            printf("KEYWORD \n");
+            printf("<KEYWORD> ");
         }
         if (token.type == TTYPE_EOF) {
-            printf("EOF\n");
+            printf("<EOF> ");
         }
         if (token.type == TTYPE_DOUBLE) {
-            printf("NUM %f\n", token.attribute.decimal);
+            printf("<NUM |%f|> ", token.attribute.decimal);
         }
         if (token.type == TTYPE_INT) {
-            printf("NUM %ld\n", token.attribute.integer);
+            printf("<NUM |%ld| >", token.attribute.integer);
         }
         result = get_token(f, &token);
 
     }
-
-    indent_stack_free(dent_stack);
+    if (token.type == TTYPE_EOF) {
+            printf("<EOF> \n");
+    }
+    stack_free(dent_stack);
+    //indent_stack_free(dent_stack);
 
     fclose(f);
     return 0;
