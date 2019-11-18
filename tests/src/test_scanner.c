@@ -22,7 +22,6 @@ int main(int argc, char const *argv[]) {
 
 
     dent_stack = stack_general_init();
-    stack_general_push_int(dent_stack, 0);
     token_t token; 
 
     int result;

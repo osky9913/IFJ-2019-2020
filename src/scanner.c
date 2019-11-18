@@ -127,27 +127,30 @@ int process_dedents(){
             return 1;
         }
     }
-    indents_to_pop = 0;
-    new_line = 0;
-    return 2;
+    return 0;
 }
 
 int get_token(FILE* f, token_t* token){
     int state = 0;
-    int c, ret_code;
+    int c;
     string_t* token_string = string_create_init();
     string_t* tmp = string_create_init();
     stack_general_item_t* stack_top = NULL;
     int stack_top_int;
 
+    //at the beginning of the file put zero on top of stack
+    if(new_line == -1){
+        stack_general_push_int(dent_stack, 0);
+    }
+
     //there is more dedents to be generated
     if(indents_to_pop){
         token->type = TTYPE_DEDENT;
-        ret_code = process_dedents();
-        if(ret_code == 1){
+
+        if(process_dedents()){
             return finish_free_resources(SUCCESS, token, tmp, token_string);
         }
-        else if(ret_code == 0){
+        else{
             indents_to_pop = 0; //len kvoli tomu aby sa to nezacykliklo, odstranit z finalnej verzie
             return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
         }
@@ -180,11 +183,11 @@ int get_token(FILE* f, token_t* token){
                         //processed non-whitespace character we have to get it back
                         ungetc(c, f);
                         token->type = TTYPE_DEDENT;
-                        ret_code = process_dedents();
-                        if(ret_code == 1){
+
+                        if(process_dedents()){
                             return finish_free_resources(SUCCESS, token, tmp, token_string);
                         }
-                        else if(ret_code == 0){
+                        else{
                             return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                         }
                     }
@@ -287,8 +290,8 @@ int get_token(FILE* f, token_t* token){
             //inline comments
             case 1:
                 if (c == '\n') {
-                    state = 1;
-                    if(new_line != 1 || new_line != -1){
+                    //in case of comment after non-eol token, there is an eol token to be generated
+                    if(new_line != 1){
                         ungetc(c, f);
                     }
                     state = 0;
