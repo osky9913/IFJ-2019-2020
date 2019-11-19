@@ -4,6 +4,7 @@
 #include "scanner.h"
 #include "symtable.h"
 #include "general_stack.h"
+#include "errors.h"
 
 #define P '<' // push to stack
 #define R '>' //reduce by rule

@@ -1,5 +1,4 @@
 #include "precedence_analysis.h"
-#include "errors.h"
 
 const char PREC_TABLE[7][7] =
         {
@@ -46,7 +45,8 @@ int get_prec_table_symbol(token_t newToken){
         case TTYPE_IDIV:
             return MUL_DIV;
 
-        case TTYPE_DOLLAR:
+        case TTYPE_COLUMN:
+        case TTYPE_EOL:
             return DOLLAR;
 
         default:
@@ -297,11 +297,8 @@ int psa(FILE* f){
         }
     }
 
-    //insert '$' DOLLAR as last terminal and apply rules again to reduce remaining item on stack
-    token_t lastToken;
-    lastToken.type = TTYPE_DOLLAR;
     //applying rules and check for possible errors
-    int psaCheck = apply_psa_rule(PAStack, lastToken);
+    int psaCheck = apply_psa_rule(PAStack, newToken);
     if(psaCheck) {
         printf("INCORRECT SYNTAX\n");
         stack_free(PAStack);
