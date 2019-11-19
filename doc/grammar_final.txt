@@ -93,7 +93,7 @@ LITERAL → none
 <rest> → expr
 <rest> → <function_call>
 <function_call> → ( <param_list> )
-<function_call> → return <retvalue>
+<function_ret> → return <retvalue>
 <retvalue> → ε
 <retvalue> → expr
 <if_else> → if expr : eol indent <statement> <statement_list> dedent else : eol indent <statement> <statement_list> dedent

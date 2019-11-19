@@ -19,6 +19,7 @@
 
 #define SUCCESS 0
 #define UNEXPECTED_TOKEN 1
+#define RETURN_IN_PROGRAM_BODY 1
 
 /**
  * @brief Indicates whether the currently analyzed block
@@ -75,6 +76,16 @@ int next_token(bool load_from_stash);
  */
 void unget_token();
 
+/**
+ * @brief Clears token stash
+ */
+void stash_clear();
+
+bool stash_empty();
+
+void token_free(token_t *token);
+
+
 
 /* What follows are prototypes of funcions, that implement the syntax and semantic
  * analysis of the input program. The rules are derived from our LL grammar and LL
@@ -101,5 +112,6 @@ int r_value();
 int r_rest();
 int r_function_call();
 int r_term();
+int r_literal();
 
 #endif

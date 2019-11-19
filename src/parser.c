@@ -15,10 +15,16 @@ token_t token_stash[2];
 int init_resources() {
     dent_stack = indent_stack_init();
     if (!dent_stack) return ERROR_INTERNAL;
+
     in_function = false;
+
     curr_token.type = TTYPE_EOF;
+
     token_stash[0].type = TTYPE_EOF;
+    token_stash[0].attribute.string = NULL;
     token_stash[1].type = TTYPE_EOF;
+    token_stash[1].attribute.string = NULL;
+    return SUCCESS;
 }
 
 void free_resources() {
@@ -26,6 +32,7 @@ void free_resources() {
     next_token(true);
     next_token(true);
     indent_stack_free(dent_stack);
+    stash_clear();
 }
 
 int r_program() {
@@ -52,6 +59,7 @@ int r_program() {
                     break;
 
                 case KEY_RETURN:
+                    fprintf(stderr, "UNEXPECTED_TOKEN 'return' in r_program.\n");
                     retvalue = UNEXPECTED_TOKEN;
 
                 default:
@@ -68,6 +76,7 @@ int r_program() {
             break;
 
         default:
+            fprintf(stderr, "UNEXPECTED_TOKEN in r_program - not a statement or def.\n");
             retvalue = UNEXPECTED_TOKEN;
             break;
     }
@@ -75,24 +84,77 @@ int r_program() {
 }
 
 int r_statement() {
-    int retvalue;
-    if (curr_token.type == TTYPE_ID) return SUCCESS;
-    else retvalue = UNEXPECTED_TOKEN;
-    next_token(false);
-   // token_type_t type = current_token.type;
-   // token_type_t att = current_token.attribute;
+    int retvalue = SUCCESS;
 
-   // switch (type) {
-   //     case TTYPE_ID:
-   //         break;
-   //     default:
-   //         retvalue = UNEXPECTED_TOKEN;
-   //         break;
-   // }
+    switch (curr_token.type) {
+        case TTYPE_ID: case TTYPE_LTBRAC: case TTYPE_INT: case TTYPE_DOUBLE:
+        case TTYPE_STR: case TTYPE_DOCSTR: case TTYPE_NONE:
+            /* id, (, int, dbl, str, none */
+            retvalue = r_value();
+            break;
+
+        case TTYPE_KEYWORD:
+            switch (curr_token.attribute.keyword) {
+                case KEY_RETURN:
+                    retvalue = r_function_ret(); /* return */
+                    break;
+
+                case KEY_IF:
+                    retvalue = r_if_else(); /* if-else */
+                    break;
+
+                case KEY_WHILE:
+                    retvalue = r_cycle(); /* while */
+                    break;
+
+                case KEY_PASS:
+                    retvalue = SUCCESS; /* pass */
+                    break;
+
+                default:
+                    fprintf(stderr, "UNEXPECTED_TOKEN 'None' in r_statement.\n");
+                    retvalue = UNEXPECTED_TOKEN;
+                    break;
+            }
+            break;
+
+        default:
+            fprintf(stderr, "UNEXPECTED_TOKEN in r_statement.\n");
+            retvalue = UNEXPECTED_TOKEN;
+    }
+
+    lex_check(next_token(true));
+    if (curr_token.type != TTYPE_EOL) { /* eol */
+        fprintf(stderr, "UNEXPECTED_TOKEN in r_statement - didn't end with eol.\n");
+        fprintf(stderr, "%d %d\n", TTYPE_EOL, curr_token.type);
+        retvalue = UNEXPECTED_TOKEN;
+    }
+
     return retvalue;
 }
 int r_statement_list() {
-    return SUCCESS;
+    int retvalue = SUCCESS;
+
+    switch (curr_token.type) {
+        case TTYPE_DEDENT: /* dedent */
+            return SUCCESS;
+            break;
+
+        case TTYPE_ID: /* id */
+            retvalue = r_statement();
+            break;
+
+        case TTYPE_KEYWORD: 
+            retvalue = r_statement();
+            break;
+
+        default:
+            fprintf(stderr, "UNEXPECTED_TOKEN in r_statement_list.\n");
+            retvalue = UNEXPECTED_TOKEN;
+            break;
+    }
+
+    return retvalue;
 }
 
 int r_function_def() {
@@ -102,7 +164,7 @@ int r_function_def() {
     lex_check(next_token(false));
     if (curr_token.type != TTYPE_ID) return UNEXPECTED_TOKEN;
     lex_check(next_token(false));
-    if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;  /* ) */
+    if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;  /* ( */
 
     lex_check(next_token(false)); // TODO: fix param list
     retvalue = r_param_list_def(); /* <param_list_def> */
@@ -148,16 +210,20 @@ int r_params_def() {
 
     if (curr_token.type == TTYPE_COMMA) { /* , */
         lex_check(next_token(false));
+
         if (curr_token.type == TTYPE_ID) { /* id */
             lex_check(next_token(false));
             retvalue = r_params_def(); /* <params_def> */
+
         } else {
+            fprintf(stderr, "UNEXPECTED_TOKEN in r_params_def.\n");
             retvalue = UNEXPECTED_TOKEN;
         }
     }
 
     return retvalue;
 }
+
 int r_param_list() {
     int retvalue = SUCCESS;
 
@@ -166,16 +232,18 @@ int r_param_list() {
         case TTYPE_DOCSTR: case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
             lex_check(next_token(false));
             retvalue = r_params(); /* <params> */
+
         default:
             break;
     }
 
     return retvalue;
 }
+
 int r_params() {
     int retvalue = SUCCESS;
 
-    if (curr_token.type == TTYPE_COMMA) { /* , */
+    if (curr_token.type == TTYPE_COMMA) { /* , or eps */
         lex_check(next_token(false));
 
         switch (curr_token.type) {
@@ -185,7 +253,11 @@ int r_params() {
                 retvalue = r_params(); /* <params> */
                 break;
 
+            case TTYPE_RTBRAC:
+                return SUCCESS;
+
             default:
+                fprintf(stderr, "UNEXPECTED_TOKEN in r_params - wrong parameter.\n");
                 retvalue = UNEXPECTED_TOKEN;
                 break;
         }
@@ -198,27 +270,143 @@ int r_if_else() {
 }
 int r_cycle() {
 }
+
 int r_function_ret() {
+    if (!in_function)
+        return RETURN_IN_PROGRAM_BODY; /* return statement cannot exist outside a
+                                          function definition */
+    lex_check(next_token(false));
+    return r_retvalue();
 }
+
 int r_retvalue() {
+    int retvalue = UNEXPECTED_TOKEN;
+
+    if (curr_token.type == TTYPE_EOL) { /* eps */
+        unget_token();
+        retvalue = SUCCESS;
+
+    } else { /* Call psa, I want no part in this... */
+        unget_token();
+        retvalue = psa();
+    }
+
+    return retvalue;
 }
+
 int r_value() {
+    int retvalue = SUCCESS;
+
+    if (curr_token.type == TTYPE_ID) { /* id, can be function call */
+        unget_token();
+        lex_check(next_token(false));
+        retvalue = r_rest();
+
+    } else { /* expression */
+        unget_token();
+        retvalue = psa();
+    }
+
+    return retvalue;
 }
+
 int r_rest() {
+    int retvalue = UNEXPECTED_TOKEN;
+
+    switch (curr_token.type) {
+        case TTYPE_LTBRAC:
+            stash_clear();
+            retvalue = r_function_call();
+            break;
+
+        case TTYPE_ASSIGN: /* assignment - we need to check if the assigned value
+                              comes from an expression or a function call */
+
+            stash_clear();
+            lex_check(next_token(false));
+            unget_token();
+            if (curr_token.type == TTYPE_ID) {
+
+                lex_check(next_token(false));
+                if (curr_token.type == TTYPE_LTBRAC) {
+                    stash_clear();
+                    retvalue = r_function_call();
+
+                } else {
+                    unget_token();
+                    retvalue = psa();
+                }
+
+            } else {
+                retvalue = psa();
+            }
+
+            break;
+
+        default: /* expression */
+            unget_token();
+            retvalue = psa();
+            break;
+    }
+
+    return retvalue;
 }
+
 int r_function_call() {
+    int retvalue = UNEXPECTED_TOKEN;
+    if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;
+
+    lex_check(next_token(false));
+    if ((retvalue = r_param_list()) != SUCCESS) return retvalue;
+    if (curr_token.type != TTYPE_RTBRAC) return UNEXPECTED_TOKEN;
+
+    return retvalue;
 }
+
 int r_term() {
+    int retvalue = UNEXPECTED_TOKEN;
+
+    if (curr_token.type == TTYPE_ID) { /* id */
+        retvalue = SUCCESS;
+
+    } else { /* probably literal */
+        retvalue = r_literal();
+    }
+
+    return retvalue;
+}
+
+int r_literal() {
+    switch (curr_token.type) {
+        case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR:
+        case TTYPE_DOCSTR: case TTYPE_NONE:
+            return SUCCESS;
+            break;
+
+        default:
+            fprintf(stderr, "UNEXPECTED_TOKEN in r_literal - not a literal .\n");
+            return UNEXPECTED_TOKEN;
+            break;
+    }
 }
 
 
 int next_token(bool load_from_stash) {
+    int retvalue;
+
+    /* Free token string attribute if loading with get_token and stash is empty */
+    if (stash_empty()
+            || (token_stash[0].type == TTYPE_EOF && token_stash[1].type != TTYPE_EOF)) {
+        token_free(&curr_token);
+    }
 
     if (load_from_stash) {
+
         if (token_stash[0].type != TTYPE_EOF) {
             curr_token = token_stash[0];
             token_stash[0].type = TTYPE_EOF;
             return SUCCESS;
+
         } else if (token_stash[1].type != TTYPE_EOF) {
             curr_token = token_stash[1];
             token_stash[1].type = TTYPE_EOF;
@@ -226,15 +414,11 @@ int next_token(bool load_from_stash) {
         }
     } 
 
-    /* Free token string attribute if loading with get_token */
-    if (curr_token.type == TTYPE_STR
-            || curr_token.type == TTYPE_DOCSTR
-            || curr_token.type == TTYPE_ID)
-        free(curr_token.attribute.string);
 
-    int retvalue = get_token(stdin, &curr_token); // Get next token
+    retvalue = get_token(stdin, &curr_token); // Get next token
     if (retvalue != 0)
         printf("token error\n"); // free resources, exit
+
     return retvalue;
 }
 
@@ -244,6 +428,27 @@ void unget_token() {
     } else {
         token_stash[1] = curr_token;
     }
+}
+
+void stash_clear() {
+    for (int i = 0; i < 2; i++) {
+        token_free(&token_stash[i]);
+        token_stash[i].type = TTYPE_EOF;
+    }
+}
+
+void token_free(token_t *token) {
+        if (token->type == TTYPE_STR
+                || token->type == TTYPE_DOCSTR
+                || token->type == TTYPE_ID) {
+
+            free(token->attribute.string);
+            token->attribute.string = NULL;
+        }
+}
+
+bool stash_empty() {
+    return token_stash[0].type == TTYPE_EOF && token_stash[1].type == TTYPE_EOF;
 }
 
 void lex_check(int retcode) {
