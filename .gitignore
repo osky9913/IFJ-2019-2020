@@ -1,7 +1,6 @@
 IFJ
 string_test
 tests/bin
-main.c
 parser
 parser_input.py
 vgcore*
