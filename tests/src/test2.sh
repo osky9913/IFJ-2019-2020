@@ -11,7 +11,7 @@ valgrind ./${program} ${input} >${output} 2>&1;
 ./${program} ${input} >${output2};
 grep "ERROR*" "$output">${result};
 grep "total heap usage" "$output">>${result};
-diff ${output2} "../correct_results/${testcase}.out" >> ${result};
+diff ${output2} "../correct_results/${testcase}_correct.txt" >> ${result};
 mv ${output2} ../results/${testcase}_valgrind.txt;
 rm ${output};
 
