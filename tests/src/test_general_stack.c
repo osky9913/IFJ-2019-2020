@@ -166,7 +166,6 @@ int main() {
 
     printf("\n[TEST11] Now, we check a stack of maximum size.\n");
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    use_stack_init(ptrstack);
     stackPrint(ptrstack);
     use_stack_empty(ptrstack);
 
