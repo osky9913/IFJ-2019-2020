@@ -5,14 +5,13 @@
 #include "symtable.h"
 #include "general_stack.h"
 #include "errors.h"
+#include "parser.h"
+#include <stdbool.h>
 
 #define P '<' // push to stack
 #define R '>' //reduce by rule
 #define X '0' //expresion error 
 #define M '$' //money$$$$$
-#define TRUE 1
-#define FALSE 0
-
 
 /**
  * @brief [This enum represents type of symbol of precedence analysis table]
@@ -32,19 +31,17 @@ typedef enum {
 
 /**
  * [main function for precedence syntax analysis, checking syntax and semantic rules]
- * @param f[Source file] 
  * @return [0 on success, 1 when syntax error]
  */
-int psa(FILE* f);
+int psa();
 
 
 /**
  * [Applying precedence analysis rules] 
  * @param PAStack [Stack of non-terminals and terminals for syntax analysis]
- * @param newToken [new token from lexical analysis, will be converted to prec analysis table symbol]
  * @return [0 on success, otherwise 1]
  */
-int apply_psa_rule(stack_general_t* PAStack, token_t newToken);
+int apply_psa_rule(stack_general_t* PAStack);
 
 
 /**
@@ -58,10 +55,9 @@ char get_prec_table_rule(stack_general_t* PAStack, int newSymbol);
 
 /**
  * [Calls scanner for new token and convert it to the symbol in precedence analysis table]
- * @param f [Source file]
  * @return [returns precedence table symbol on success, else -1]
  */
-int get_prec_table_symbol(token_t newToken);
+int get_prec_table_symbol();
 
 /**
  * [Replaces 3 items which should be reduced by rule to one non-terminal]

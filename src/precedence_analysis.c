@@ -11,8 +11,8 @@ const char PREC_TABLE[7][7] =
                 {P, P, P, X, P, P, M}
         };
 
-int get_prec_table_symbol(token_t newToken){
-    switch(newToken.type){
+int get_prec_table_symbol(){
+    switch(curr_token.type){
         case TTYPE_ID:
         case TTYPE_INT:
         case TTYPE_DOUBLE:
@@ -181,9 +181,9 @@ int reduce(stack_general_t* PAStack){
 }
 
 
-int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
+int apply_psa_rule( stack_general_t* PAStack){
     //converting token to symbol for from precedence table
-    int newSymbol = get_prec_table_symbol(newToken);
+    int newSymbol = get_prec_table_symbol();
 
     printf("TOKEN SYMBOL[%d]\n",newSymbol);
 
@@ -201,7 +201,7 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
     printf("RULE %c\n", rule);
 
     //rule handling
-    int reducing = FALSE;
+    int reducing = 0;
     do{
         //only pushes symbol to stack
         if(rule == P){
@@ -211,7 +211,7 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
                 return 1;
             }
             //select false to end loop
-            reducing = FALSE;
+            reducing = 0;
         }
 
         //rule does not exist in the table -> cause an error
@@ -222,7 +222,7 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
         //rule chosen by two '$' symbols - end of the syntax expresion check everything is correct
         else if(rule == M){
             printf("STACK REDUCED CORRECTLY\n");
-            reducing = FALSE;
+            reducing = 0;
         }
         //stack has to be reduce by rules, reduce function is called
         else{
@@ -241,7 +241,7 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
             }
 
             //select true to repeat process with new rule calculated and same new symbol from token
-            reducing = TRUE;
+            reducing = 1;
         }
     }while(reducing);
 
@@ -249,10 +249,9 @@ int apply_psa_rule( stack_general_t* PAStack, token_t newToken){
 }
 
 
-int psa(FILE* f){
+int psa(){
     //declaration of needed data structures
     stack_general_t* PAStack = stack_general_init();//precedence analysis stack of symbols
-    token_t newToken;
 
     //pushing starting symbol - DOLLAR '$'
     if(stack_general_push_int(PAStack, DOLLAR) == ALLOC_ERROR){
@@ -261,19 +260,13 @@ int psa(FILE* f){
         return 1;
     }
 
-    //getting token from scanner and checking for possible error
-    int lex_analysis = get_token(f, &newToken);
-    if(lex_analysis == 1){
-        printf("TOKEN ERROR");
-        stack_free(PAStack);
-        return 1;
-    }
+    lex_check(next_token(true));
 
     //loop through whole expression
-    while(newToken.type != TTYPE_COLUMN && newToken.type != TTYPE_EOL){
+    while(curr_token.type != TTYPE_COLUMN && curr_token.type != TTYPE_EOL){
 
         //applying rules and checking for error indicating syntax error
-        int psaCheck = apply_psa_rule(PAStack, newToken);
+        int psaCheck = apply_psa_rule(PAStack);
         printf("PSACHECK:%d\n",psaCheck);
 
         //incorrect syntax
@@ -283,27 +276,17 @@ int psa(FILE* f){
             return 1;
         }
 
-        //rewrite to the function to free resources
-        if(newToken.type == TTYPE_ID || newToken.type == TTYPE_STR || newToken.type == TTYPE_DOCSTR){
-            free(newToken.attribute.string);
-        }
-
-        //getting next token from scanner and checking for possible error
-        lex_analysis = get_token(f, &newToken);
-        if(lex_analysis == 1){
-            printf("GET TOKEN ERROR\n");
-            stack_free(PAStack);
-            return 1;
-        }
+        lex_check(next_token(true));
     }
 
     //applying rules and check for possible errors
-    int psaCheck = apply_psa_rule(PAStack, newToken);
+    int psaCheck = apply_psa_rule(PAStack);
     if(psaCheck) {
         printf("INCORRECT SYNTAX\n");
         stack_free(PAStack);
         return 1;
     }
+    unget_token();
 
     //free stack memory
     stack_free(PAStack);
