@@ -28,8 +28,6 @@ typedef enum {
     TTYPE_INT,              //whole number
     TTYPE_DOUBLE,           //float number
     TTYPE_STR,              //string
-    TTYPE_DOCSTR,           //documentation string
-    TTYPE_NONE,             //None  
 
     TTYPE_INDENT,
     TTYPE_DEDENT,
@@ -84,7 +82,7 @@ typedef struct{
     attribute_t attribute;
 } token_t;
 
-int calculate_dent(FILE* f, int* c);
+int calculate_dent(int* c);
 
 /**
  * @brief Frees all allocated resources, converts string into token's attribute
@@ -101,7 +99,7 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
  * @param f       [source file]
  * @param token_string [token's string attribute]
  */
-void hexa_escape(FILE* f, string_t* Tstring);
+void hexa_escape(string_t* Tstring);
 
 /**
  * @brief Generates DEDENT tokens until dedent is equal to indent on top of stack
@@ -115,6 +113,6 @@ int process_dedents();
  * @param  token [processed token]
  * @return       [returns 0 on succes, else 1]
  */
-int get_token(FILE* f, token_t* token);
+int get_token(token_t* token);
 
 #endif

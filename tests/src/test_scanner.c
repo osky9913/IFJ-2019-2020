@@ -8,16 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-int main(int argc, char const *argv[]) {
-    FILE *f;
-    if (argc == 1) {
-        printf("Neni zadan vstupni soubor");
-        return 0;
-    }
-    if ((f = fopen(argv[1], "r")) == NULL) {
-        printf("Soubor se nepodarilo otevrit");
-        return 0;
-    }
+int main() {
     //dent_stack = indent_stack_init();
 
 
@@ -25,7 +16,7 @@ int main(int argc, char const *argv[]) {
     token_t token; 
 
     int result;
-    result = get_token(f, &token);
+    result = get_token(&token);
 
 
     while (token.type != TTYPE_EOF) {
@@ -36,7 +27,7 @@ int main(int argc, char const *argv[]) {
         if (token.type == TTYPE_EOL) {
             printf("<NEWLINE> \n");
         }
-        if (token.type == TTYPE_STR || token.type == TTYPE_DOCSTR || token.type == TTYPE_ID) {
+        if (token.type == TTYPE_STR || token.type == TTYPE_ID) {
             printf("<STRING or ID |%s| >  ", token.attribute.string);
             free(token.attribute.string);
         }
@@ -98,9 +89,6 @@ int main(int argc, char const *argv[]) {
         if (token.type == TTYPE_COMMA) {
             printf("<COMMA> ");
         }
-        if (token.type == TTYPE_NONE) {
-            printf("<NONE> ");
-        }
         if (token.type == TTYPE_KEYWORD) {
             printf("<KEYWORD> ");
         }
@@ -113,7 +101,7 @@ int main(int argc, char const *argv[]) {
         if (token.type == TTYPE_INT) {
             printf("<NUM |%ld| >", token.attribute.integer);
         }
-        result = get_token(f, &token);
+        result = get_token(&token);
 
     }
     if (token.type == TTYPE_EOF) {
@@ -122,6 +110,5 @@ int main(int argc, char const *argv[]) {
     stack_free(dent_stack);
     //indent_stack_free(dent_stack);
 
-    fclose(f);
     return 0;
 }
