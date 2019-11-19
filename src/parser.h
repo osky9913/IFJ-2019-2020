@@ -81,8 +81,14 @@ void unget_token();
  */
 void stash_clear();
 
+/**
+ * @brief Checks if token stash is empty
+ */
 bool stash_empty();
 
+/**
+ * @brief Frees the memory allocated for the token attribute if it's of type string.
+ */
 void token_free(token_t *token);
 
 

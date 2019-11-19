@@ -61,6 +61,13 @@ int r_program() {
                 case KEY_RETURN:
                     fprintf(stderr, "UNEXPECTED_TOKEN 'return' in r_program.\n");
                     retvalue = UNEXPECTED_TOKEN;
+                    break;
+
+                case KEY_NONE:
+                    if ((retvalue = r_statement()) == SUCCESS) {
+                        retvalue = r_program();
+                    }
+                    break;
 
                 default:
                     break;
@@ -68,7 +75,7 @@ int r_program() {
             break;
 
         case TTYPE_ID: case TTYPE_STR: case TTYPE_DOCSTR:
-        case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_NONE:
+        case TTYPE_INT: case TTYPE_DOUBLE:
         case TTYPE_LTBRAC:
             if ((retvalue = r_statement()) == SUCCESS) {
                 retvalue = r_program();
@@ -88,7 +95,7 @@ int r_statement() {
 
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_LTBRAC: case TTYPE_INT: case TTYPE_DOUBLE:
-        case TTYPE_STR: case TTYPE_DOCSTR: case TTYPE_NONE:
+        case TTYPE_STR: case TTYPE_DOCSTR:
             /* id, (, int, dbl, str, none */
             retvalue = r_value();
             break;
@@ -100,15 +107,19 @@ int r_statement() {
                     break;
 
                 case KEY_IF:
-                    retvalue = r_if_else(); /* if-else */
+                    return r_if_else(); /* if-else */
                     break;
 
                 case KEY_WHILE:
-                    retvalue = r_cycle(); /* while */
+                    return r_cycle(); /* while */
                     break;
 
                 case KEY_PASS:
                     retvalue = SUCCESS; /* pass */
+                    break;
+
+                case KEY_NONE:
+                    retvalue = r_value();
                     break;
 
                 default:
@@ -126,7 +137,6 @@ int r_statement() {
     lex_check(next_token(true));
     if (curr_token.type != TTYPE_EOL) { /* eol */
         fprintf(stderr, "UNEXPECTED_TOKEN in r_statement - didn't end with eol.\n");
-        fprintf(stderr, "%d %d\n", TTYPE_EOL, curr_token.type);
         retvalue = UNEXPECTED_TOKEN;
     }
 
@@ -136,7 +146,7 @@ int r_statement_list() {
     int retvalue = SUCCESS;
 
     switch (curr_token.type) {
-        case TTYPE_DEDENT: /* dedent */
+        case TTYPE_DEDENT: /* dedent -> eps*/
             return SUCCESS;
             break;
 
@@ -145,15 +155,23 @@ int r_statement_list() {
             break;
 
         case TTYPE_KEYWORD: 
-            retvalue = r_statement();
+            if (curr_token.attribute.keyword != KEY_DEF) {
+                retvalue = r_statement();
+            } else {
+                retvalue = UNEXPECTED_TOKEN;
+            }
             break;
 
         default:
-            fprintf(stderr, "UNEXPECTED_TOKEN in r_statement_list.\n");
+            fprintf(stderr, "UNEXPECTED_TOKEN %d in r_statement_list.\n", curr_token.type);
             retvalue = UNEXPECTED_TOKEN;
             break;
     }
 
+    if (retvalue == SUCCESS) {
+        lex_check(next_token(false));
+        retvalue = r_statement_list();
+    }
     return retvalue;
 }
 
@@ -188,7 +206,6 @@ int r_function_def() {
     retvalue = r_statement_list(); /* <statement_list> */
     if (retvalue != SUCCESS) return retvalue;
 
-    lex_check(next_token(false));
     if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* DEDENT */
     
     in_function = false;
@@ -229,9 +246,17 @@ int r_param_list() {
 
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
-        case TTYPE_DOCSTR: case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
+        case TTYPE_DOCSTR: case TTYPE_DOUBLE: /* TERMS */
             lex_check(next_token(false));
             retvalue = r_params(); /* <params> */
+            break;
+
+        case TTYPE_KEYWORD:
+            if (curr_token.attribute.keyword == KEY_NONE) { /* None */
+                lex_check(next_token(false));
+                retvalue = r_params(); /* <params> */
+            }
+            break;
 
         default:
             break;
@@ -248,13 +273,21 @@ int r_params() {
 
         switch (curr_token.type) {
             case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
-            case TTYPE_DOCSTR: case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
+            case TTYPE_DOCSTR: case TTYPE_DOUBLE: /* TERMS */
                 lex_check(next_token(false));
                 retvalue = r_params(); /* <params> */
                 break;
 
+            case TTYPE_KEYWORD:
+                if (curr_token.attribute.keyword == KEY_NONE) { /* None */
+                    lex_check(next_token(false));
+                    retvalue = r_params(); /* <params> */
+                }
+                break;
+
             case TTYPE_RTBRAC:
-                return SUCCESS;
+                retvalue = SUCCESS;
+                break;
 
             default:
                 fprintf(stderr, "UNEXPECTED_TOKEN in r_params - wrong parameter.\n");
@@ -267,8 +300,71 @@ int r_params() {
 }
 
 int r_if_else() {
+    int retvalue = SUCCESS;
+
+    if ((retvalue = psa()) != SUCCESS) return retvalue; /* if expr */
+
+    lex_check(next_token(true));
+    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* eol */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* indent */
+
+    lex_check(next_token(false));
+    if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
+
+    lex_check(next_token(false));
+    if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
+    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* dedent */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_KEYWORD) return UNEXPECTED_TOKEN;
+    if (curr_token.attribute.keyword != KEY_ELSE) return UNEXPECTED_TOKEN; /* else */
+
+    lex_check(next_token(true));
+    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* eol */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* indent */
+
+    lex_check(next_token(false));
+    if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
+
+    lex_check(next_token(false));
+    if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
+    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* dedent */
+
+    return retvalue;
 }
+
 int r_cycle() {
+    int retvalue = SUCCESS;
+
+    if ((retvalue = psa()) != SUCCESS) return retvalue; /* while expr */
+
+    lex_check(next_token(true));
+    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* eol */
+
+    lex_check(next_token(false));
+    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* indent */
+
+    lex_check(next_token(false));
+    if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
+
+    lex_check(next_token(false));
+    if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
+    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* dedent */
+
+    return retvalue;
 }
 
 int r_function_ret() {
@@ -377,17 +473,25 @@ int r_term() {
 }
 
 int r_literal() {
+    int retvalue = UNEXPECTED_TOKEN;
     switch (curr_token.type) {
         case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR:
-        case TTYPE_DOCSTR: case TTYPE_NONE:
-            return SUCCESS;
+        case TTYPE_DOCSTR:
+            retvalue = SUCCESS;
+            break;
+
+        case TTYPE_KEYWORD:
+            if (curr_token.attribute.keyword == KEY_NONE)
+                retvalue = SUCCESS;
             break;
 
         default:
             fprintf(stderr, "UNEXPECTED_TOKEN in r_literal - not a literal .\n");
-            return UNEXPECTED_TOKEN;
+            retvalue = UNEXPECTED_TOKEN;
             break;
     }
+
+    return retvalue;
 }
 
 
