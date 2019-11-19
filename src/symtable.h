@@ -6,8 +6,8 @@
  */
 
 
-#ifndef _HASHTABLE_H_
-#define _HASHTABLE_H_
+#ifndef __SYMTABLE_H__
+#define __SYMTABLE_H__
 
 #include <string.h>
 #include <stdbool.h>
@@ -15,9 +15,13 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define  SYM_TABLE_SIZE 49157 
+#include "errors.h"
 
+#define  SYMTABLE_SIZE 12289
 
+/**
+ * @brief Reprezentuje typ symbolu.
+ */
 typedef enum {
     STYPE_VAR,
     STYPE_FUNC,
@@ -48,7 +52,6 @@ typedef enum {
 typedef struct variable_attributes {
     bool defined;
     var_type_t type;
-    int scope; // nejsem si jisty, jak to zatim reprezentovat TODO
     union {
         int int_value;
         double double_value;
@@ -109,21 +112,44 @@ typedef struct symbol {
 } symbol_t;
 
 
-typedef symbol_t *symtable_t[SYM_TABLE_SIZE];
+/** 
+ * @brief A static typedef for our symtable.
+ */
+typedef symbol_t *symtable_t[SYMTABLE_SIZE];
 
 
-/* Hlavičky řešených procedur a funkcí. */
+/**
+ * @brief Hash funkce pro ziskani indexu do tabulky symbolu.
+ * @return Vraci index do tabulky pro zadany klic
+ */
+unsigned int symtable_hash(const char *key);
 
-int hashCode(char *id);
-
+/**
+ * @brief Initializes a pre-allocated hash table.
+ * @param table Table we need to init.
+ */
 void symtable_init(symtable_t *table);
 
-symbol_t *symtable_search(symtable_t *table, char *id);
+/**
+ * @brief Searches the hash table for an item.
+ * @return Returns pointer to the found item or NULL if the item couldn't be found.
+ */
+symbol_t *symtable_search(symtable_t *table, const char *id);
 
-void symtable_insert(symtable_t *table, char *id, symbol_type_t type, symbol_attributes attributes);
+/**
+ * @brief Inserts a new symbol in the table, updates its attributes.
+ * @return Returns a pointer to the inserted item or NULL if something goes wrong. 
+ */
+symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type, symbol_attributes attributes);
 
-void symtable_delete(symtable_t *table, char *id);
+/**
+ * @brief Deletes a symbol from the table.
+ */
+void symtable_delete(symtable_t *table, const char *id);
 
+/**
+ * @brief Deletes all symbols from a table.
+ */
 void symtable_clear_all(symtable_t *table);
 
 #endif 
