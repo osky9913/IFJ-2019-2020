@@ -18,8 +18,8 @@
 
 
 #define SUCCESS 0
-#define UNEXPECTED_TOKEN 1
-#define RETURN_IN_PROGRAM_BODY 1
+#define UNEXPECTED_TOKEN 2
+#define RETURN_IN_PROGRAM_BODY 6
 
 /**
  * @brief Indicates whether the currently analyzed block

@@ -559,6 +559,6 @@ void lex_check(int retcode) {
     if (retcode != SUCCESS) {
         free_resources();
         fprintf(stderr, "Lex error %d\n", retcode);
-        exit(retcode);
+        exit(ERROR_LEXICAL);
     }
 }
