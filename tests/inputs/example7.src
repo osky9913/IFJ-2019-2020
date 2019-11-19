@@ -1,0 +1,66 @@
+a = None
+def a(b):
+    if b==5:
+        print('Einstein did not kill himself',b)
+    else:
+        print('Einstein did kill himself',b)
+        pass
+    return
+
+a+5
+a+=5
+a=a+5
+a*5
+a*=5
+a=a*5
+a-5
+a-=5
+a=a-5
+a\5
+a\=5
+a=a\5
+a**5
+a\\5
+
+
+               }           // '='
+        if (token.type == TTYPE_EXCL) {
+            printf("EXCL ");
+        }             // '!'
+
+        if (token.type == TTYPE_ISEQ) {
+            printf("ISEQ ");
+        }             // '=='
+        if (token.type == TTYPE_ISNEQ) {
+            printf("ISNEQ ");
+        }            // '!='
+        if (token.type == TTYPE_GTOREQ) {
+            printf("GTOREQ ");
+        }           // '>='
+        if (token.type == TTYPE_LSOREQ) {
+            printf("LSOREQ ");
+        }           // '<='
+        if (token.type == TTYPE_GT) {
+            printf("GT ");
+        }               // '>'
+        if (token.type == TTYPE_LS) {
+            printf("LS ");
+        }               // '<'
+        if (token.type == TTYPE_ADD) {
+            printf("ADD ");
+        }              // '+' addition or concatenation
+        if (token.type == TTYPE_SUB) {
+            printf("SUB ");
+        }              // '-'
+        if (token.type == TTYPE_MUL) {
+            printf("MUL ");
+        }              // '*'
+        if (token.type == TTYPE_DIV) {
+            printf("DIV ");
+        }              // '/'
+        if (token.type == TTYPE_IDIV) {
+            printf("IDIV ");
+        }             // ''
+        result = get_token(f, &token);
+
+//
