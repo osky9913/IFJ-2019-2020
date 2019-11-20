@@ -1,0 +1,25 @@
+if a == 5 :
+"""
+einstein
+einstein
+einstein
+"""
+    if a == 5:
+"""
+einstein
+einstein
+einstein
+"""
+        if a == 5 :
+"""
+einstein
+einstein
+einstein
+"""
+            if a == 5:
+"""
+einstein
+einstein
+einstein
+"""
+print(a,a,a)
