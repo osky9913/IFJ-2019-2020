@@ -13,7 +13,7 @@ token_t token_stash[2];
 
 
 int init_resources() {
-    dent_stack = indent_stack_init();
+    dent_stack = stack_general_init();
     if (!dent_stack) return ERROR_INTERNAL;
 
     in_function = false;
@@ -31,7 +31,7 @@ void free_resources() {
     next_token(true);
     next_token(true);
     next_token(true);
-    indent_stack_free(dent_stack);
+    stack_free(dent_stack);
     stash_clear();
 }
 
@@ -74,7 +74,7 @@ int r_program() {
             }
             break;
 
-        case TTYPE_ID: case TTYPE_STR: case TTYPE_DOCSTR:
+        case TTYPE_ID: case TTYPE_STR:
         case TTYPE_INT: case TTYPE_DOUBLE:
         case TTYPE_LTBRAC:
             if ((retvalue = r_statement()) == SUCCESS) {
@@ -95,7 +95,7 @@ int r_statement() {
 
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_LTBRAC: case TTYPE_INT: case TTYPE_DOUBLE:
-        case TTYPE_STR: case TTYPE_DOCSTR:
+        case TTYPE_STR:
             /* id, (, int, dbl, str, none */
             retvalue = r_value();
             break;
@@ -136,7 +136,8 @@ int r_statement() {
 
     lex_check(next_token(true));
     if (curr_token.type != TTYPE_EOL) { /* eol */
-        fprintf(stderr, "UNEXPECTED_TOKEN in r_statement - didn't end with eol.\n");
+        fprintf(stderr, "UNEXPECTED_TOKEN %d in r_statement - didn't end with eol.\n",
+                curr_token.type);
         retvalue = UNEXPECTED_TOKEN;
     }
 
@@ -246,7 +247,7 @@ int r_param_list() {
 
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
-        case TTYPE_DOCSTR: case TTYPE_DOUBLE: /* TERMS */
+        case TTYPE_DOUBLE: /* TERMS */
             lex_check(next_token(false));
             retvalue = r_params(); /* <params> */
             break;
@@ -273,7 +274,7 @@ int r_params() {
 
         switch (curr_token.type) {
             case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
-            case TTYPE_DOCSTR: case TTYPE_DOUBLE: /* TERMS */
+            case TTYPE_DOUBLE: /* TERMS */
                 lex_check(next_token(false));
                 retvalue = r_params(); /* <params> */
                 break;
@@ -476,7 +477,6 @@ int r_literal() {
     int retvalue = UNEXPECTED_TOKEN;
     switch (curr_token.type) {
         case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR:
-        case TTYPE_DOCSTR:
             retvalue = SUCCESS;
             break;
 
@@ -519,7 +519,7 @@ int next_token(bool load_from_stash) {
     } 
 
 
-    retvalue = get_token(stdin, &curr_token); // Get next token
+    retvalue = get_token(&curr_token); // Get next token
     if (retvalue != 0)
         printf("token error\n"); // free resources, exit
 
@@ -542,9 +542,7 @@ void stash_clear() {
 }
 
 void token_free(token_t *token) {
-        if (token->type == TTYPE_STR
-                || token->type == TTYPE_DOCSTR
-                || token->type == TTYPE_ID) {
+        if (token->type == TTYPE_STR || token->type == TTYPE_ID) {
 
             free(token->attribute.string);
             token->attribute.string = NULL;

@@ -15,6 +15,7 @@
 #include "symtable.h"
 #include "precedence_analysis.h"
 #include "errors.h"
+#include "general_stack.h"
 
 
 #define SUCCESS 0
