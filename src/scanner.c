@@ -43,13 +43,7 @@ int calculate_dent(int* c){
             *c = getc(stdin);
         }
     }
-    //calculated indentation of comments, have to ignore it
-    if(*c == '#'){
-        ungetc(*c, stdin);
-        stack_top = stack_general_top(dent_stack);
-        return *(int*)stack_top->data;
-    }
-    if(*c == '"'){
+    if(*c == EOF || *c == '#' || *c == '"'){
         ungetc(*c, stdin);
         stack_top = stack_general_top(dent_stack);
         return *(int*)stack_top->data;
@@ -109,7 +103,6 @@ int process_dedents(){
     while(indent != stack_top_int){
         pop_indent = stack_top_int;//indent_stack_top(dent_stack);
         stack_pop(dent_stack);
-
         if(stack_empty(dent_stack)){
             fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
             return 0;
@@ -122,7 +115,7 @@ int process_dedents(){
             return 1;
         }
         //indentation of dedent is smaller than one or more indents indentation(there is more indents to be popped from stack)
-        if(pop_indent != stack_top_int){
+        if(pop_indent > stack_top_int){
             indents_to_pop = 1;
             return 1;
         }
@@ -165,12 +158,9 @@ int get_token(token_t* token){
                 if(new_line == 1){
                     indent = calculate_dent(&c);
                     stack_top = stack_general_top(dent_stack);
-                    if(stack_top){
-                        stack_top_int = *(int*)stack_top->data;
-                    }
-                    else{
-                        stack_top_int = -1;
-                    }
+ 
+                    stack_top_int = *(int*)stack_top->data;
+
 
                     if(indent > stack_top_int){
                         //processed non-whitespace character we have to get it back
