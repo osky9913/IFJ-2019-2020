@@ -18,7 +18,7 @@ PARSER_C=src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_s
 
 all:  test_scanner test_general_stack test_symtable
 
-test_scanner: src/dynamic_string.c src/scanner.c src/indent_stack.c $(TEST_SRC)/test_scanner.c
+test_scanner: src/dynamic_string.c src/scanner.c src/general_stack.c $(TEST_SRC)/test_scanner.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
 
@@ -35,7 +35,7 @@ test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 
 
 tests: all
-	./tests.sh
+	rm output.txt ; touch output.txt ; ./tests.sh output.txt ; cat output.txt | grep "ERROR" ; cat output.txt | grep "usage"
 
 parser: $(PARSER_C) src/*
 	gcc $(CFLAGS) -o $@ $(PARSER_C)
