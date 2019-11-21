@@ -24,6 +24,7 @@ typedef enum {
     TTYPE_KEYWORD,          // def/else/if,None,pass,return,while
     TTYPE_EOF,              // end of file
     TTYPE_EOL,              // \n
+    TTYPE_NONE,
 
     TTYPE_INT,              //whole number
     TTYPE_DOUBLE,           //float number
