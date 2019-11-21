@@ -17,6 +17,7 @@ int get_prec_table_symbol(){
         case TTYPE_INT:
         case TTYPE_DOUBLE:
         case TTYPE_STR:
+        case TTYPE_NONE:
             return ID;
         
         case TTYPE_LTBRAC:

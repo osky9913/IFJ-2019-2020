@@ -63,12 +63,6 @@ int r_program() {
                     retvalue = UNEXPECTED_TOKEN;
                     break;
 
-                case KEY_NONE:
-                    if ((retvalue = r_statement()) == SUCCESS) {
-                        retvalue = r_program();
-                    }
-                    break;
-
                 default:
                     break;
             }
@@ -76,7 +70,7 @@ int r_program() {
 
         case TTYPE_ID: case TTYPE_STR:
         case TTYPE_INT: case TTYPE_DOUBLE:
-        case TTYPE_LTBRAC:
+        case TTYPE_LTBRAC: case TTYPE_NONE:
             if ((retvalue = r_statement()) == SUCCESS) {
                 retvalue = r_program();
             }
@@ -95,7 +89,7 @@ int r_statement() {
 
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_LTBRAC: case TTYPE_INT: case TTYPE_DOUBLE:
-        case TTYPE_STR:
+        case TTYPE_STR: case TTYPE_NONE:
             /* id, (, int, dbl, str, none */
             retvalue = r_value();
             break;
@@ -116,10 +110,6 @@ int r_statement() {
 
                 case KEY_PASS:
                     retvalue = SUCCESS; /* pass */
-                    break;
-
-                case KEY_NONE:
-                    retvalue = r_value();
                     break;
 
                 default:
@@ -247,16 +237,9 @@ int r_param_list() {
 
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
-        case TTYPE_DOUBLE: /* TERMS */
+        case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
             lex_check(next_token(false));
             retvalue = r_params(); /* <params> */
-            break;
-
-        case TTYPE_KEYWORD:
-            if (curr_token.attribute.keyword == KEY_NONE) { /* None */
-                lex_check(next_token(false));
-                retvalue = r_params(); /* <params> */
-            }
             break;
 
         default:
@@ -274,16 +257,9 @@ int r_params() {
 
         switch (curr_token.type) {
             case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
-            case TTYPE_DOUBLE: /* TERMS */
+            case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
                 lex_check(next_token(false));
                 retvalue = r_params(); /* <params> */
-                break;
-
-            case TTYPE_KEYWORD:
-                if (curr_token.attribute.keyword == KEY_NONE) { /* None */
-                    lex_check(next_token(false));
-                    retvalue = r_params(); /* <params> */
-                }
                 break;
 
             case TTYPE_RTBRAC:
@@ -476,13 +452,8 @@ int r_term() {
 int r_literal() {
     int retvalue = UNEXPECTED_TOKEN;
     switch (curr_token.type) {
-        case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR:
+        case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR: case TTYPE_NONE:
             retvalue = SUCCESS;
-            break;
-
-        case TTYPE_KEYWORD:
-            if (curr_token.attribute.keyword == KEY_NONE)
-                retvalue = SUCCESS;
             break;
 
         default:
