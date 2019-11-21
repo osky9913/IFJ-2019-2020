@@ -43,7 +43,7 @@ int calculate_dent(int* c){
             *c = getc(stdin);
         }
     }
-    if(*c == EOF || *c == '#' || *c == '"'){
+    if(*c == '#' || *c == '"'){
         ungetc(*c, stdin);
         stack_top = stack_general_top(dent_stack);
         return *(int*)stack_top->data;
