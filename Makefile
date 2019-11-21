@@ -41,8 +41,10 @@ tests_random: all
 
 tests_scanner_test_case: test_scanner_id
 	./tests/src/test1.sh ; ./tests/src/test2.sh ; ./tests/src/test3.sh ; \
-	./tests/src/test4.sh ; ./tests/src/test5.sh ; ./tests/src/test6.sh
-
+	./tests/src/test4.sh ; ./tests/src/test5.sh ; ./tests/src/test6.sh ; \
+	./tests/src/test7.sh ; ./tests/src/test8.sh ; ./tests/src/test9.sh ; \
+    ./tests/src/test10.sh ; ./tests/src/test11.sh ; ./tests/src/test12.sh ; \
+    ./tests/src/test13.sh
 
 
 
