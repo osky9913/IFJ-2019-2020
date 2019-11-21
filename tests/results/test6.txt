@@ -1,0 +1,14 @@
+==3368== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==3368==   total heap usage: 549 allocs, 549 frees, 18,443 bytes allocated
+1,2c1,2
+< ID ASSIGN ID ID ID ID STR EOL
+< ID ASSIGN ID ADD COMMA ID ID ID ID STR EOL
+---
+> ID ASSIGN STR EOL
+> ID ASSIGN ID ADD STR EOL
+17c17
+< INDENT KEYWORD 
+\ No newline at end of file
+---
+> INDENT KEYWORD
+\ No newline at end of file

@@ -1,0 +1,8 @@
+==5056== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==5056==   total heap usage: 173 allocs, 173 frees, 11,788 bytes allocated
+5c5
+< DEDENT DEDENT DEDENT ID LTBRAC ID COMMA ID COMMA ID RTBRAC 
+\ No newline at end of file
+---
+> DEDENT DEDENT DEDENT ID LTBRAC ID COMMA ID COMMA ID RTBRAC
+\ No newline at end of file

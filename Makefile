@@ -15,7 +15,7 @@ TEST_BIN=tests/bin/
 
 
 
-all:  test_scanner test_general_stack test_symtable
+all:  test_scanner test_general_stack test_symtable test_scanner_id
 
 test_scanner: src/dynamic_string.c src/scanner.c src/indent_stack.c $(TEST_SRC)/test_scanner.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
@@ -30,11 +30,24 @@ test_general_stack: src/general_stack.c $(TEST_SRC)/test_general_stack.c
 test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
+test_scanner_id: src/dynamic_string.c src/scanner.c src/indent_stack.c $(TEST_SRC)/test_scanner_id.c
+	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
 
-
-tests: all
+tests_random: all
 	rm output.txt ; touch output.txt ; ./tests.sh output.txt ; cat output.txt | grep "ERROR" ; cat output.txt | grep "usage"
+
+
+
+tests_scanner_test_case: test_scanner_id
+	./tests/src/test1.sh ; ./tests/src/test2.sh ; ./tests/src/test3.sh ; \
+	./tests/src/test4.sh ; ./tests/src/test5.sh ; ./tests/src/test6.sh ; \
+	./tests/src/test7.sh ; ./tests/src/test8.sh ; ./tests/src/test9.sh ; \
+    ./tests/src/test10.sh ; ./tests/src/test11.sh ; ./tests/src/test12.sh ; \
+    ./tests/src/test13.sh
+
+
+
 
 
 
