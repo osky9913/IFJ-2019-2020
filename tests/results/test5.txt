@@ -1,20 +1,7 @@
-==31780== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-==31780==   total heap usage: 401 allocs, 401 frees, 15,733 bytes allocated
-6c6
-< INDENT ID ASSIGN ID LTBRAC ID RTBRAC EOL
+==15621== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==15621==   total heap usage: 411 allocs, 411 frees, 15,253 bytes allocated
+16c16,17
+< DEDENT 
 ---
-> ID ASSIGN ID LTBRAC ID RTBRAC EOL
-8,10c8,10
-< DEDENT DEDENT KEYWORD ID EOL
-< ID LTBRAC STR RTBRAC EOL
-< DEDENT ID ASSIGN ID LTBRAC RTBRAC EOL
----
-> DEDENT KEYWORD ID EOL
-> DEDENT ID LTBRAC STR RTBRAC EOL
-> ID ASSIGN ID LTBRAC RTBRAC EOL
-15c15
-< ID LTBRAC STR COMMA ID RTBRAC 
-\ No newline at end of file
----
-> ID LTBRAC STR COMMA ID RTBRAC
-\ No newline at end of file
+> DEDENT
+> 
