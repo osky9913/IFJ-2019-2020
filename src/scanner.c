@@ -505,7 +505,7 @@ int get_token(token_t* token){
                     }
                     else if((strcmp(token_string->array, "None")) == 0){ 
                         string_clear(token_string);  
-                        token->type = TTYPE_KEYWORD;
+                        token->type = TTYPE_NONE;
                         token->attribute.keyword = KEY_NONE;
                     }
                     else if((strcmp(token_string->array, "pass")) == 0){ 
