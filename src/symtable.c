@@ -1,134 +1,116 @@
 /**
  *	@file   symtable.c
- *	@author Simon Sedlacek Martin Osvald , xsedla1h , xosval03
+ *	@author Simon Sedlacek, Martin Osvald
  *	@date
  *	@brief Modul implementujici tabulku symbolu.
  *	@note	TODO: revidovat funkce, struktury
  */
 
 #include "symtable.h"
-#include <stdio.h>
 
+unsigned int symtable_hash(const char *id) {
+    unsigned long hash = 0, high;
 
+    while (*id) {
+        hash = (hash << 4) + *id++;
+        if ((high = hash & 0xF0000000))
+            hash ^= high >> 24;
+        hash &= ~high;
+    }
 
-int hashCode(char *id) {
-    int retval = 1;
-    int keylen = strlen(id);
-    for (int i = 0; i < keylen; i++)
-        retval += id[i];
-    return (retval % SYM_TABLE_SIZE);
+    return hash % SYMTABLE_SIZE;
 }
 
 
 void symtable_init(symtable_t *table) {
-    if (table == NULL) {
-        return;
-    }
-
-    for (int i = 0; i < SYM_TABLE_SIZE; i++) {
-        (*table)[i] = NULL;
+    if (table != NULL) {
+        for (int i = 0; i < SYMTABLE_SIZE; i++) {
+            (*table)[i] = NULL;
+        }
     }
 }
 
 
-symbol_t *symtable_search(symtable_t *table, char *id) {
-    symbol_t *destination = (*table)[hashCode(id)];
+symbol_t *symtable_search(symtable_t *table, const char *id) {
+    symbol_t *target = (*table)[symtable_hash(id)];
 
-    if (destination == NULL) {
-        return NULL;
-    };
+    while (target != NULL) {
 
-    while (destination != NULL) {
-        if (strcmp(id, destination->id) == 0) {
-            return destination;
-        }
-        destination = destination->next;
+        if (!strcmp(id, target->id))
+            return target;
+
+        target = target->next;
     }
     return NULL;
 }
 
 
-void symtable_insert(symtable_t *table, char *id, symbol_type_t type, symbol_attributes attributes) {
+symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type, symbol_attributes attributes) {
 
-    symbol_t *destination = symtable_search(table, id);
+    symbol_t *target = symtable_search(table, id);
+    
+    if (target) {
+        target->type = type;
+        target->attributes = attributes;
+        return target;
 
-    // ak je zoznam  na indexe prazdny
-    if (symtable_search(table, id) == NULL) {
-        symbol_t *new_item = (symbol_t *) malloc(sizeof(symbol_t));
-        if (new_item == NULL) {
-            return;
-        }
-        new_item->id = id;
+    } else {
+
+        int index = symtable_hash(id);
+
+        symbol_t *new_item = malloc(sizeof(symbol_t));
+        if (new_item == NULL)
+            return NULL;
+
+        new_item->id = malloc(strlen(id) + 1); 
+        strcpy(new_item->id, id);
         new_item->type = type;
         new_item->attributes = attributes;
 
-        new_item->next = (*table)[hashCode(id)];
-        (*table)[hashCode(id)] = new_item;
-        return;
+        new_item->next = NULL;
+        (*table)[index] = new_item;
+        return new_item;
     }
 
-    // ak neni prazdny pozeram ci tam nemam rovnaky prvok s inymi datami
-    if (destination != NULL &&
-        strcmp(id, destination->id) == 0
-            ) {
-        destination->type = type;
-        destination->attributes = attributes;
-        return;
-    }
-
-
+    return target;
 }
 
 
-void symtable_delete(symtable_t *table, char *id) {
+void symtable_delete(symtable_t *table, const char *id) {
+    symbol_t *target = (*table)[symtable_hash(id)];
 
-    // cielovy prvok pomocou pristupu indexoveho hasu
-    symbol_t *destination = (*table)[hashCode(id)];
+    symbol_t *previous = NULL;
+    while (target != NULL) {
 
-    //ak tam nic neni vrat sa
-    if (destination == NULL) {
-        return;
-    }
+        if (!strcmp(id, target->id)) {
 
-    // ak prvy prvok je hladany zmaz ho
-    if (strcmp(id, destination->id) == 0) {
-        (*table)[hashCode(id)] = destination->next;
-        free(destination);
-        destination = NULL;
-        return;
-    }
+            if (previous == NULL) {
+                (*table)[symtable_hash(id)] = target->next;
 
-    // ak neni prvy prvok hladany tak iteruj
-    symbol_t *previous_item = destination;
-    destination = destination->next;
-    while (destination != NULL) {
-        if (strcmp(id, destination->id) == 0) {
-            previous_item->next = destination->next;
-            free(destination);
-            destination = NULL;
+            } else {
+                previous->next = target->next;
+            }
+
+            free(target);
             return;
         }
-        previous_item = destination;
-        destination = destination->next;
+        previous = target;
+        target = target->next;
     }
-    return;
 }
 
 
 void symtable_clear_all(symtable_t *table) {
-    // ak je tabulka prazda tak null
-    if (table == NULL) {
-        return;
-    }
+    if (table) {
 
-    // inac uvolni kazdy item
-    for (int i = 0; i < SYM_TABLE_SIZE; i++) {
-        while ((*table)[i] != NULL) {
-            symbol_t *first = (*table)[i];
-            symbol_t *second = first->next;
-            (*table)[i] = second;
-            free(first);
-            first = NULL;
+        for (int i = 0; i < SYMTABLE_SIZE; i++) {
+            while ((*table)[i] != NULL) {
+
+                symbol_t *first = (*table)[i];
+                symbol_t *second = first->next;
+                (*table)[i] = second;
+                free(first);
+            }
         }
     }
 }

@@ -1,6 +1,10 @@
 IFJ
 string_test
-tests/bin/
+tests/bin
+parser
+parser_input.py
+vgcore*
+.gdb*
 # Prerequisites
 *.d
 

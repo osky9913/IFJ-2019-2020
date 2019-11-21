@@ -4,32 +4,14 @@
 #include "scanner.h"
 #include "symtable.h"
 #include "general_stack.h"
+#include "errors.h"
+#include "parser.h"
+#include <stdbool.h>
 
 #define P '<' // push to stack
 #define R '>' //reduce by rule
 #define X '0' //expresion error 
 #define M '$' //money$$$$$
-
-
-
-/**
- * @brief [This enum represents type of rules for precedence analysis] 
- */
-typedef enum {
-    RULE_MUL,       //E->E*E
-    RULE_DIV,       //E->E/E
-    RULE_IDIV,      //E->E//E
-    RULE_PLUS,      //E->E+E
-    RULE_MINUS,     //E->E-E
-    RULE_ID,        //E->i
-    RULE_BRACKET,   //E->(E)
-    RULE_EQ,        //B->E==E
-    RULE_GT,        //B->E>E
-    RULE_GET,       //B->E>=E
-    RULE_LT,        //B->E<E
-    RULE_LET,       //B->E<=E
-    RULE_NEQ,       //B->E!=E
-} prec_analysis_rule_t;
 
 /**
  * @brief [This enum represents type of symbol of precedence analysis table]
@@ -49,19 +31,17 @@ typedef enum {
 
 /**
  * [main function for precedence syntax analysis, checking syntax and semantic rules]
- * @param f[Source file] 
- * @return
+ * @return [0 on success, 1 when syntax error]
  */
-int psa(FILE* f);
+int psa();
 
 
 /**
  * [Applying precedence analysis rules] 
  * @param PAStack [Stack of non-terminals and terminals for syntax analysis]
- * @param newToken [new token from lexical analysis, will be converted to prec analysis table symbol]
- * 
+ * @return [0 on success, otherwise 1]
  */
-int apply_psa_rule(stack_general_t* PAStack, token_t newToken);
+int apply_psa_rule(stack_general_t* PAStack);
 
 
 /**
@@ -75,16 +55,22 @@ char get_prec_table_rule(stack_general_t* PAStack, int newSymbol);
 
 /**
  * [Calls scanner for new token and convert it to the symbol in precedence analysis table]
- * @param f [Source file]
- * @return [returns precedence table symbol on succes, else -1]
+ * @return [returns precedence table symbol on success, else -1]
  */
-int get_prec_table_symbol(token_t newToken);
+int get_prec_table_symbol();
 
 /**
- * [Reduces terminal and non-terminals on stack by applying one of the precedence analysis rules]
- * 
- * 
- * @return [Return value as int]
+ * [Replaces 3 items which should be reduced by rule to one non-terminal]
+ *  @param PAStack [Stack of precedence analysis symbols]
+ *  @param toPush [Non-terminal which should be pushed to the stack instead of the 3 poped]
+ * @return [Returns 0 on success, otherwise 1]
  */
-int reduce();
+int reduce_on_stack(stack_general_t* PAStack, int toPush);
+
+/**
+ * [Reduces terminals and non-terminals to non-terminals by applying precedence analysis syntax rules]
+ * @param PAStack [Stack of precedence analysis symbols]
+ * @return [Returns 0 when reducing rule is successfully applied, otherwise 1]
+ */
+ int reduce(stack_general_t* PAStack);
 #endif

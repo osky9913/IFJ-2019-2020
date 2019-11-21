@@ -5,10 +5,12 @@
  */
 
 #include "scanner.h"
+#include "errors.h"
 
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+
 
 //global variable to determine if we are on new line(time to evaluate indent/dedent)
 //  -1 -> when beginning of the file
@@ -23,39 +25,34 @@ int indents_to_pop = 0;
 int indent = 0;
 
 
-int calculate_dent(FILE* f, int* c){
+int calculate_dent(int* c){
     indent = 0;
- //   printf("CHARRR v CALC |%c|\n", *c);
+    stack_general_item_t* stack_top = NULL;
+    //ignore newlines indentation
     if(*c == '\n'){
-        return indent_stack_top(dent_stack);
+        stack_top = stack_general_top(dent_stack);
+        return *(int*)stack_top->data;
     }
     while(isspace(*c)){
         if(*c == '\n'){
             indent = 0;
-            *c = getc(f);
+            *c = getc(stdin);
         }
         else{
             indent++;
-            *c = getc(f);
+            *c = getc(stdin);
         }
     }
-    //ignore indentation of comments
-    if(*c == '#'){
-        while(*c != '\n'){
-            *c = getc(f);
-        }
-        *c = getc(f);
-        return indent_stack_top(dent_stack);
-    }
-    if(*c == '"'){
-        ungetc(*c, f);
-        return indent_stack_top(dent_stack);
+    if(*c == EOF || *c == '#' || *c == '"'){
+        ungetc(*c, stdin);
+        stack_top = stack_general_top(dent_stack);
+        return *(int*)stack_top->data;
     }
     return indent;
 }
 
 int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t* token_string){
-    if(token->type == TTYPE_STR || token->type == TTYPE_DOCSTR || token->type == TTYPE_ID){
+    if(token->type == TTYPE_STR || token->type == TTYPE_ID){
         token->attribute.string = string_copy_data(token_string);
     }
     if(token->type == TTYPE_EOL){
@@ -69,107 +66,119 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
     return exit_code;
 }
 
-void hexa_escape(FILE* f, string_t* token_string){
+void hexa_escape(string_t* token_string){
     long hexa;
-    string_t tmp;
-    string_init(&tmp);
+    string_t* tmp = string_create_init();
     int c;
-    c = getc(f);
+    c = getc(stdin);
     if(isxdigit(c)){
-        string_append_char(&tmp, '0');
-        string_append_char(&tmp, 'x');
-        string_append_char(&tmp, c);
-        c = getc(f);
+        string_append_char(tmp, '0');
+        string_append_char(tmp, 'x');
+        string_append_char(tmp, c);
+        c = getc(stdin);
         if(isxdigit(c)){
-            string_append_char(&tmp, c);
-            hexa = strtol(tmp.array, NULL, 16);
+            string_append_char(tmp, c);
+            hexa = strtol(tmp->array, NULL, 16);
             string_append_char(token_string, hexa);
         }
         else{
-            ungetc(c, f);
-            hexa = strtol(tmp.array, NULL, 16);
+            ungetc(c, stdin);
+            hexa = strtol(tmp->array, NULL, 16);
             string_append_char(token_string, hexa);
         }
     }
     else{
         string_append_char(token_string, '\\');
-        ungetc(c, f);
+        ungetc(c, stdin);
     }
-    string_free(&tmp);                                      
+
+    string_free(tmp);                                   
 }
 
 int process_dedents(){
-    int pop_indent;     //indentation that will be removed from indent_stack
-    while(indent != indent_stack_top(dent_stack)){
-        pop_indent = indent_stack_top(dent_stack);
-       // indent_stack_print(dent_stack, indent, pop_indent);
-        indent_stack_pop(dent_stack);
+    int pop_indent;     //indentation sequence that will be removed from indent_stack
+    stack_general_item_t* stack_top = stack_general_top(dent_stack);
+    int stack_top_int = *(int*)stack_top->data;
 
-
-     //   printf("PO POPE\n");
-     //   indent_stack_print(dent_stack, indent, pop_indent);
-        if(indent_stack_empty(dent_stack)){
+    while(indent != stack_top_int){
+        pop_indent = stack_top_int;//indent_stack_top(dent_stack);
+        stack_pop(dent_stack);
+        if(stack_empty(dent_stack)){
             fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
             return 0;
         }
-        //after first indent was popped, dedent indentation was found on top of stack(there is no more indents to be popped)
-        if(indent == (indent_stack_top(dent_stack))){
+        stack_top = stack_general_top(dent_stack);
+        stack_top_int = *(int*)stack_top->data;
+        //after first indent was popped, dedent indentation was equal to top of stack(there is no more indents to be popped)
+        if(indent == stack_top_int){
             indents_to_pop = 0;
             return 1;
         }
-        //indentation of dedent is smaller than one or more indents(there is more indents to be popped from stack)
-        if(pop_indent != (indent_stack_top(dent_stack))){
+        //indentation of dedent is smaller than one or more indents indentation(there is more indents to be popped from stack)
+        if(pop_indent > stack_top_int){
             indents_to_pop = 1;
             return 1;
         }
     }
-    indents_to_pop = 0;
-    new_line = 0;
-    return 2;
+    return 0;
 }
 
-int get_token(FILE* f, token_t* token){
-    string_t* token_string = string_create_init();
+int get_token(token_t* token){
     int state = 0;
-    int c, ret_code;
+    int c;
+    string_t* token_string = string_create_init();
     string_t* tmp = string_create_init();
+    stack_general_item_t* stack_top = NULL;
+    int stack_top_int;
 
+    //at the beginning of the file put zero on top of stack
+    if(new_line == -1){
+        stack_general_push_int(dent_stack, 0);
+    }
+
+    //there is more dedents to be generated
     if(indents_to_pop){
         token->type = TTYPE_DEDENT;
-        ret_code = process_dedents();
-        if(ret_code == 1){
-            return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+
+        if(process_dedents()){
+            return finish_free_resources(SUCCESS, token, tmp, token_string);
         }
-        else if(ret_code == 0){
+        else{
             indents_to_pop = 0; //len kvoli tomu aby sa to nezacykliklo, odstranit z finalnej verzie
-            return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+            return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
         }
     }
 
     while(1){
-        c = getc(f);
-       
+        c = getc(stdin); 
         switch(state){
             //default state
             case 0:
-                 //indent dedent
+                //indent dedent
                 if(new_line == 1){
-                    indent = calculate_dent(f, &c);
-                    if(indent > indent_stack_top(dent_stack)){
-                        ungetc(c, f);
-                        indent_stack_push(dent_stack, indent);
+                    indent = calculate_dent(&c);
+                    stack_top = stack_general_top(dent_stack);
+ 
+                    stack_top_int = *(int*)stack_top->data;
+
+
+                    if(indent > stack_top_int){
+                        //processed non-whitespace character we have to get it back
+                        ungetc(c, stdin);
+                        stack_general_push_int(dent_stack, indent);
                         token->type = TTYPE_INDENT;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string); 
+                        return finish_free_resources(SUCCESS, token, tmp, token_string); 
                     }
-                    else if(indent < indent_stack_top(dent_stack)){
-                        ungetc(c, f);
+                    else if(indent < stack_top_int){
+                        //processed non-whitespace character we have to get it back
+                        ungetc(c, stdin);
                         token->type = TTYPE_DEDENT;
-                        ret_code = process_dedents();
-                        if(ret_code == 1){
-                            return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+
+                        if(process_dedents()){
+                            return finish_free_resources(SUCCESS, token, tmp, token_string);
                         }
-                        else if(ret_code == 0){
-                            return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        else{
+                            return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                         }
                     }
                 }
@@ -185,82 +194,85 @@ int get_token(FILE* f, token_t* token){
                     //operators
                     case '+':
                         token->type = TTYPE_ADD;
-                        state = 4;
-                        break;
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case '-':
                         token->type = TTYPE_SUB;
-                        state = 4;
-                        break;
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case '*':
                         token->type = TTYPE_MUL;
-                        state = 4;
-                        break;
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case '/':
                         string_append_char(tmp, c);
                         token->type = TTYPE_DIV;
-                        state = 5;
+                        state = 4;
                         break;
                     case '<':
                         string_append_char(tmp, c);
                         token->type = TTYPE_LS;
-                        state = 5;
+                        state = 4;
                         break;
                     case '>':
                         string_append_char(tmp, c);
                         token->type = TTYPE_GT;
-                        state = 5;
+                        state = 4;
                         break;
                     case '=':
                         string_append_char(tmp, c);
                         token->type = TTYPE_ASSIGN;
-                        state = 5;
+                        state = 4;
                         break;
                     case '!':
                         string_append_char(tmp, c);
-                        token->type = TTYPE_EXCL;
-                        state = 5;
+                        state = 4;
                         break;
                     case '(':
                         token->type = TTYPE_LTBRAC;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case ')':
                         token->type = TTYPE_RTBRAC;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case '\'':
                         token->type = TTYPE_STR;
-                        state = 8;
+                        state = 7;
                         break;
                     case EOF:
                         token->type = TTYPE_EOF;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case ',':
                         token->type = TTYPE_COMMA;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case '\n':
                         if(new_line){
                             state = 0;
-                            break;
                         }
-                        token->type = TTYPE_EOL;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        else{
+                            token->type = TTYPE_EOL;
+                            return finish_free_resources(SUCCESS, token, tmp, token_string);
+                        }
+                        break;
+
                     case ':':
                         token->type = TTYPE_COLUMN;
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     default:
                         //identifiers
                         if(isalpha(c) || c == '_'){
                             token->type = TTYPE_ID;
                             string_append_char(token_string, c);
-                            state = 7;
-                        }
-                        //numbers
-                        if(isdigit(c)){
-                            string_append_char(tmp, c);
-                            token->type = TTYPE_INT;
                             state = 6;
                         }
-                        if(isspace(c)) {   
+                        //numbers
+                        else if(isdigit(c)){
+                            token->type = TTYPE_INT;
+                            string_append_char(tmp, c);
+                            state = 5;
+                        }
+                        else if(isspace(c)) {   
                             state = 0;
+                        }
+                        else{
+                            fprintf(stderr, "Lexical analysis error: Unknown operator!\n");
+                            return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                         }
                         break;
                     } 
@@ -268,22 +280,15 @@ int get_token(FILE* f, token_t* token){
             //inline comments
             case 1:
                 if (c == '\n') {
-                    state = 1;
-
-                    if(new_line == 1){
-                        new_line = 1;
-                    }
-                    else if(new_line == -1){
-                        new_line = -1;
-                    }
-                    else{
-                        ungetc(c, f);
+                    //in case of comment after non-eol token, there is an eol token to be generated
+                    if(new_line != 1){
+                        ungetc(c, stdin);
                     }
                     state = 0;
                 }
                 if(c == EOF){
                     state = 0;
-                    ungetc(c, f);
+                    ungetc(c, stdin);
                 }
                 break;
             //multiline string
@@ -294,12 +299,12 @@ int get_token(FILE* f, token_t* token){
                 }
                 else{
                     fprintf(stderr, "Lexical analysis error: Quotation marks for documentation string were not written correctly!\n");
-                    return finish_free_resources(LEX_ERROR, token, tmp, token_string);             
+                    return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);             
                 }
                 //multiline string, searching for """
                 if((strcmp(tmp->array, "\"\"\"")) == 0){
                     state = 3;
-                    token->type = TTYPE_DOCSTR;
+                    token->type = TTYPE_STR;
                     string_clear(tmp);
                 }
                 break;
@@ -309,12 +314,13 @@ int get_token(FILE* f, token_t* token){
                 }
                 //EOF appeared before enclosure of multiline string
                 else if(c == EOF) {
-                    ungetc(c, f);
+                    ungetc(c, stdin);
                     fprintf(stderr, "Lexical analysis error: EOF appeared before enclosure of multiline string!\n");
-                    return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                    return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                 }
+                //escape sequences
                 else if(c == '\\'){
-                    c = getc(f);
+                    c = getc(stdin);
                     if(c == '"'){
                         string_append_char(token_string, c);
                     }
@@ -328,17 +334,19 @@ int get_token(FILE* f, token_t* token){
                         string_append_char(token_string, c);
                     }
                     else if(c == 'x'){
-                        hexa_escape(f, token_string);
+                        hexa_escape(token_string);
                     }
                     else{
-                        ungetc(c, f);
+                        ungetc(c, stdin);
                         string_append_char(token_string, '\\');
                     }
                 }
+                //clear string which compares end of docstring, continue appending to string
                 else {
                     string_clear(tmp);
                     string_append_char(token_string, c);        
                 }
+                //compare if we approached end of docstring
                 if((strcmp(tmp->array, "\"\"\"")) == 0){
                     state = 0;
                     if(new_line){
@@ -346,46 +354,25 @@ int get_token(FILE* f, token_t* token){
                         string_clear(token_string);
                         break;
                     }
-                    return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                    return finish_free_resources(SUCCESS, token, tmp, token_string);
                 }
                 break;
-
-            //one character operator
-            case 4:
-                if(isalnum(c) || c == '_'){
-                    ungetc(c, f);
-                }
-                else if(isspace(c)){
-                    ungetc(c, f);
-                }
-                else if(c == '('){
-                    ungetc(c, f);
-                }
-                else if(c == ')'){
-                    ungetc(c, f);
-                }
-                else if(c == EOF){
-
-                }
-                else{
-                    fprintf(stderr, "Lexical analysis error : Unknown operator!\n");
-                    return finish_free_resources(LEX_ERROR, token, tmp, token_string);
-                }
-                return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
             //possible multicharacter operators (//, <= ...)
-            case 5:
+            case 4:
+                //integer division
                 if(c == '/'){
+                    string_append_char(tmp, c);
                     if((strcmp(tmp->array, "//")) == 0){
                         token->type = TTYPE_IDIV;
-                        break;
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                     //unknown operator (e.g </)
                     else{
-                        ungetc(c, f);
-                        fprintf(stderr, "Lexical analysis error : Unknown operator!\n");
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        ungetc(c, stdin);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                 }
+                //compare operators
                 else if(c == '='){
                     string_append_char(tmp, c);
                     if((strcmp(tmp->array, "<=")) == 0){
@@ -401,54 +388,61 @@ int get_token(FILE* f, token_t* token){
                         token->type = TTYPE_ISNEQ;
                     }
                     else{
-                        fprintf(stderr, "Lexical analysis error : Unknown operator!\n");
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        ungetc(c, stdin);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                 }
-                else if(isalnum(c) || c == '_'){
-                    ungetc(c, f);
-                }
-                else if(isspace(c)){
-                    ungetc(c, f);
-                }
-                else if(c == '('){
-                    ungetc(c, f);
-                }
-                else if(c == ')'){
-                    ungetc(c, f);
-                }
                 else{
-                    fprintf(stderr, "Lexical analysis error : Unknown operator!\n");
-                    return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                    ungetc(c, stdin);
+                    return finish_free_resources(SUCCESS, token, tmp, token_string);
                 }
-                return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                return finish_free_resources(SUCCESS, token, tmp, token_string);
             //exponents or float values 
-            case 6:           
-                //decimals and exponent numbers
+            case 5:      
+                //number with floating point
                 if(c == '.'){
+                    //bad order in number (eg. 10e32.3)
+                    if(str_find_char(tmp, 'e')){
+                        fprintf(stderr, "Lexical analysis error : Wrong order of exponent and floating point in number!\n");
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
+                    }
+                    //searching for previous occurances of '.'
                     if((str_find_char(tmp, c))){ 
                         fprintf(stderr, "Lexical analysis error : Bad formatting of float number!\n");
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     else{
                         string_append_char(tmp, c);
                         token->type = TTYPE_DOUBLE;
                     }
                 }
+                //exponent numbers
                 else if(c == 'e' || c == 'E'){
-                    token->type = TTYPE_DOUBLE;
+                     //searching for previous occurances of 'e'
                     if(str_find_char(tmp, c)){
                         fprintf(stderr, "Lexical analysis error : Bad formatting of number with exponent!\n");
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     else{
                         //e.g 203ebola 23e-blabla
                         string_append_char(tmp, c);
-                        state = 9;
+                        token->type = TTYPE_DOUBLE;
+                        state = 8;
                     }
                 }
                 //+ -  can stand in middle of number after exponent only (e.g 10e-2)
                 else if(c == '+' || c == '-'){
+                    //if '+'/'-' appeared after int
+                    if(token->type == TTYPE_INT){
+                        ungetc(c ,stdin);
+                        token->attribute.integer = strtol(tmp->array, NULL, 10);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
+                    }
+                    //latest char in tmp string is '.', return it to file stream and finish
+                    if(tmp->array[tmp->index-1] == '.'){
+                        ungetc('.', stdin);
+                    }
+                    //latest char in tmp string is 'e'/'E', continue
                     if(tmp->array[tmp->index-1] == 'e'){
                         string_append_char(tmp, c);
                     }
@@ -456,31 +450,44 @@ int get_token(FILE* f, token_t* token){
                         string_append_char(tmp, c);
                     }
                     else{
-                        fprintf(stderr, "Lexical analysis error : Found '%c' in middle of number!\n", c);
-                        return finish_free_resources(LEX_ERROR, token, tmp, token_string);
+                        ungetc(c, stdin);
+                        token->attribute.decimal = strtod(tmp->array, NULL);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                 }
                 else if(isdigit(c)){
                     string_append_char(tmp, c);
+                    break;
                 }
                 else{
-                    ungetc(c, f);
+                    //after '.' or 'e' 'E' non-numeric number appeared
+                    if(tmp->array[tmp->index-1] == '.'){
+                        ungetc('.', stdin);
+                        token->type = TTYPE_INT;
+                    }
+                    if(tmp->array[tmp->index-1] == 'e'){
+                        ungetc('e', stdin);
+                    }
+                    if(tmp->array[tmp->index-1] == 'E'){
+                        ungetc('E', stdin);
+                    }
+                    ungetc(c, stdin);
                     if(token->type == TTYPE_INT){
                         token->attribute.integer = strtol(tmp->array, NULL, 10);
                     }
                     if(token->type == TTYPE_DOUBLE){
                         token->attribute.decimal = strtod(tmp->array, NULL);
                     }
-                    return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                    return finish_free_resources(SUCCESS, token, tmp, token_string);
                 }
                 break;
             //identifiers or keywords
-            case 7:
+            case 6:
                 if(isalnum(c) || c == '_'){
                     string_append_char(token_string, c);
                 }
                 else{
-                    ungetc(c, f);
+                    ungetc(c, stdin);
                     if((strcmp(token_string->array, "def")) == 0){    
                         string_clear(token_string);
                         token->type = TTYPE_KEYWORD;
@@ -498,7 +505,7 @@ int get_token(FILE* f, token_t* token){
                     }
                     else if((strcmp(token_string->array, "None")) == 0){ 
                         string_clear(token_string);  
-                        token->type = TTYPE_KEYWORD;
+                        token->type = TTYPE_NONE;
                         token->attribute.keyword = KEY_NONE;
                     }
                     else if((strcmp(token_string->array, "pass")) == 0){ 
@@ -516,22 +523,22 @@ int get_token(FILE* f, token_t* token){
                         token->type = TTYPE_KEYWORD;
                         token->attribute.keyword = KEY_WHILE;
                     }
-                    return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                    return finish_free_resources(SUCCESS, token, tmp, token_string);
                 }
                 break;
             //string 
-            case 8:  
+            case 7:  
                 if(c == '\''){
-                    return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                    return finish_free_resources(SUCCESS, token, tmp, token_string);
                 }
                 else if(c == '\n' || c == EOF){
-                    ungetc(c, f);
+                    ungetc(c, stdin);
                     fprintf(stderr, "Lexical analysis error : String was not enclosed!\n");
-                    return finish_free_resources(LEX_ERROR, token, tmp, token_string);  
+                    return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);  
                 }
                 //escape sequence
                 else if(c == '\\'){
-                    c = getc(f);
+                    c = getc(stdin);
                     if(c == '"'){
                         string_append_char(token_string, c);
                     }
@@ -548,10 +555,10 @@ int get_token(FILE* f, token_t* token){
                         string_append_char(token_string, c);
                     }
                     else if(c == 'x'){
-                        hexa_escape(f, token_string);
+                        hexa_escape(token_string);
                     }
                     else{
-                        ungetc(c, f);
+                        ungetc(c, stdin);
                         string_append_char(token_string, '\\');
                     }
                 }
@@ -559,22 +566,24 @@ int get_token(FILE* f, token_t* token){
                     string_append_char(token_string, c);
                 }
                 break;
-                case 9:
+                case 8:
                     if(c == '-' || c == '+'){
                         string_append_char(tmp, c);
-                        state = 6;
+                        state = 5;
                     }
                     else if(isdigit(c)){
                         string_append_char(tmp, c);
-                        state = 6;
+                        state = 5;
                     }
                     else{
-                        ungetc(c ,f);
+                        ungetc(c ,stdin);
                         if(tmp->array[tmp->index-1] == 'e'){
-                            ungetc('e', f);
+                            ungetc('e', stdin);
+                            token->type = TTYPE_INT;
                         }
                         else if(tmp->array[tmp->index-1] == 'E'){
-                            ungetc('E', f);
+                            ungetc('E', stdin);
+                            token->type = TTYPE_INT;
                         }
                         if(token->type == TTYPE_INT){
                             token->attribute.integer = strtol(tmp->array, NULL, 10);
@@ -582,7 +591,7 @@ int get_token(FILE* f, token_t* token){
                         if(token->type == TTYPE_DOUBLE){
                             token->attribute.decimal = strtod(tmp->array, NULL);
                         }
-                        return finish_free_resources(LEX_SUCCES, token, tmp, token_string);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                     break;
 

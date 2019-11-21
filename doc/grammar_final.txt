@@ -3,7 +3,11 @@
 <program> → <function_def> <program>
 <statement_list> → ε
 <statement_list> → <statement> <statement_list>
-<function_def> → def id ( <param_list> ) : eol indent <statement> <statement_list> dedent
+<function_def> → def id ( <param_list_def> ) : eol indent <statement> <statement_list> dedent
+<param_list_def> → ε
+<param_list_def> → id <params_def>
+<params_def> → ε
+<params_def> → , id <params_def>
 <param_list> → ε
 <param_list> → TERM <params>
 <params> → ε
@@ -19,7 +23,7 @@
 <rest> → expr
 <rest> → <function_call>
 <function_call> → ( <param_list> )
-<function_call> → return <retvalue>
+<function_ret> → return <retvalue>
 <retvalue> → ε
 <retvalue> → expr
 <if_else> → if expr : eol indent <statement> <statement_list> dedent else : eol indent <statement> <statement_list> dedent
@@ -37,7 +41,11 @@ PROGRAM → STATEMENT PROGRAM
 PROGRAM → FUNCTION_DEF PROGRAM
 STATEMENT_LIST → ε
 STATEMENT_LIST → STATEMENT STATEMENT_LIST
-FUNCTION_DEF → def id ( PARAM_LIST ) : eol indent STATEMENT STATEMENT_LIST dedent
+FUNCTION_DEF → def id ( PARAM_LIST_DEF ) : eol indent STATEMENT STATEMENT_LIST dedent
+PARAM_LIST_DEF → ε
+PARAM_LIST_DEF → id PARAMS_DEF
+PARAMS_DEF → ε
+PARAMS_DEF → , id PARAMS_DEF
 PARAM_LIST → ε
 PARAM_LIST → TERM PARAMS
 PARAMS → ε
