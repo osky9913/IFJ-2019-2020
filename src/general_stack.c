@@ -83,6 +83,18 @@ void stack_pop(stack_general_t *stack) {
 
 }
 
+void stack_popNoDataFree(stack_general_t *stack) {
+    if (stack_empty(stack)) {
+        return;
+    }
+
+    stack_general_item_t *temp = stack->top;
+    stack->top = temp->next;
+    free(temp);
+    temp = NULL;
+
+}
+
 bool stack_empty(stack_general_t *stack) {
 
     if (stack->top == NULL) {
