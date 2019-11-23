@@ -107,7 +107,7 @@ int add_symbol_var(const char *id) {
 }
 
 int add_symbol_function(const char *id) {
-    if ((curr_symbol = symtable_search(&table_global, id))) {
+    if ((curr_function = symtable_search(&table_global, id))) {
         fprintf(stderr, "Line %d - Semantic error: ID '%s' "
                 "has already been defined.\n", line_counter, id);
         return ERROR_SEM_DEFINITION;
@@ -116,7 +116,7 @@ int add_symbol_function(const char *id) {
         func_att_t func_att = { .defined = true, .param_count = 0 };
         symbol_attributes attributes = { .func_att = func_att };
 
-        if (!(curr_symbol = symtable_insert(&table_global, id, STYPE_FUNC, attributes))) {
+        if (!(curr_function = symtable_insert(&table_global, id, STYPE_FUNC, attributes))) {
             fprintf(stderr, "Line %d - Internal error: Could not allocate memory "
                     "for a new function symbol.\n", line_counter);
             return ERROR_INTERNAL;
