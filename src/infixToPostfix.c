@@ -262,7 +262,7 @@ int postfixEval(t_array* postfix){
     stack_general_t* evalS = stack_general_init();
     token_t currentToken = postfix->arr[0];
     for(int i = 0; i < postfix->currLen; i++){
-        if(!isOperator(postfix->arr[i])){
+        if(!isOperator(&(postfix->arr[i]))){
             stack_general_push(evalS, &(postfix->arr[i]));
             continue;
         }
@@ -271,6 +271,7 @@ int postfixEval(t_array* postfix){
             stack_popNoDataFree(evalS);
             stack_general_item_t *tmpStackItem2 = stack_general_top(evalS);
             token_t *operand2 = (token_t *) tmpStackItem2->data;
+            stack_popNoDataFree(evalS);
 
         int semantic = checkSemantic(operand1, operand2, &currentToken);
         if(semantic == 0){
@@ -282,10 +283,7 @@ int postfixEval(t_array* postfix){
             /***********************************/
             token_t* newToken = token_gen(name);
             stack_general_push(tokenGarbageS, newToken);
-
-            /********/
-            //send mid-eval into symtable
-            /*******/
+            stack_general_push(evalS, newToken);
         }
         else{
             return -1;
@@ -294,8 +292,8 @@ int postfixEval(t_array* postfix){
     return 0;
 }
 
-bool isOperator(token_t token){
-    switch(token.type){
+bool isOperator(const token_t* const token){
+    switch(token->type){
         case TTYPE_ISNEQ:
         case TTYPE_ISEQ:
         case TTYPE_GT:
@@ -322,6 +320,55 @@ token_t* token_gen(char* name){
 
 
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
-    return 1;
+    if(operand1->type == TTYPE_ID){
+        bool check = check_if_defined_var(operand1->attribute.string);
+        if(!check){
+            printf("Not defined variable error\n");
+            return 1;
+        }
+    }
+    if(operand2->type == TTYPE_ID){
+        bool check = check_if_defined_var(operand2->attribute.string);
+        if(!check){
+            printf("Not defined variable error\n");
+            return 1;
+        }
+    }
+    if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE)){
+        if(isOperator(operator)){
+            if(operator->type == TTYPE_IDIV){
+                if(operand1->type == TTYPE_DOUBLE || operand2->type == TTYPE_DOUBLE){
+                    return 1;
+                }
+                else if(operand1->attribute.integer == 0){
+                    return 1;
+                }
+                return 0;
+            }
+            if(operator->type == TTYPE_DIV) {
+                if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
+                    return 1;
+                }
+                return 0;
+            }
+        }
+        else{
+            return 1;
+        }
+    }
+    if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
+        if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
+        operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
+            return 1;
+        }
+        return 0;
+    }
+    if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
+        return 1;
+    }
+    if((operator->type == TTYPE_ISNEQ || operator->type == TTYPE_ISEQ || operator->type == TTYPE_GT || operator->type == TTYPE_GTOREQ ||
+       operator->type == TTYPE_LS || operator->type == TTYPE_LSOREQ ) && operand1->type != operand2->type){
+            return 1;
+    }
+    return 0;
 }
-
