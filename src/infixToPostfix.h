@@ -53,6 +53,6 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
 void untilLeftPar(stack_general_t* s, t_array* postfixArr);
 void doOperation(stack_general_t* s, token_t* token, t_array* postfixArr);
 void freeArray(t_array* toDelete);
-void printArray(t_array toPrint);
+void printArray(t_array* toPrint);
 
 #endif

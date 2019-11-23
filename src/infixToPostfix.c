@@ -60,53 +60,53 @@ void freeArray(t_array* toDelete){
     toDelete->arr = NULL;
 }
 
-void printArray(t_array toPrint){
-    for(int i = 0; i< toPrint.currLen ; i++){
-        switch(toPrint.arr[i].type){
+void printArray(t_array* toPrint){
+    for(int i = 0; i< toPrint->currLen ; i++){
+        switch(toPrint->arr[i].type){
             case TTYPE_STR:
-                printf("STRING: %s\n", toPrint.arr[i].attribute.string);
+                printf("%s", toPrint->arr[i].attribute.string);
             break;
             case TTYPE_ID:
-                printf("ID: %s\n", toPrint.arr[i].attribute.string);
+                printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_INT:
-                printf("INT: %ld\n", toPrint.arr[i].attribute.integer);
+                printf("%ld", toPrint->arr[i].attribute.integer);
                 break;
             case TTYPE_DOUBLE:
-                printf("INT: %f\n", toPrint.arr[i].attribute.decimal);
+                printf("%f", toPrint->arr[i].attribute.decimal);
                 break;
             case TTYPE_ADD:
-                printf("+\n");
+                printf("+");
                 break;
             case TTYPE_SUB:
-                printf("-\n");
+                printf("-");
                 break;
             case TTYPE_DIV:
-                printf("/\n");
+                printf("/");
                 break;
             case TTYPE_IDIV:
-                printf("//\n");
+                printf("//");
                 break;
             case TTYPE_MUL:
-                printf("*\n");
+                printf("*");
                 break;
             case TTYPE_ISEQ:
-                printf("==\n");
+                printf("==");
                 break;
             case TTYPE_ISNEQ:
-                printf("!=\n");
+                printf("!=");
                 break;
             case TTYPE_GT:
-                printf(">\n");
+                printf(">");
                 break;
             case TTYPE_GTOREQ:
-                printf(">=\n");
+                printf(">=");
                 break;
             case TTYPE_LS:
-                printf("<\n");
+                printf("<");
                 break;
             case TTYPE_LSOREQ:
-                printf("<=\n");
+                printf("<=");
                 break;
             default:
                 break;
@@ -122,6 +122,8 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
     }
     int i =0;
     while(i != infixArray->currLen){
+        printArray(postfixArr);
+        printf("\n");
         if(infixArray->arr[i].type == TTYPE_ADD ||
            infixArray->arr[i].type == TTYPE_SUB ||
            infixArray->arr[i].type == TTYPE_MUL ||
@@ -165,6 +167,7 @@ void untilLeftPar(stack_general_t* s, t_array* postfixArr){
         stack_general_item_t * tmpStackItem = stack_general_top(s);
 
         if(((token_t*)tmpStackItem->data)->type == TTYPE_LTBRAC){
+            stack_popNoDataFree(s);
             break;
         }
         copyTokenToArray(postfixArr, (token_t*)tmpStackItem->data);
@@ -198,6 +201,7 @@ void doOperation(stack_general_t* s, token_t* token, t_array* postfixArr){
         while(!stack_empty(s)) {
             stack_general_item_t * tmpStackItem = stack_general_top(s);
             token_t* tmpToken = (token_t*)tmpStackItem->data;
+
             if(tmpToken->type == TTYPE_LTBRAC){
                 break;
             }
@@ -207,6 +211,7 @@ void doOperation(stack_general_t* s, token_t* token, t_array* postfixArr){
             {
                 break;
             }
+
             copyTokenToArray(postfixArr, tmpToken);
             stack_popNoDataFree(s);
         }
