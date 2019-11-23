@@ -1,6 +1,6 @@
 
 #include "../../src/dynamic_string.h"
-#include "../../src/indent_stack.h"
+#include "../../src/general_stack.h"
 #include "../../src/scanner.h"
 
 #include <stdio.h>
@@ -9,29 +9,19 @@
 #include <stdlib.h>
 
 int main(int argc, char const *argv[]) {
-    FILE *f;
-    if (argc == 1) {
-        printf("Neni zadan vstupni soubor\n");
-        return 0;
-    }
-    if ((f = fopen(argv[1], "r")) == NULL) {
-        printf("Soubor se nepodarilo otevrit\n");
-        return 0;
-    }
-    dent_stack = indent_stack_init();
-
+    dent_stack = stack_general_init();
     token_t token;
 
     int result;
-    result = get_token(f, &token);
-
+    result = get_token(&token);
 
     while (token.type != TTYPE_EOF) {
         if (token.type == TTYPE_ID) {
             printf("ID ");
             free(token.attribute.string);
 
-        }               // ID
+        }
+        // ID
         if (token.type == TTYPE_KEYWORD) {
             printf("KEYWORD ");
 
@@ -55,11 +45,6 @@ int main(int argc, char const *argv[]) {
             free(token.attribute.string);
 
         }              //string
-        if (token.type == TTYPE_DOCSTR) {
-            printf("DOCSTR ");
-            free(token.attribute.string);
-
-        }           //documentation string
         if (token.type == TTYPE_NONE) {
             printf("NONE ");
         }             //None
@@ -86,9 +71,6 @@ int main(int argc, char const *argv[]) {
         if (token.type == TTYPE_ASSIGN) {
             printf("ASSIGN ");
         }           // '='
-        if (token.type == TTYPE_EXCL) {
-            printf("EXCL ");
-        }             // '!'
 
         if (token.type == TTYPE_ISEQ) {
             printf("ISEQ ");
@@ -123,12 +105,10 @@ int main(int argc, char const *argv[]) {
         if (token.type == TTYPE_IDIV) {
             printf("IDIV ");
         }             // '//'
-        result = get_token(f, &token);
+        result = get_token(&token);
 
     }
-
-    indent_stack_free(dent_stack);
-
-    fclose(f);
+    printf("\n");
+    stack_free(dent_stack);
     return 0;
 }
