@@ -41,7 +41,7 @@ extern token_t curr_token;
  * when we need to check the number of function parameters and don't want
  * to lose the reference to it's id.
  */
-extern symbol_t *curr_symbol;
+extern symbol_t *curr_function;
 
 /**
  * @brief A variable that stores up to two tokens at a time.
@@ -59,14 +59,6 @@ int init_resources();
  * @brief Frees all the resources for the compiler.
  */
 void free_resources();
-
-/**
- * @brief Checks the return code of lexical analysis passed in the parameter
- * retcode, if retcode indicates that an error had ocurred, frees all the resources
- * and exits the program with a corresponding error code.
- * @param retcode The return code which is to be processed.
- */
-void lex_check(int retcode);
 
 /**
  * @brief Reads the next token from standard input, stores it

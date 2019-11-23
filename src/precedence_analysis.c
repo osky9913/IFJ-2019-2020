@@ -258,7 +258,7 @@ int psa(){
         return 1;
     }
 
-    lex_check(next_token(true));
+    next_token(true);
 
     //loop through whole expression
     while(curr_token.type != TTYPE_COLUMN && curr_token.type != TTYPE_EOL){
@@ -274,7 +274,7 @@ int psa(){
             return 1;
         }
 
-        lex_check(next_token(true));
+        next_token(true);
     }
 
     //applying rules and check for possible errors
