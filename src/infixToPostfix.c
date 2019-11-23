@@ -1,6 +1,6 @@
 #include "infixToPostfix.h"
-
-int postfixArrCreateInit(t_array* fuckinArr){
+#include <string.h>
+int tokenArrCreateInit(t_array* fuckinArr){
     fuckinArr->arr = calloc(INITLENGTH, sizeof(token_t));
     if(fuckinArr->arr == NULL) {
         printf("Postfix array allocation error, change this error handling\n");
@@ -30,27 +30,90 @@ int copyTokenToArray(t_array* fuckinArr, const token_t* const originalToken){
     //if string allocation is need - based on token type
     if (originalToken->type == TTYPE_STR || originalToken->type == TTYPE_ID){
         unsigned long length = strlen(originalToken->attribute.string);
-        tmpToken->attribute.string = (char*)calloc(length, 1);
+        tmpToken->attribute.string = (char*)calloc(length+1, 1);
         if(tmpToken->attribute.string == NULL){
             printf("Token copy allocation error - string, change this error handling\n");
             return 1;
         }
         strcpy(tmpToken->attribute.string, originalToken->attribute.string);
     }
-    //if not, string  should be NULL
-    else{
-        tmpToken->attribute.string = NULL;
+    //integer
+    else if (originalToken->type == TTYPE_INT){
+        tmpToken->attribute.integer = originalToken->attribute.integer;
     }
-    //copy other attributes
-    tmpToken->attribute.decimal = originalToken->attribute.decimal;
-    tmpToken->attribute.integer = originalToken->attribute.integer;
-    tmpToken->attribute.keyword = originalToken->attribute.keyword;
-
+    //flaot
+    else if(originalToken->type == TTYPE_DOUBLE) {
+        tmpToken->attribute.decimal = originalToken->attribute.decimal;
+    }
     fuckinArr->currLen++;
     return 0;
 }
 
+void freeArray(t_array* toDelete){
+    for(int i = 0; i< toDelete->currLen ; i++){
+        printf("FREE[%d]\n",i);
+        if(toDelete->arr[i].type == TTYPE_STR || toDelete->arr[i].type == TTYPE_ID){
+            printf("FREE STRING[%d]\n",i);
+            free(toDelete->arr[i].attribute.string);
+        }
+    }
+    free(toDelete->arr);
+    toDelete->arr = NULL;
+}
 
+void printArray(t_array toPrint){
+    for(int i = 0; i< toPrint.currLen ; i++){
+        switch(toPrint.arr[i].type){
+            case TTYPE_STR:
+                printf("STRING: %s\n", toPrint.arr[i].attribute.string);
+            break;
+            case TTYPE_ID:
+                printf("ID: %s\n", toPrint.arr[i].attribute.string);
+                break;
+            case TTYPE_INT:
+                printf("INT: %ld\n", toPrint.arr[i].attribute.integer);
+                break;
+            case TTYPE_DOUBLE:
+                printf("INT: %f\n", toPrint.arr[i].attribute.decimal);
+                break;
+            case TTYPE_ADD:
+                printf("+\n");
+                break;
+            case TTYPE_SUB:
+                printf("-\n");
+                break;
+            case TTYPE_DIV:
+                printf("/\n");
+                break;
+            case TTYPE_IDIV:
+                printf("//\n");
+                break;
+            case TTYPE_MUL:
+                printf("*\n");
+                break;
+            case TTYPE_ISEQ:
+                printf("==\n");
+                break;
+            case TTYPE_ISNEQ:
+                printf("!=\n");
+                break;
+            case TTYPE_GT:
+                printf(">\n");
+                break;
+            case TTYPE_GTOREQ:
+                printf(">=\n");
+                break;
+            case TTYPE_LS:
+                printf("<\n");
+                break;
+            case TTYPE_LSOREQ:
+                printf("<=\n");
+                break;
+            default:
+                break;
+        }
+    }
+}
 
 
 int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr){

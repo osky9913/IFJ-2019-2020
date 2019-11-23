@@ -31,7 +31,7 @@ int copyTokenToArray(t_array* fuckinArr, const token_t* originalToken);
  * @param fuckinArr [Pointer to t_array struct which will be allocated and initialized]
  * @return [0 on success, 1 on allocation error]
  */
-int postfixArrCreateInit(t_array* fuckinArr);
+int tokenArrCreateInit(t_array* fuckinArr);
 
 /**
  * [Resize size of given array by 100%]
@@ -52,6 +52,7 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
 
 void untilLeftPar(stack_general_t* s, t_array* postfixArr);
 void doOperation(stack_general_t* s, token_t* token, t_array* postfixArr);
-
+void freeArray(t_array* toDelete);
+void printArray(t_array toPrint);
 
 #endif
