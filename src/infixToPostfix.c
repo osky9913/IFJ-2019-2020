@@ -175,65 +175,82 @@ void untilLeftPar(stack_general_t* s, t_array* postfixArr){
     }
 }
 
-void doOperation(stack_general_t* s, token_t* token, t_array* postfixArr){
-    if(stack_empty(s)){
-        stack_general_push(s, token);
+void doOperation(stack_general_t* s, token_t* newToken, t_array* postfixArr) {
+    if (stack_empty(s)) {
+        stack_general_push(s, newToken);
+        return;
     }
-    //Everything has higher priority than relational operators, so everything from stack is poped
-    //and store into postfix until left bracket or empty stack
-    else if(token->type == TTYPE_ISEQ || token->type == TTYPE_ISNEQ ||
-    token->type == TTYPE_GT || token->type == TTYPE_GTOREQ ||
-    token->type == TTYPE_LS || token->type == TTYPE_LSOREQ)
-    {
-        while(!stack_empty(s)){
-            stack_general_item_t * tmpStackItem = stack_general_top(s);
-            token_t* tmpToken = (token_t*)tmpStackItem->data;
-            if(tmpToken->type == TTYPE_LTBRAC){
+
+    int newTokenPrior = getPriority(newToken);
+        //Everything has higher priority than relational operators, so everything from stack is poped
+        //and store into postfix until left bracket or empty stack
+    if (newTokenPrior == 0) {
+        while (!stack_empty(s)) {
+            stack_general_item_t *tmpStackItem = stack_general_top(s);
+            token_t *stackToken = (token_t *) tmpStackItem->data;
+            if (stackToken->type == TTYPE_LTBRAC) {
                 break;
             }
-            copyTokenToArray(postfixArr, tmpToken);
-            stack_popNoDataFree(s);
-
-        }
-        stack_general_push(s, token);
-    }
-    else if(token->type == TTYPE_SUB || token->type == TTYPE_ADD){
-        while(!stack_empty(s)) {
-            stack_general_item_t * tmpStackItem = stack_general_top(s);
-            token_t* tmpToken = (token_t*)tmpStackItem->data;
-
-            if(tmpToken->type == TTYPE_LTBRAC){
-                break;
-            }
-            if(token->type == TTYPE_ISEQ || token->type == TTYPE_ISNEQ ||
-                token->type == TTYPE_GT || token->type == TTYPE_GTOREQ ||
-                token->type == TTYPE_LS || token->type == TTYPE_LSOREQ)
-            {
-                break;
-            }
-
-            copyTokenToArray(postfixArr, tmpToken);
+            copyTokenToArray(postfixArr, stackToken);
             stack_popNoDataFree(s);
         }
-        stack_general_push(s, token);
+        stack_general_push(s, newToken);
     }
-    else {
-        while(!stack_empty(s)) {
-            stack_general_item_t * tmpStackItem = stack_general_top(s);
-            token_t* tmpToken = (token_t*)tmpStackItem->data;
-            if(tmpToken->type == TTYPE_LTBRAC){
+    else if (newTokenPrior == 1) {
+        while (!stack_empty(s)) {
+            stack_general_item_t *tmpStackItem = stack_general_top(s);
+            token_t *stackToken = (token_t *) tmpStackItem->data;
+            int topStackPrior = getPriority((token_t *) tmpStackItem->data);
+            if (stackToken->type == TTYPE_LTBRAC) {
                 break;
             }
-            if(token->type == TTYPE_MUL || token->type == TTYPE_DIV || token->type == TTYPE_IDIV){
-                copyTokenToArray(postfixArr, tmpToken);
+            if (topStackPrior < newTokenPrior) {
+                break;
+            }
+            copyTokenToArray(postfixArr, stackToken);
+            stack_popNoDataFree(s);
+        }
+        stack_general_push(s, newToken);
+    }
+    else if(newTokenPrior == 2){
+        while (!stack_empty(s)) {
+            stack_general_item_t *tmpStackItem = stack_general_top(s);
+            token_t *stackToken = (token_t *) tmpStackItem->data;
+            int topStackPrior = getPriority((token_t *) tmpStackItem->data);
+            if (stackToken->type == TTYPE_LTBRAC) {
+                break;
+            }
+            if (topStackPrior >= newTokenPrior) {
+                copyTokenToArray(postfixArr, stackToken);
                 stack_popNoDataFree(s);
-            }
-            else{
+            } else if(topStackPrior < newTokenPrior){
                 break;
             }
         }
-        stack_general_push(s, token);
+        stack_general_push(s, newToken);
     }
+    else{
+        printf("error unknown token\n");
+    }
+}
 
-
+int getPriority(const token_t* const token){
+    switch(token->type){
+        case TTYPE_ISNEQ:
+        case TTYPE_ISEQ:
+        case TTYPE_GT:
+        case TTYPE_GTOREQ:
+        case TTYPE_LS:
+        case TTYPE_LSOREQ:
+            return 0;
+        case TTYPE_ADD:
+        case TTYPE_SUB:
+            return 1;
+        case TTYPE_MUL:
+        case TTYPE_DIV:
+        case TTYPE_IDIV:
+            return 2;
+        default:
+            return -1;
+    }
 }
