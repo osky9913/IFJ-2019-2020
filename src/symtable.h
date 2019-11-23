@@ -34,7 +34,8 @@ typedef enum {
 typedef enum {
     VTYPE_INT,
     VTYPE_DBL,
-    VTYPE_STR
+    VTYPE_STR,
+    VTYPE_UNKNOWN
 } var_type_t;
 
 
@@ -50,8 +51,8 @@ typedef enum {
  * @var string_value String hodnota promenne
  */
 typedef struct variable_attributes {
-    bool defined;
     var_type_t type;
+    bool defined;
     union {
         int int_value;
         double double_value;
@@ -68,7 +69,7 @@ typedef struct variable_attributes {
  */
 typedef struct function_attributes {
     bool defined;
-    int param_count;
+    unsigned param_count;
 } func_att_t;
 
 /**

@@ -2,6 +2,7 @@ IFJ
 string_test
 tests/bin
 parser
+semantic_input.py
 parser_input.py
 vgcore*
 .gdb*

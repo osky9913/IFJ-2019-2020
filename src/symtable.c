@@ -62,7 +62,8 @@ symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type,
         if (new_item == NULL)
             return NULL;
 
-        new_item->id = malloc(strlen(id) + 1); 
+        if (!(new_item->id = malloc(strlen(id) + 1)))
+                return NULL;
         strcpy(new_item->id, id);
         new_item->type = type;
         new_item->attributes = attributes;

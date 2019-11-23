@@ -10,20 +10,35 @@
 bool in_function;
 token_t curr_token;
 token_t token_stash[2];
+symbol_t *curr_symbol;
+unsigned param_count;
+
 
 
 int init_resources() {
+    // indent stack
     dent_stack = stack_general_init();
     if (!dent_stack) return ERROR_INTERNAL;
 
     in_function = false;
 
+    // token
     curr_token.type = TTYPE_EOF;
 
+    // token stash
     token_stash[0].type = TTYPE_EOF;
     token_stash[0].attribute.string = NULL;
     token_stash[1].type = TTYPE_EOF;
     token_stash[1].attribute.string = NULL;
+
+    // curr_symbol
+    curr_symbol = NULL;
+    param_count = 0;
+
+
+    symtable_init(&table_global);
+    symtable_init(&table_local);
+
     return SUCCESS;
 }
 
@@ -33,6 +48,9 @@ void free_resources() {
     next_token(true);
     stack_free(dent_stack);
     stash_clear();
+
+    symtable_clear_all(&table_global);
+    symtable_clear_all(&table_local);
 }
 
 int r_program() {
@@ -172,12 +190,19 @@ int r_function_def() {
 
     lex_check(next_token(false));
     if (curr_token.type != TTYPE_ID) return UNEXPECTED_TOKEN;
+
+    /* Let's try to add the function to our symtable */
+    if ((retvalue = add_symbol_function(curr_token.attribute.string)) != SUCCESS)
+        return retvalue;
+
     lex_check(next_token(false));
     if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;  /* ( */
 
-    lex_check(next_token(false)); // TODO: fix param list
+    lex_check(next_token(false));
     retvalue = r_param_list_def(); /* <param_list_def> */
     if (retvalue != SUCCESS) return retvalue;
+    curr_symbol->attributes.func_att.param_count = param_count;
+    param_count = 0;
 
     /* params_list has already loaded this token */
     if (curr_token.type != TTYPE_RTBRAC) return UNEXPECTED_TOKEN; /* ) */
@@ -207,6 +232,8 @@ int r_param_list_def() {
     int retvalue = SUCCESS;
 
     if (curr_token.type == TTYPE_ID) { /* id */
+        // TODO check id definition
+        param_count++;
         lex_check(next_token(false));
         retvalue = r_params_def(); /* <params_def> */
     }
@@ -217,11 +244,13 @@ int r_params_def() {
     int retvalue = SUCCESS;
 
     if (curr_token.type == TTYPE_COMMA) { /* , */
+        param_count++;
         lex_check(next_token(false));
 
         if (curr_token.type == TTYPE_ID) { /* id */
             lex_check(next_token(false));
             retvalue = r_params_def(); /* <params_def> */
+            // TODO check id definition
 
         } else {
             fprintf(stderr, "UNEXPECTED_TOKEN in r_params_def.\n");
@@ -238,6 +267,9 @@ int r_param_list() {
     switch (curr_token.type) {
         case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
         case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
+
+            // TODO check id definition
+            param_count++;
             lex_check(next_token(false));
             retvalue = r_params(); /* <params> */
             break;
@@ -253,17 +285,15 @@ int r_params() {
     int retvalue = SUCCESS;
 
     if (curr_token.type == TTYPE_COMMA) { /* , or eps */
+        param_count++;
         lex_check(next_token(false));
 
         switch (curr_token.type) {
             case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
             case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
+                // TODO check id definition
                 lex_check(next_token(false));
                 retvalue = r_params(); /* <params> */
-                break;
-
-            case TTYPE_RTBRAC:
-                retvalue = SUCCESS;
                 break;
 
             default:
@@ -388,8 +418,32 @@ int r_rest() {
 
     switch (curr_token.type) {
         case TTYPE_LTBRAC:
-            stash_clear();
+            unget_token();
+
+            //TODO: add  the in function variant
+            /* the statement is a function call, let's check the semantics */
+            next_token(true); /* First load the last token */
+            if (!check_if_defined_func(curr_token.attribute.string)) {
+                fprintf(stderr, "Line 42 - Semantic error: Function '%s' "
+                        "is undefinded.\n", curr_token.attribute.string);
+                return ERROR_SEM_DEFINITION;
+
+            } else {
+                curr_symbol = symtable_search(&table_global, curr_token.attribute.string);
+                if (!curr_symbol) return ERROR_INTERNAL;
+            }
+
+            next_token(true);
             retvalue = r_function_call();
+
+            /* Check parameter count */
+            if (param_count != curr_symbol->attributes.func_att.param_count) {
+                fprintf(stderr, "Line 42 - Semantic error: Wrong parameter "
+                        "count when calling function '%s'.\n",
+                        curr_symbol->id);
+                return ERROR_SEM_PARAM_COUNT;
+            }
+            param_count = 0;
             break;
 
         case TTYPE_ASSIGN: /* assignment - we need to check if the assigned value
@@ -402,8 +456,32 @@ int r_rest() {
 
                 lex_check(next_token(false));
                 if (curr_token.type == TTYPE_LTBRAC) {
-                    stash_clear();
+                    unget_token();
+
+                    /* the statement is a function call, let's check the semantics */
+                    next_token(true);
+                    if (!check_if_defined_func(curr_token.attribute.string)) {
+                        fprintf(stderr, "Line 42 - Semantic error: Function '%s' "
+                                "is undefinded.\n", curr_token.attribute.string);
+                        return ERROR_SEM_DEFINITION;
+
+                    } else {
+                        curr_symbol = symtable_search(&table_global,
+                                curr_token.attribute.string);
+                        if (!curr_symbol) return ERROR_INTERNAL;
+                    }
+
+                    next_token(true);
                     retvalue = r_function_call();
+
+                    /* Check parameter count */
+                    if (param_count != curr_symbol->attributes.func_att.param_count) {
+                        fprintf(stderr, "Line 42 - Semantic error: Wrong parameter "
+                                "count when calling function '%s'.\n",
+                                curr_symbol->id);
+                        return ERROR_SEM_PARAM_COUNT;
+                    }
+                    param_count = 0;
 
                 } else {
                     unget_token();

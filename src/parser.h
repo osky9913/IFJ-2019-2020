@@ -5,8 +5,8 @@
  *	@brief Parser header file
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef __PARSER_H__
+#define __PARSER_H__
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -16,11 +16,14 @@
 #include "precedence_analysis.h"
 #include "errors.h"
 #include "general_stack.h"
+#include "semantic.h"
 
 
 #define SUCCESS 0
 #define UNEXPECTED_TOKEN 2
 #define RETURN_IN_PROGRAM_BODY 6
+
+symtable_t table_global, table_local;
 
 /**
  * @brief Indicates whether the currently analyzed block
@@ -32,6 +35,13 @@ extern bool in_function;
  * @brief A variable that stores the currently processed token.
  */
 extern token_t curr_token;
+
+/**
+ * @brief A variable that stores the currently processed symbol. Useful
+ * when we need to check the number of function parameters and don't want
+ * to lose the reference to it's id.
+ */
+extern symbol_t *curr_symbol;
 
 /**
  * @brief A variable that stores up to two tokens at a time.
