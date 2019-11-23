@@ -16,7 +16,7 @@ enum errors {
 
 #define ERROR_LEXICAL 1
 #define ERROR_SYNTAX 2
-#define ERROR_SEM_UNDEFINED 3
+#define ERROR_SEM_DEFINITION 3
 #define ERROR_SEM_TYPE 4
 #define ERROR_SEM_PARAM_COUNT 5
 #define ERROR_SEM_OTHER 6
