@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-
+int line_counter = 1;
 //global variable to determine if we are on new line(time to evaluate indent/dedent)
 //  -1 -> when beginning of the file
 //   0 -> when LA found token thats not EOL
@@ -242,6 +242,7 @@ int get_token(token_t* token){
                         token->type = TTYPE_COMMA;
                         return finish_free_resources(SUCCESS, token, tmp, token_string);
                     case '\n':
+                        line_counter++;
                         if(new_line){
                             state = 0;
                         }
@@ -283,6 +284,9 @@ int get_token(token_t* token){
                     //in case of comment after non-eol token, there is an eol token to be generated
                     if(new_line != 1){
                         ungetc(c, stdin);
+                    }
+                    else{
+                        line_counter++; 
                     }
                     state = 0;
                 }
@@ -340,6 +344,11 @@ int get_token(token_t* token){
                         ungetc(c, stdin);
                         string_append_char(token_string, '\\');
                     }
+                }
+                else if(c == '\n'){
+                    line_counter++;
+                    string_clear(tmp);
+                    string_append_char(token_string, c);
                 }
                 //clear string which compares end of docstring, continue appending to string
                 else {
