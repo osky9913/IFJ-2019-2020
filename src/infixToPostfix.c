@@ -1,5 +1,7 @@
 #include "infixToPostfix.h"
 #include <string.h>
+
+
 int tokenArrCreateInit(t_array* fuckinArr){
     fuckinArr->arr = calloc(INITLENGTH, sizeof(token_t));
     if(fuckinArr->arr == NULL) {
@@ -255,9 +257,8 @@ int getPriority(const token_t* const token){
     }
 }
 
-
-
 int postfixEval(t_array* postfix){
+    stack_general_t* tokenGarbageS = stack_general_init();
     stack_general_t* evalS = stack_general_init();
     token_t currentToken = postfix->arr[0];
     for(int i = 0; i < postfix->currLen; i++){
@@ -273,9 +274,18 @@ int postfixEval(t_array* postfix){
 
         int semantic = checkSemantic(operand1, operand2, &currentToken);
         if(semantic == 0){
-            //code gen
-            //gen token
-            //push token
+            //code gen -return string
+            /************************************/
+            //will be deleted
+            char* name = malloc(10);
+            strcpy(name, "qwertyuio");
+            /***********************************/
+            token_t* newToken = token_gen(name);
+            stack_general_push(tokenGarbageS, newToken);
+
+            /********/
+            //send mid-eval into symtable
+            /*******/
         }
         else{
             return -1;
@@ -303,6 +313,15 @@ bool isOperator(token_t token){
     }
 }
 
-int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
-
+token_t* token_gen(char* name){
+    token_t* tmp = malloc(sizeof(token_t));
+    tmp->type = TTYPE_ID;
+    tmp->attribute.string = name;
+    return tmp;
 }
+
+
+int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
+    return 1;
+}
+

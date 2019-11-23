@@ -59,4 +59,5 @@ int getPriority(const token_t* token);
 bool isOperator(token_t token);
 int postfixEval(t_array* postfix);
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator);
+token_t* token_gen(char* name);
 #endif
