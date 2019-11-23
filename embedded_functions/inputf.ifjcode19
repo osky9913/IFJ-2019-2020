@@ -1,0 +1,24 @@
+.IFJcode19
+JUMP $$main
+
+#-----------------------------
+
+LABEL $inputf
+PUSHFRAME
+DEFVAR LF@%retval
+READ LF@%retval float
+POPFRAME
+RETURN
+
+#-----------------------------
+
+LABEL $$main # main body
+CREATEFRAME		#----no main-body vars
+PUSHFRAME
+DEFVAR LF@y
+CREATEFRAME		#----
+CALL $inputf
+MOVE LF@y TF@%retval
+WRITE LF@y
+EXIT int@0
+# end of main body

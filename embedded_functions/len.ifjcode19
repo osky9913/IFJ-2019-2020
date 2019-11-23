@@ -1,0 +1,26 @@
+.IFJcode19
+JUMP $$main
+
+#-----------------------------
+
+LABEL $len
+PUSHFRAME
+DEFVAR LF@%retval
+STRLEN LF@%retval LF@%1	#dlzka stringu v prvom argumente, len(s)
+POPFRAME
+RETURN
+
+#-----------------------------
+
+LABEL $$main # main body
+CREATEFRAME		#----no main-body vars
+PUSHFRAME
+DEFVAR LF@y
+CREATEFRAME		#----
+DEFVAR TF@%1
+MOVE TF@%1 string@Himotherfucker\032X!
+CALL $len
+MOVE LF@y TF@%retval
+WRITE LF@y
+EXIT int@0
+# end of main body
