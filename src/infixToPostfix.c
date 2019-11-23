@@ -24,6 +24,7 @@ int resizeArrayIfNeeded(t_array* fuckinArr){
 }
 
 int copyTokenToArray(t_array* fuckinArr, const token_t* const originalToken){
+    resizeArrayIfNeeded(fuckinArr);
     token_t* tmpToken = &fuckinArr->arr[fuckinArr->currLen];
     tmpToken->type = originalToken->type;
 
@@ -51,9 +52,7 @@ int copyTokenToArray(t_array* fuckinArr, const token_t* const originalToken){
 
 void freeArray(t_array* toDelete){
     for(int i = 0; i< toDelete->currLen ; i++){
-        printf("FREE[%d]\n",i);
         if(toDelete->arr[i].type == TTYPE_STR || toDelete->arr[i].type == TTYPE_ID){
-            printf("FREE STRING[%d]\n",i);
             free(toDelete->arr[i].attribute.string);
         }
     }
@@ -121,9 +120,8 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
         printf("Inf2post stack is NULL\n");
         return 1;
     }
-
     int i =0;
-    while(i == infixArray->currLen-1){
+    while(i != infixArray->currLen){
         if(infixArray->arr[i].type == TTYPE_ADD ||
            infixArray->arr[i].type == TTYPE_SUB ||
            infixArray->arr[i].type == TTYPE_MUL ||
@@ -154,10 +152,10 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
     while(!stack_empty(s)) {
         //gets token from the top of the stack
         stack_general_item_t * tmpStackItem = stack_general_top(s);
-        //pop deletes token on the top
-        stack_popNoDataFree(s);
         //deep copy to postfix array
         copyTokenToArray(postfixArr, (token_t*)tmpStackItem->data);
+        //pop deletes token on the top
+        stack_popNoDataFree(s);
     }
     return 0;
 }
@@ -165,11 +163,12 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
 void untilLeftPar(stack_general_t* s, t_array* postfixArr){
     while(!stack_empty(s)){
         stack_general_item_t * tmpStackItem = stack_general_top(s);
-        stack_popNoDataFree(s);
+
         if(((token_t*)tmpStackItem->data)->type == TTYPE_LTBRAC){
             break;
         }
         copyTokenToArray(postfixArr, (token_t*)tmpStackItem->data);
+        stack_popNoDataFree(s);
     }
 }
 
