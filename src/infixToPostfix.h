@@ -9,6 +9,7 @@
 #include "general_stack.h"
 #include "symtable.h"
 #include <string.h>
+#include <stdbool.h>
 
 #define INITLENGTH 20 //max length of postfix array of tokens
 
@@ -55,5 +56,7 @@ void doOperation(stack_general_t* s, token_t* newToken, t_array* postfixArr);
 void freeArray(t_array* toDelete);
 void printArray(t_array* toPrint);
 int getPriority(const token_t* token);
-
+bool isOperator(token_t token);
+int postfixEval(t_array* postfix);
+int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator);
 #endif

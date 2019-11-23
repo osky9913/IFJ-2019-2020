@@ -42,7 +42,7 @@ int copyTokenToArray(t_array* fuckinArr, const token_t* const originalToken){
     else if (originalToken->type == TTYPE_INT){
         tmpToken->attribute.integer = originalToken->attribute.integer;
     }
-    //flaot
+    //float
     else if(originalToken->type == TTYPE_DOUBLE) {
         tmpToken->attribute.decimal = originalToken->attribute.decimal;
     }
@@ -253,4 +253,56 @@ int getPriority(const token_t* const token){
         default:
             return -1;
     }
+}
+
+
+
+int postfixEval(t_array* postfix){
+    stack_general_t* evalS = stack_general_init();
+    token_t currentToken = postfix->arr[0];
+    for(int i = 0; i < postfix->currLen; i++){
+        if(!isOperator(postfix->arr[i])){
+            stack_general_push(evalS, &(postfix->arr[i]));
+            continue;
+        }
+            stack_general_item_t *tmpStackItem1 = stack_general_top(evalS);
+            token_t *operand1 = (token_t *) tmpStackItem1->data;
+            stack_popNoDataFree(evalS);
+            stack_general_item_t *tmpStackItem2 = stack_general_top(evalS);
+            token_t *operand2 = (token_t *) tmpStackItem2->data;
+
+        int semantic = checkSemantic(operand1, operand2, &currentToken);
+        if(semantic == 0){
+            //code gen
+            //gen token
+            //push token
+        }
+        else{
+            return -1;
+        }
+    }
+    return 0;
+}
+
+bool isOperator(token_t token){
+    switch(token.type){
+        case TTYPE_ISNEQ:
+        case TTYPE_ISEQ:
+        case TTYPE_GT:
+        case TTYPE_GTOREQ:
+        case TTYPE_LS:
+        case TTYPE_LSOREQ:
+        case TTYPE_ADD:
+        case TTYPE_SUB:
+        case TTYPE_MUL:
+        case TTYPE_DIV:
+        case TTYPE_IDIV:
+            return true;
+        default:
+            return false;
+    }
+}
+
+int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
+
 }
