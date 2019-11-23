@@ -31,7 +31,7 @@ test_general_stack: src/general_stack.c $(TEST_SRC)/test_general_stack.c
 test_symtable: src/symtable.c $(TEST_SRC)/test_symtable.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
-test_scanner_id: src/dynamic_string.c src/scanner.c src/indent_stack.c $(TEST_SRC)/test_scanner_id.c
+test_scanner_id: src/dynamic_string.c src/scanner.c src/general_stack.c $(TEST_SRC)/test_scanner_id.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
 
 
@@ -43,11 +43,12 @@ parser: $(PARSER_C) src/*
 
 
 tests_scanner_test_case: test_scanner_id
-	./tests/src/test1.sh ; ./tests/src/test2.sh ; ./tests/src/test3.sh ; \
-	./tests/src/test4.sh ; ./tests/src/test5.sh ; ./tests/src/test6.sh ; \
-	./tests/src/test7.sh ; ./tests/src/test8.sh ; ./tests/src/test9.sh ; \
-    ./tests/src/test10.sh ; ./tests/src/test11.sh ; ./tests/src/test12.sh ; \
-    ./tests/src/test13.sh
+	cd tests/src/; \
+	./test1.sh ; ./test2.sh ; ./test3.sh ; \
+	./test4.sh ; ./test5.sh ; ./test6.sh ; \
+	./test7.sh ; ./test8.sh ; ./test9.sh ; \
+    ./test10.sh ; ./test11.sh ; ./test12.sh ; \
+    ./test13.sh
 
 
 infoToPost: $(PARSER_C) src/* 

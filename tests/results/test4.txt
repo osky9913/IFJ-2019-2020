@@ -1,7 +1,7 @@
-==31557== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-==31557==   total heap usage: 269 allocs, 269 frees, 13,410 bytes allocated
-10c10
-< DEDENT ID LTBRAC STR COMMA ID COMMA STR RTBRAC 
-\ No newline at end of file
+==15610== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==15610==   total heap usage: 283 allocs, 283 frees, 13,034 bytes allocated
+11c11,12
+< DEDENT 
 ---
-> DEDENT ID LTBRAC STR COMMA ID COMMA STR RTBRAC
+> DEDENT
+> 
