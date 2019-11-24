@@ -41,7 +41,8 @@ extern token_t curr_token;
  * when we need to check the number of function parameters and don't want
  * to lose the reference to it's id.
  */
-extern symbol_t *curr_function;
+extern symbol_t *curr_function_def;
+extern symbol_t *curr_function_call;
 
 /**
  * @brief A variable that stores up to two tokens at a time.

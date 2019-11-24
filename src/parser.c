@@ -13,7 +13,8 @@
 bool in_function = false;
 token_t curr_token = { .type = TTYPE_EOF };
 token_t token_stash[2];
-symbol_t *curr_function = NULL;
+symbol_t *curr_function_def = NULL;
+symbol_t *curr_function_call = NULL;
 int param_count = 0;
 
 int init_resources() {
@@ -190,7 +191,7 @@ int r_function_def() {
     if (curr_token.type != TTYPE_ID) return UNEXPECTED_TOKEN;
 
     /* Let's try to add the function to our symtable */
-    if ((retvalue = add_symbol_function(curr_token.attribute.string)) != SUCCESS)
+    if ((retvalue = define_function(curr_token.attribute.string)) != SUCCESS)
         return retvalue;
 
     next_token(false);
@@ -200,8 +201,17 @@ int r_function_def() {
     retvalue = r_param_list_def(); /* <param_list_def> */
     if (retvalue != SUCCESS) return retvalue;
 
+    /* Check parameter count */
+    if ((param_count != curr_function_def->attributes.func_att.param_count) &&
+            (curr_function_def->attributes.func_att.param_count >= 0)) {
+        fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
+                "count when defining function '%s'.\n", line_counter,
+                curr_function_def->id);
+        return ERROR_SEM_PARAM_COUNT;
+    }
+
     /* Store the number of parameters for the function */
-    curr_function->attributes.func_att.param_count = param_count;
+    curr_function_def->attributes.func_att.param_count = param_count;
     param_count = 0;
 
     /* params_list has already loaded this token */
@@ -439,30 +449,69 @@ int r_rest() {
         case TTYPE_LTBRAC:
             unget_token();
 
-            //TODO: add the in function variant
             /* the statement is a function call, let's check the semantics */
             next_token(true); /* First load the last token */
-            if (!check_if_defined_func(curr_token.attribute.string)) {
-                fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                        "is undefinded.\n", line_counter, curr_token.attribute.string);
-                return ERROR_SEM_DEFINITION;
+            retvalue = check_if_defined_func(curr_token.attribute.string);
+            switch (retvalue) {
+                case FUNCTION_FOUND:
+                    retvalue = UNEXPECTED_TOKEN;
+                    curr_function_call = symtable_search(&table_global,
+                            curr_token.attribute.string);
+                    if (!curr_function_call) return ERROR_INTERNAL;
 
-            } else {
-                curr_function = symtable_search(&table_global, curr_token.attribute.string);
-                if (!curr_function) return ERROR_INTERNAL;
+                    if (!in_function) { /* check the dependencies */
+                        if (check_function_dependencies(curr_function_call))
+                            return ERROR_SEM_DEFINITION;
+                    }
+
+                    break;
+
+                case VARIABLE_FOUND:
+                    fprintf(stderr, "Line %d - Semantic error: Function '%s' "
+                            "has already been defined as a variable.\n", line_counter,
+                            curr_token.attribute.string);
+                    return ERROR_SEM_DEFINITION;
+                    break;
+
+                case SYMBOL_NOT_FOUND:
+                    if (in_function) {
+                        retvalue = add_undefined_function(curr_token.attribute.string);
+                        if (retvalue !=SUCCESS) return retvalue;
+
+                    } else {
+                        fprintf(stderr, "Line %d - Semantic error: Function '%s' "
+                                "is undefinded.\n", line_counter,
+                                curr_token.attribute.string);
+                        return ERROR_SEM_DEFINITION;
+                    }
+                    break;
+
+                default:
+                    break;
             }
 
             next_token(true);
             if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
             /* Check parameter count */
-            if (curr_function->attributes.func_att.param_count > 0) { /* print() */
-                if (param_count != curr_function->attributes.func_att.param_count) {
-                    fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
-                            "count when calling function '%s'.\n", line_counter,
-                            curr_function->id);
-                    return ERROR_SEM_PARAM_COUNT;
+            if (in_function) {
+                if (!curr_function_call->attributes.func_att.defined) {
+
+                    if (curr_function_call->attributes.func_att.param_count
+                            == -1) {
+                        curr_function_call->attributes.func_att.param_count
+                            = param_count;
+                    }
                 }
+
+            }
+            if ((param_count
+                    != curr_function_call->attributes.func_att.param_count) &&
+                    (curr_function_call->attributes.func_att.param_count >= 0)) {
+                fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
+                        "count when calling function '%s'.\n", line_counter,
+                        curr_function_call->id);
+                return ERROR_SEM_PARAM_COUNT;
             }
             param_count = 0;
             break;
@@ -507,26 +556,66 @@ int r_rest() {
 
                     /* the statement is a function call, let's check the semantics */
                     next_token(true);
-                    if (!check_if_defined_func(curr_token.attribute.string)) {
-                        fprintf(stderr, "Line %d - Semantic error: Function '%s' is "
-                                "undefinded.\n",
-                                line_counter, curr_token.attribute.string);
-                        return ERROR_SEM_DEFINITION;
+                    retvalue = check_if_defined_func(curr_token.attribute.string);
+                    switch (retvalue) {
+                        case FUNCTION_FOUND:
+                            retvalue = UNEXPECTED_TOKEN;
+                            curr_function_call = symtable_search(&table_global,
+                                    curr_token.attribute.string);
+                            if (!curr_function_call) return ERROR_INTERNAL;
 
-                    } else {
-                        curr_function = symtable_search(&table_global,
-                                curr_token.attribute.string);
-                        if (!curr_function) return ERROR_INTERNAL;
+                            if (!in_function) { /* check the dependencies */
+                                if (check_function_dependencies(curr_function_call))
+                                    return ERROR_SEM_DEFINITION;
+                            }
+
+                            break;
+
+                        case VARIABLE_FOUND:
+                            fprintf(stderr, "Line %d - Semantic error: Function '%s' "
+                                    "has already been defined as a variable.\n", line_counter,
+                                    curr_token.attribute.string);
+                            return ERROR_SEM_DEFINITION;
+                            break;
+
+                        case SYMBOL_NOT_FOUND:
+                            if (in_function) {
+                                retvalue = add_undefined_function(curr_token.attribute.string);
+                                if (retvalue !=SUCCESS) return retvalue;
+
+                            } else {
+                                fprintf(stderr, "Line %d - Semantic error: Function '%s' "
+                                        "is undefinded.\n", line_counter,
+                                        curr_token.attribute.string);
+                                return ERROR_SEM_DEFINITION;
+                            }
+                            break;
+
+                        default:
+                            break;
                     }
 
                     next_token(true);
                     if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
                     /* Check parameter count */
-                    if (param_count != curr_function->attributes.func_att.param_count) {
+                    if (in_function) {
+                        if (!curr_function_call->attributes.func_att.defined) {
+
+                            if (curr_function_call->attributes.func_att.param_count
+                                    == -1) {
+                                curr_function_call->attributes.func_att.param_count
+                                    = param_count;
+                            }
+                        }
+
+                    }
+                    if ((param_count
+                            != curr_function_call->attributes.func_att.param_count) &&
+                            (curr_function_call->attributes.func_att.param_count >= 0)) {
                         fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
                                 "count when calling function '%s'.\n", line_counter,
-                                curr_function->id);
+                                curr_function_call->id);
                         return ERROR_SEM_PARAM_COUNT;
                     }
                     param_count = 0;
