@@ -12,7 +12,7 @@ void end_program();
 
 void generate_function(const char *name_of_function);
 
-void genenarte_expression(token_t *operand1, char *operator, token_t *operand2, char *result);
+string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *operand2, string_t *result);
 
 
 #endif //GENERATE_H
