@@ -88,6 +88,18 @@ bool check_if_defined_func(const char *id) {
 int add_symbol_var(const char *id) {
     symbol_t *symbol;
 
+    symbol = symtable_search(&table_global, id);
+
+    if (symbol) { /* First check if a function with the same id hasn't already
+                     been defined */
+        if (symbol->type == STYPE_FUNC) {
+
+            fprintf(stderr, "Line %d - Semantic error: ID '%s' "
+                    "has already been defined as a function.\n", line_counter, id);
+            return ERROR_SEM_DEFINITION;
+        }
+    }
+
     if (in_function) {
         symbol = symtable_search(&table_local, id);
 
@@ -98,7 +110,7 @@ int add_symbol_var(const char *id) {
                 return ERROR_SEM_DEFINITION;
             }
 
-        } else {
+        } else { /* Cover the potential global variable */
             /* Add a new local variable into the local symtable */
             symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
                 .defined = true} };
@@ -107,28 +119,19 @@ int add_symbol_var(const char *id) {
             if (!new) return ERROR_INTERNAL;
             return NEW_VARIABLE;
         }
-    }
-
-    symbol = symtable_search(&table_global, id);
-
-    if (symbol) {
-        if (symbol->type == STYPE_FUNC) {
-
-            fprintf(stderr, "Line %d - Semantic error: ID '%s' "
-                    "has already been defined as a function.\n", line_counter, id);
-            return ERROR_SEM_DEFINITION;
-        }
-
-        return SUCCESS;
 
     } else {
-        /* Add the new global variable into the global symtable */
-        symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
-            .defined = true} };
-        
-        symbol_t *new = symtable_insert(&table_global, id, STYPE_VAR, att);
-        if (!new) return ERROR_INTERNAL;
-        return NEW_VARIABLE;
+
+        symbol = symtable_search(&table_global, id);
+        if (!symbol) {
+            /* Add the new global variable into the global symtable */
+            symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
+                .defined = true} };
+            
+            symbol_t *new = symtable_insert(&table_global, id, STYPE_VAR, att);
+            if (!new) return ERROR_INTERNAL;
+            return NEW_VARIABLE;
+        }
     }
 
     return SUCCESS;

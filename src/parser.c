@@ -7,34 +7,25 @@
 
 #include "parser.h"
 
-/* TODO: function definitions, recursive calls, polish scope problems, built-in functions
+/* TODO: recursive calls, polish scope problems
  */
 
-bool in_function;
-token_t curr_token;
+bool in_function = false;
+token_t curr_token = { .type = TTYPE_EOF };
 token_t token_stash[2];
-symbol_t *curr_function;
-int param_count;
+symbol_t *curr_function = NULL;
+int param_count = 0;
 
 int init_resources() {
-    // indent stack
+    /* Initialize the indent stack for scanner */
     dent_stack = stack_general_init();
     if (!dent_stack) return ERROR_INTERNAL;
 
-    in_function = false;
-
-    // token
-    curr_token.type = TTYPE_EOF;
-
-    // token stash
+    /* Initialize the token stash */
     token_stash[0].type = TTYPE_EOF;
     token_stash[0].attribute.string = NULL;
     token_stash[1].type = TTYPE_EOF;
     token_stash[1].attribute.string = NULL;
-
-    // curr_function
-    curr_function = NULL;
-    param_count = 0;
 
     symtable_init(&table_global);
     symtable_init(&table_local);
