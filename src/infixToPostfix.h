@@ -21,25 +21,25 @@ typedef struct{
 
 /**
  * [Make a deep copy of token, allocate memory for token and string as attribute(if it's type string or id)
- * @param fuckinArr [pointer to array into which token will be copied]
+ * @param arrayToCopy [pointer to array into which token will be copied]
  * @param originalToken [Token to copy]
  * @return [0 on success, 1 on allocation error]
  */
-int copyTokenToArray(t_array* fuckinArr, const token_t* originalToken);
+int copyTokenToArray(t_array* arrayToCopy, const token_t* originalToken);
 
 /**
  * [Initialize memory for t_array struct and alloc array of tokens in it]
- * @param fuckinArr [Pointer to t_array struct which will be allocated and initialized]
+ * @param newArr [Pointer to t_array struct which will be allocated and initialized]
  * @return [0 on success, 1 on allocation error]
  */
-int tokenArrCreateInit(t_array* fuckinArr);
+int tokenArrCreateInit(t_array* newArr);
 
 /**
  * [Resize size of given array by 100%]
- * @param fuckinArr [Array to be resized]
+ * @param toresizeArr [Array to be resized]
  * @return [0 on success, 1 on reallocation error]
  */
-int resizeArrayIfNeeded(t_array* fuckinArr);
+int resizeArrayIfNeeded(t_array* toresizeArr);
 
 /**
  * [Changes infix expression in infixArray to postfix expression]
@@ -59,5 +59,6 @@ int getPriority(const token_t* token);
 bool isOperator(const token_t* token);
 int postfixEval(t_array* postfix);
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator);
-token_t* token_gen(char* name);
+token_t* tokenGen(char* name);
+int checkDefinedVarInPostfix(t_array* postfix);
 #endif
