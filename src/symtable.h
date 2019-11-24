@@ -69,7 +69,7 @@ typedef struct variable_attributes {
  */
 typedef struct function_attributes {
     bool defined;
-    unsigned param_count;
+    int param_count;
 } func_att_t;
 
 /**
@@ -95,6 +95,7 @@ typedef union {
     func_att_t func_att;
     label_att_t label_att;
 } symbol_attributes;
+
 /**
  * @struct symbol
  * @brief Struktura reprezentujici jeden symbol

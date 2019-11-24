@@ -14,7 +14,7 @@ bool in_function;
 token_t curr_token;
 token_t token_stash[2];
 symbol_t *curr_function;
-unsigned param_count;
+int param_count;
 
 int init_resources() {
     // indent stack
@@ -38,6 +38,8 @@ int init_resources() {
 
     symtable_init(&table_global);
     symtable_init(&table_local);
+
+    if (add_built_in_functions()) return ERROR_INTERNAL;
 
     return SUCCESS;
 }
@@ -243,9 +245,9 @@ int r_param_list_def() {
     if (curr_token.type == TTYPE_ID) { /* id */
         
         /* Add the parameters to the local symtable */
-        if ((retvalue = add_symbol_var(curr_token.attribute.string)) != SUCCESS) {
-            if (retvalue == NEW_VARIABLE) retvalue = SUCCESS;
-            else return retvalue;
+        if ((retvalue = check_and_add_parameter_def(curr_token.attribute.string))
+                != SUCCESS) {
+            return retvalue;
         }
 
         param_count++;
@@ -264,9 +266,9 @@ int r_params_def() {
 
         if (curr_token.type == TTYPE_ID) { /* id */
             /* Add the parameters to the local symtable */
-            if ((retvalue = add_symbol_var(curr_token.attribute.string)) != SUCCESS) {
-                if (retvalue == NEW_VARIABLE) retvalue = SUCCESS;
-                else return retvalue;
+            if ((retvalue = check_and_add_parameter_def(curr_token.attribute.string))
+                    != SUCCESS) {
+                return retvalue;
             }
 
             next_token(false);
@@ -403,7 +405,7 @@ int r_cycle() {
 int r_function_ret() {
     if (!in_function)
         return RETURN_IN_PROGRAM_BODY; /* return statement cannot exist outside a
-                                          function definition */
+                                          function definition - TODO: check?? */
     next_token(false);
     return r_retvalue();
 }
@@ -515,8 +517,9 @@ int r_rest() {
                     /* the statement is a function call, let's check the semantics */
                     next_token(true);
                     if (!check_if_defined_func(curr_token.attribute.string)) {
-                        fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                                "is undefinded.\n", line_counter, curr_token.attribute.string);
+                        fprintf(stderr, "Line %d - Semantic error: Function '%s' is "
+                                "undefinded.\n",
+                                line_counter, curr_token.attribute.string);
                         return ERROR_SEM_DEFINITION;
 
                     } else {

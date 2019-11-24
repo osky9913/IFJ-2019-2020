@@ -17,6 +17,10 @@
 
 /**
  */
+int check_and_add_parameter_def(const char *id);
+
+/**
+ */
 int add_symbol_function(const char *id);
 
 /**
@@ -48,5 +52,10 @@ bool check_if_defined_func(const char *id);
  * ERROR_SEM_DEFINITION.
  */
 int check_parameter_valid(token_t token);
+
+/**
+ * @brief Adds all the built in functions to the global symtable.
+ */
+int add_built_in_functions();
 
 #endif

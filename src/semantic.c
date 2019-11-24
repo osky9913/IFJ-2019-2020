@@ -10,6 +10,37 @@
 
 //TODO: check for functions first
 
+
+int check_and_add_parameter_def(const char *id) {
+    symbol_t *symbol = symtable_search(&table_global, id); /* Now check for functions */
+    if (symbol) {
+        if (symbol->type == STYPE_FUNC) {
+            fprintf(stderr, "Line %d - Function parameter %s has already been defined "
+                    "as a function.\n", line_counter, id);
+            return ERROR_SEM_DEFINITION;
+        }
+    }
+
+    /* Now check for duplicit parameters */
+    symbol = symtable_search(&table_local, id);
+
+    if (symbol) {
+        fprintf(stderr, "Line %d - Function parameter %s has already been defined "
+                "as a parameter of the function %s.\n",
+                line_counter, id, curr_function->id);
+        return ERROR_SEM_DEFINITION;
+
+    } else {
+        /* Add a new local variable into the local symtable */
+        symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
+            .defined = true} };
+        
+        symbol_t *new = symtable_insert(&table_local, id, STYPE_VAR, att);
+        if (!new) return ERROR_INTERNAL;
+    }
+    return SUCCESS;
+}
+
 int check_if_defined_var(const char *id) {
     symbol_t *symbol;
 
@@ -18,16 +49,13 @@ int check_if_defined_var(const char *id) {
         if (symbol) {
             if (symbol->type == STYPE_VAR && symbol->attributes.var_att.defined) {
                 return VARIABLE_FOUND;
-            } else if (symbol->type == STYPE_FUNC) {
-                //TODO: this is obsolete
-                return FUNCTION_FOUND;
             }
         }
     }
 
     symbol = symtable_search(&table_global, id); /* Now check the global table */
     if (symbol) {
-        if (symbol->type == STYPE_VAR && symbol->attributes.var_att.defined) {
+        if (symbol->type == STYPE_VAR) {
 
             if (in_function) {
                 /* Add an undefined local variable into the local symtable */
@@ -144,4 +172,41 @@ int check_parameter_valid(token_t token) {
         }
     }
     return SUCCESS;
+}
+
+int add_built_in_functions() {
+    int retvalue = SUCCESS;
+    symbol_attributes att = { .func_att = { .defined = true, .param_count = 0 } };
+
+    if (!(symtable_insert(&table_global, "inputs", STYPE_FUNC, att)
+                && symtable_insert(&table_global, "inputi", STYPE_FUNC, att)
+                && symtable_insert(&table_global, "inputf", STYPE_FUNC, att))) {
+        retvalue = ERROR_INTERNAL;
+    }
+
+    att.func_att.param_count = -1;
+    if (!symtable_insert(&table_global, "print", STYPE_FUNC, att)) {
+        retvalue = ERROR_INTERNAL;
+    }
+
+    att.func_att.param_count = 1;
+    if (!(symtable_insert(&table_global, "len", STYPE_FUNC, att)
+                && symtable_insert(&table_global, "chr", STYPE_FUNC, att))) {
+        retvalue = ERROR_INTERNAL;
+    }
+
+    att.func_att.param_count = 2;
+    if (!symtable_insert(&table_global, "ord", STYPE_FUNC, att)) {
+        retvalue = ERROR_INTERNAL;
+    }
+
+    att.func_att.param_count = 3;
+    if (!symtable_insert(&table_global, "substr", STYPE_FUNC, att)) {
+        retvalue = ERROR_INTERNAL;
+    }
+
+    if (retvalue)
+        fprintf(stderr, "Internal error: failed to allocate memory "
+                "for built in functions.\n");
+    return retvalue;
 }
