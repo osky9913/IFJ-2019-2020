@@ -9,11 +9,21 @@
 #define __SEMANTIC_H__
 
 #include "parser.h"
+#include "symtable.h"
 
-#define SYMBOL_NOT_FOUND 0
-#define VARIABLE_FOUND 1
-#define FUNCTION_FOUND 2
-#define NEW_VARIABLE 4
+#define SYMBOL_NOT_FOUND 66 
+#define VARIABLE_FOUND 67
+#define FUNCTION_FOUND 68
+#define UNDEF_FUNCTION_FOUND 69
+#define NEW_VARIABLE 70
+
+int add_undefined_function(const char *id);
+
+/**
+ * @brief Checks if all functions called within this function are actually
+ * defined.
+ */
+int check_function_dependencies(symbol_t *function);
 
 /**
  */
@@ -21,7 +31,7 @@ int check_and_add_parameter_def(const char *id);
 
 /**
  */
-int add_symbol_function(const char *id);
+int define_function(const char *id);
 
 /**
  */
@@ -41,7 +51,7 @@ int check_if_defined_var(const char *id);
 
 /**
  */
-bool check_if_defined_func(const char *id);
+int check_if_defined_func(const char *id);
 
 /**
  * @brief This functions checks if the token passed to it is an identifier

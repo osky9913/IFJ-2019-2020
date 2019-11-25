@@ -66,11 +66,18 @@ typedef struct variable_attributes {
  *
  * @var defined Indikuje, zda byla funkce jiz definovana
  * @var param_count Pocet parametru deklarovany pri definici funkce
+ * @var depends Array of pointers to other functions that have to be
+ * defined when calling this function.
+ * @var dep_len The number of dependencies in depends.
  */
 typedef struct function_attributes {
     bool defined;
     int param_count;
+    struct symbol **depends;
+    unsigned dep_len;
 } func_att_t;
+
+#define DEPEND_LEN 20
 
 /**
  * @struct label_attributes

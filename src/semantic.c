@@ -8,8 +8,22 @@
 
 #include "semantic.h"
 
-//TODO: check for functions first
+int check_function_dependencies(symbol_t *function) {
+    if (function) {
+        for (unsigned i = 0; i < function->attributes.func_att.dep_len; i++) {
+            if (!function->attributes.func_att.depends[i]->attributes.func_att.defined) {
+                /* A dependency was undefined */
+                fprintf(stderr, "Line %d - Semantic error: A dependency '%s' of function "
+                        "'%s' is undefinded.\n", line_counter,
+                        function->attributes.func_att.depends[i]->id,
+                        curr_function_call->id);
+                return ERROR_SEM_DEFINITION;
+            }
+        }
+    }
 
+    return SUCCESS;
+}
 
 int check_and_add_parameter_def(const char *id) {
     symbol_t *symbol = symtable_search(&table_global, id); /* Now check for functions */
@@ -27,7 +41,7 @@ int check_and_add_parameter_def(const char *id) {
     if (symbol) {
         fprintf(stderr, "Line %d - Function parameter %s has already been defined "
                 "as a parameter of the function %s.\n",
-                line_counter, id, curr_function->id);
+                line_counter, id, curr_function_def->id);
         return ERROR_SEM_DEFINITION;
 
     } else {
@@ -75,14 +89,18 @@ int check_if_defined_var(const char *id) {
     return SYMBOL_NOT_FOUND;
 }
 
-bool check_if_defined_func(const char *id) {
+int check_if_defined_func(const char *id) {
     symbol_t *symbol = symtable_search(&table_global, id);
     if (symbol) {
-        if (symbol->type == STYPE_FUNC && symbol->attributes.func_att.defined) {
-            return true;
+        if (symbol->type == STYPE_FUNC) {
+            if (symbol->attributes.func_att.defined) {
+                return FUNCTION_FOUND;
+            }
+        } else {
+            return VARIABLE_FOUND;
         }
     }
-    return false;
+    return SYMBOL_NOT_FOUND;
 }
 
 int add_symbol_var(const char *id) {
@@ -137,21 +155,78 @@ int add_symbol_var(const char *id) {
     return SUCCESS;
 }
 
-int add_symbol_function(const char *id) {
-    if ((curr_function = symtable_search(&table_global, id))) {
-        fprintf(stderr, "Line %d - Semantic error: ID '%s' "
-                "has already been defined.\n", line_counter, id);
-        return ERROR_SEM_DEFINITION;
+int define_function(const char *id) {
+    if ((curr_function_def = symtable_search(&table_global, id))) {
+        if (curr_function_def->type == STYPE_FUNC 
+                && !curr_function_def->attributes.func_att.defined) {
+
+            /* Set defined flag to true */
+            curr_function_def->attributes.func_att.defined = true;
+
+        } else {
+            fprintf(stderr, "Line %d - Semantic error: ID '%s' "
+                    "has already been defined.\n", line_counter, id);
+            return ERROR_SEM_DEFINITION;
+        }
 
     } else {
-        func_att_t func_att = { .defined = true, .param_count = 0 };
-        symbol_attributes attributes = { .func_att = func_att };
+        symbol_attributes att = { .func_att = { .defined = true, .param_count = -1,
+        .depends = NULL, .dep_len = 0 } };
 
-        if (!(curr_function = symtable_insert(&table_global, id, STYPE_FUNC, attributes))) {
+        if (!(curr_function_def = symtable_insert(&table_global, id, STYPE_FUNC, att))) {
             fprintf(stderr, "Line %d - Internal error: Could not allocate memory "
                     "for a new function symbol.\n", line_counter);
             return ERROR_INTERNAL;
         }
+    }
+
+    return SUCCESS;
+}
+
+int add_undefined_function(const char *id) {
+    curr_function_call = symtable_search(&table_local, id);
+    if (curr_function_call) {
+        fprintf(stderr, "Line %d - Semantic error: Calling a yet undefined function "
+                "with the same name '%s' as a local variable.\n",
+                line_counter, curr_function_call->id);
+        return ERROR_SEM_DEFINITION;
+    }
+
+    curr_function_call = symtable_search(&table_global, id);
+    if (curr_function_call) { /* The undefined function has been referenced already */
+
+        if (curr_function_call->type == STYPE_VAR) {
+            fprintf(stderr, "Line %d - Semantic error: Calling an undefined function "
+                    "with the same name '%s' as a global variable.\n",
+                    line_counter, id);
+            return ERROR_SEM_DEFINITION;
+        }
+
+    } else { /* This is the first time this function has been referenced */
+        symbol_attributes att = { .func_att = { .defined = false, .param_count = -1,
+        .depends = NULL, .dep_len = 0 } };
+        curr_function_call = symtable_insert(&table_global, id, STYPE_FUNC, att);
+        if (!curr_function_call) {
+            fprintf(stderr, "Line %d - Internal error: Could not allocate memory "
+                    "for a new function symbol.\n", line_counter);
+            return ERROR_INTERNAL;
+        }
+    }
+
+    /* Add as a dependency to the currently defined function */
+    curr_function_def->attributes.func_att.depends[
+        curr_function_def->attributes.func_att.dep_len++] = curr_function_call;
+
+    /* Realloc the dependency array if needed */
+    if ((curr_function_def->attributes.func_att.dep_len % 20) == 0) {
+        symbol_t **tmp = realloc(curr_function_def->attributes.func_att.depends,
+                curr_function_def->attributes.func_att.dep_len * 2);
+        if (!tmp) {
+            fprintf(stderr, "Line %d - Internal error: Could not reallocate "
+                    "the dependency list for function %s.\n", line_counter,
+                    curr_function_def->id);
+        }
+
     }
 
     return SUCCESS;
@@ -163,7 +238,7 @@ int check_parameter_valid(token_t token) {
             case FUNCTION_FOUND:
                 fprintf(stderr, "Line %d - Sematic error: parameter %s was a "
                         "function id.\n", line_counter, token.attribute.string);
-                return ERROR_SEM_DEFINITION;
+                return ERROR_SEM_DEFINITION; 
 
             case SYMBOL_NOT_FOUND:
                 fprintf(stderr, "Line %d - Sematic error: parameter %s was "
@@ -179,7 +254,8 @@ int check_parameter_valid(token_t token) {
 
 int add_built_in_functions() {
     int retvalue = SUCCESS;
-    symbol_attributes att = { .func_att = { .defined = true, .param_count = 0 } };
+    symbol_attributes att = { .func_att = { .defined = true, .param_count = 0,
+    .depends = NULL, .dep_len = 0 } };
 
     if (!(symtable_insert(&table_global, "inputs", STYPE_FUNC, att)
                 && symtable_insert(&table_global, "inputi", STYPE_FUNC, att)
