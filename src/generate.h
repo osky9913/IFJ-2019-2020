@@ -8,11 +8,9 @@
 
 void start_program();
 
+void token_generator(token_t *operand);
+
+void adding_operands(string_t *result, token_t *operand1, token_t *operand2);
+
 void end_program();
-
-void generate_function(const char *name_of_function);
-
-string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *operand2, string_t *result);
-
-
 #endif //GENERATE_H
