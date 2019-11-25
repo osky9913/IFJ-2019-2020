@@ -15,6 +15,9 @@ DIV //
 IDIV //
 ADDS/SUBS/MULS/DIVS/IDIVS
 
+
+ fucking @todo div delenie nulou , div pretypovanie na float
+
 */
 
 
@@ -26,17 +29,57 @@ ADDS/SUBS/MULS/DIVS/IDIVS
 
 
 string_t *output_code;
+string_t *errors;
+
+
 #define
 int unic = 1;
 
 
 void start_program() {
     output_code = string_create_init();
+
     string_append(output_code, ".IFJcode19\n");
     string_append(output_code, "JUMP %MAIN\n");
 
 
 }
+
+
+void token_generator(token_t *operand) {
+
+
+    switch (operand->type) {
+        case TTYPE_ID:
+            sprintf(output_code->array, "%s LF-%s", output_code->array, operand->attribute.string);
+            break;
+        case TTYPE_INT:
+            sprintf(output_code->array, "%s LF-%ld", output_code->array, operand->attribute.integer);
+            break;
+        case TTYPE_DOUBLE:
+            sprintf(output_code->array, "%s LF-%lf", output_code->array, operand->attribute.decimal);
+            break;
+        case TTYPE_STR:
+            sprintf(output_code->array, "%s LF-%s", output_code->array, operand->attribute.string);
+            break;
+        default:
+            sprintf(output_code->array, "%s THERE IS A PROBLEM\n", output_code->array);
+    }
+
+
+}
+
+
+void adding_operands(string_t *result, token_t *operand1, token_t *operand2) {
+    string_append(output_code, result->array);
+    token_generator(operand1);
+    token_generator(operand2);
+    string_append(output_code, "\n");
+
+}
+
+
+
 
 string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *operand2, string_t *result) {
 
@@ -45,26 +88,28 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
 
 
 
-
-
-
-
-
     result = string_create_init();
     create_unic_variable(result, &unic);
-
-    sprintf(output_code->array, "%sDEFVAR %s\n", output_code->array, result->array);
+    sprintf(output_code->array, "%sDEFVAR LF-%s\n", output_code->array, result->array);
 
 
     string_t *variable1 = string_create_init();
     create_unic_variable(variable1, &unic);
-
-    sprintf(output_code->array, "%sDEFVAR %s\n", output_code->array, variable1->array);
+    sprintf(output_code->array, "%sDEFVAR LF-%s\n", output_code->array, variable1->array);
 
     string_t *variable2 = string_create_init();
     create_unic_variable(variable2, &unic);
+    sprintf(output_code->array, "%sDEFVAR LF-%s\n", output_code->array, variable2->array);
 
-    sprintf(output_code->array, "%sDEFVAR %s\n", output_code->array, variable2->array);
+
+    string_t *result_eq_1 = string_create_init();
+    create_unic_variable(result, &unic);
+    sprintf(output_code->array, "%sDEFVAR LF-%s\n", output_code->array, result->array);
+
+
+    string_t *result_eq_2 = string_create_init();
+    create_unic_variable(result, &unic);
+    sprintf(output_code->array, "%sDEFVAR LF-%s\n", output_code->array, result->array);
 
 
 
@@ -74,47 +119,52 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
 
 
     switch (operand1->type) {
+
+
         case TTYPE_ID:
-            sprintf(output_code->array, "%sTYPE %s %s\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%s\n", output_code->array, variable1->array,
                     operand1->attribute.string);
             break;
         case TTYPE_INT:
-            sprintf(output_code->array, "%sTYPE %s %ld\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%ld\n", output_code->array, variable1->array,
                     operand1->attribute.integer);
             break;
         case TTYPE_DOUBLE:
-            sprintf(output_code->array, "%sTYPE %s %lf\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%lf\n", output_code->array, variable1->array,
                     operand1->attribute.decimal);
 
             break;
         case TTYPE_STR:
-            sprintf(output_code->array, "%sTYPE %s %s\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%s\n", output_code->array, variable1->array,
                     operand1->attribute.string);
             break;
         default:
+            sprintf(output_code->array, "%s THERE IS A PROBLEM\n", output_code->array);
+
 
     }
 
 
     switch (operand2->type) {
         case TTYPE_ID:
-            sprintf(output_code->array, "%sTYPE %s %s\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%s\n", output_code->array, variable1->array,
                     operand2->attribute.string);
             break;
         case TTYPE_INT:
-            sprintf(output_code->array, "%sTYPE %s %ld\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%ld\n", output_code->array, variable1->array,
                     operand2->attribute.integer);
             break;
         case TTYPE_DOUBLE:
-            sprintf(output_code->array, "%sTYPE %s %lf\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%lf\n", output_code->array, variable1->array,
                     operand2->attribute.decimal);
 
             break;
         case TTYPE_STR:
-            sprintf(output_code->array, "%sTYPE %s %s\n", output_code->array, variable1->array,
+            sprintf(output_code->array, "%sTYPE LF-%s LF-%s\n", output_code->array, variable1->array,
                     operand2->attribute.string);
             break;
         default:
+            sprintf(output_code->array, "%s THERE IS A PROBLEM\n", output_code->array);
 
     }
 
@@ -125,70 +175,68 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
 
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
-
     // vykonavanie expression
     switch (operator->type) {
+
+        case TTYPE_LSOREQ:
+            string_append(output_code, "LS ");
+            adding_operands(result_eq_1, operand1, operand2);
+            string_append(output_code, "EQ ");
+            adding_operands(result_eq_2, operand1, operand2);
+            string_append(output_code, "OR ");
+            sprintf(output_code->array, "%s LF-%s LF-%s\n", output_code->array, result_eq_1->array, result_eq_2->array);
+
+            break;
+
+        case TTYPE_GTOREQ:
+            string_append(output_code, "LS ");
+            adding_operands(result_eq_1, operand1, operand2);
+            string_append(output_code, "EQ ");
+            adding_operands(result_eq_2, operand1, operand2);
+            string_append(output_code, "OR ");
+            sprintf(output_code->array, "%s LF-%s LF-%s\n", output_code->array, result_eq_1->array, result_eq_2->array);
+
+            break;
+
+
+        case TTYPE_ISEQ:
+            string_append(output_code, "EQ ");
+            adding_operands(result, operand1, operand2);
+            break;
+        case TTYPE_LS:
+            string_append(output_code, "LT ");
+            adding_operands(result, operand1, operand2);
+            break;
+        case TTYPE_GT:
+            string_append(output_code, "GT ");
+            adding_operands(result, operand1, operand2);
+            break;
+
         case TTYPE_ADD:
             string_append(output_code, "ADD ");
-
+            adding_operands(result, operand1, operand2);
             break;
         case TTYPE_SUB:
             string_append(output_code, "SUB ");
-
+            adding_operands(result, operand1, operand2);
             break;
         case TTYPE_MUL:
             string_append(output_code, "MUL ");
-
+            adding_operands(result, operand1, operand2);
             break;
         case TTYPE_DIV:
             string_append(output_code, "DIV ");
-
+            adding_operands(result, operand1, operand2);
             break;
         case TTYPE_IDIV:
             string_append(output_code, "IDIV ");
-
+            adding_operands(result, operand1, operand2);
             break;
         default:
+            sprintf(output_code->array, "%s THERE IS A PROBLEM\n", output_code->array);
 
     }
 
-    string_append(output_code, result->array);
-
-
-    switch (operand1->type) {
-        case TTYPE_ID:
-            sprintf(output_code->array, "%s %s", output_code->array, operand1->attribute.string);
-            break;
-        case TTYPE_INT:
-            sprintf(output_code->array, "%s %ld", output_code->array, operand1->attribute.integer);
-            break;
-        case TTYPE_DOUBLE:
-            sprintf(output_code->array, "%s %lf", output_code->array, operand1->attribute.decimal);
-            break;
-        case TTYPE_STR:
-            sprintf(output_code->array, "%s %s", output_code->array, operand1->attribute.string);
-            break;
-        default:
-
-    }
-
-
-    switch (operand2->type) {
-        case TTYPE_ID:
-            sprintf(output_code->array, "%s %s\n", output_code->array, operand2->attribute.string);
-            break;
-        case TTYPE_INT:
-            sprintf(output_code->array, "%s %ld\n", output_code->array, operand2->attribute.integer);
-            break;
-        case TTYPE_DOUBLE:
-            sprintf(output_code->array, "%s %lf\n", output_code->array, operand2->attribute.decimal);
-            break;
-        case TTYPE_STR:
-            sprintf(output_code->array, "%s %s\n", output_code->array, operand2->attribute.string);
-            break;
-
-        default:
-    }
 
 
     return result;

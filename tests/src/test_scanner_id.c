@@ -106,6 +106,10 @@ int main(int argc, char const *argv[]) {
             printf("IDIV ");
         }             // '//'
         result = get_token(&token);
+        if (result != 0) {
+            printf("fuck");
+            //stack_free(dent_stack);        
+        }
 
     }
     printf("\n");
