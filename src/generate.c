@@ -16,7 +16,7 @@ IDIV //
 ADDS/SUBS/MULS/DIVS/IDIVS
 
 
- fucking @todo div delenie nulou , div pretypovanie na float
+ fucking @todo div delenie nulou , div pretypovanie na float, every sprintf rewrite you dump bitch
 
 */
 
@@ -29,11 +29,12 @@ ADDS/SUBS/MULS/DIVS/IDIVS
 
 
 string_t *output_code;
+string_t *function_definitions;
 string_t *errors;
 
 
-#define
 int unic = 1;
+int unic_param = 1;
 
 
 void start_program() {
@@ -237,11 +238,59 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
 
     }
 
-
-
+    string_free(result_eq_1);
+    string_free(result_eq_2);
+    string_free(variable1);
+    string_free(variable2);
     return result;
 
 }
+
+
+void generate_create_frame() {
+    string_append(function_definitions, "CREATEFRAME\n");
+}
+
+void generate_function(token_t *id) {
+    string_append(function_definitions, "LABEL !");
+    string_append(function_definitions, id->attribute.string);
+    string_append(function_definitions, "\n");
+    string_append(function_definitions, "PUSHFRAME\n");
+
+}
+
+
+void generate_call_function(token_t *id) {
+    string_append(output_code, "CALL !");
+    string_append(output_code, id->attribute.string);
+    string_append(output_code, "\n");
+
+
+}
+
+
+void generate_def_param(token_t *id) {
+    string_append(function_definitions, "DEFVAR ");
+    string_append(function_definitions, id->attribute.string);
+    string_append(function_definitions, "\n");
+}
+
+void generate_call_param(token_t *id) {
+
+
+}
+
+
+void generate_function_end(token_t *id) {
+
+}
+
+
+void generate_function_end_no_return(token_t *id) {
+
+}
+
+
 
 
 void end_program() {
@@ -252,3 +301,4 @@ void end_program() {
 
 
 
+//symtable search -> attributs function attributy param count

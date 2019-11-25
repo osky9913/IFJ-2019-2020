@@ -137,7 +137,7 @@ void create_unic_variable(string_t *result, int *unic) {
     *unic = *unic + 1;
 }
 
-void string_append(string_t *s1, const char *s2) {
+void string_append(string_t *s1, char *s2) {
     int i = 0;
     char temp_iterator = s2[i];
     while (s2[i] != '\0') {
