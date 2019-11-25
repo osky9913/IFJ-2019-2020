@@ -144,8 +144,8 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
     while(i != infixArray->currLen){
 
         /************* REMOVE LATER *************/
-        printArray(postfixArr);
-        printf("\n");
+        //printArray(postfixArr);
+        //printf("\n");
         /************* REMOVE LATER *************/
 
         //infix to postfix algorithm
@@ -306,8 +306,6 @@ int postfixEval(t_array* postfix){
     //creating stack for postfix evaluation algorithm
     stack_general_t* evalS = stack_general_init();
 
-    //get first token before loop
-    token_t currentToken = postfix->arr[0];
     for(int i = 0; i < postfix->currLen; i++){
         //operands are pushed on stack
         if(!isOperator(&(postfix->arr[i]))){
@@ -332,7 +330,7 @@ int postfixEval(t_array* postfix){
             return 1;
         }
         //check if expression semantic is correct
-        int semantic = checkSemantic(operand1, operand2, &currentToken);
+        int semantic = checkSemantic(operand1, operand2, &postfix->arr[i]);
 
         //if semantic is correct it generates code for binary expression
         if(semantic == 0){
@@ -356,8 +354,17 @@ int postfixEval(t_array* postfix){
             return -1;
         }
     }
-    stack_free(evalS);
+
+
+    //WRITE FUNCTION THAT FREES STRINGS
+    while (!stack_empty(evalS)) {
+        stack_popNoDataFree(evalS);
+    }
+    free(evalS);
+    free(((token_t*)tokenGarbageS->top->data)->attribute.string);
     stack_free(tokenGarbageS);
+
+
     return 0;
 }
 
@@ -434,10 +441,6 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
     }
     if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
         return 1;
-    }
-    int priority = getPriority(operator);
-    if(priority == 0 && operand1->type != operand2->type){
-            return 1;
     }
     return 0;
 }
