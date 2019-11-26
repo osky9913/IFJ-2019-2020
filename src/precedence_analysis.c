@@ -287,6 +287,7 @@ int psa(){
 
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
+            fprintf(stderr, "Line %d - Syntax error\n", line_counter);
             return ERROR_SYNTAX;
         }
 
@@ -298,6 +299,7 @@ int psa(){
     if(psaCheck) {
         stack_free(PAStack);
         freePsaResources(&infixArr, &postfix, s);
+        fprintf(stderr, "Line %d - Syntax error\n", line_counter);
         return ERROR_SYNTAX;
     }
 
@@ -306,9 +308,9 @@ int psa(){
     int precAnalysis = postfixEval(&postfix);
 
 
+
     switch(precAnalysis){
         case SUCCESS:
-            printf("%d\n",precAnalysis);
             unget_token();
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
