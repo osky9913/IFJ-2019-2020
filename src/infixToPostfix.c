@@ -6,14 +6,13 @@ int tokenArrCreateInit(t_array* newArr){
     //allocate memory for the array of tokens
     newArr->arr = calloc(INITLENGTH, sizeof(token_t));
     if(newArr->arr == NULL) {
-        printf("Postfix array allocation error, change this error handling\n");
-        return 1;
+        return ALLOC_ERROR;
     }
     
     //initializes array values
     newArr->currLen = 0;
     newArr->maxLen = INITLENGTH;
-    return 0;
+    return SUCCESS;
 }
 
 //realloc memory for the array if it's full and new token needs to be added
@@ -22,13 +21,19 @@ int resizeArrayIfNeeded(t_array* toresizeArr){
         toresizeArr->maxLen *=2;
         toresizeArr->arr = realloc(toresizeArr->arr, sizeof(token_t) * toresizeArr->maxLen);
         if(toresizeArr->arr == NULL){
-            printf("Reallocation error\n");
-            return 1;
+            return ALLOC_ERROR;
         }
     }
-    return 0;
+    return SUCCESS;
 }
 
+//generate new token as semi-result in postfix evaluation
+token_t* tokenGen(char* name){
+    token_t* tmp = malloc(sizeof(token_t));
+    tmp->type = TTYPE_ID;
+    tmp->attribute.string = name;
+    return tmp;
+}
 
 int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
     //checks if array is not full, if so, resizes it's length
@@ -49,8 +54,7 @@ int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
         //allocate memory for the string
         tmpToken->attribute.string = (char*)calloc(length, 1);
         if(tmpToken->attribute.string == NULL){
-            printf("Token copy allocation error - string, change this error handling\n");
-            return 1;
+            return ALLOC_ERROR;
         }
         
         //copy string from given token to the new one
@@ -66,7 +70,7 @@ int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
     }
     //increment current number of tokens in array as current length
     arrayToCopy->currLen++;
-    return 0;
+    return SUCCESS;
 }
 
 //free all memory allocated for given array
@@ -78,6 +82,28 @@ void freeArray(t_array* toDelete){
     }
     free(toDelete->arr);
     toDelete->arr = NULL;
+}
+
+void freeTokenStack(stack_general_t* stackToFree){
+    if(stackToFree == NULL){
+        return;
+    }
+    while(!stack_empty(stackToFree)){
+        stack_general_item_t *tmpStackItem = stack_general_top(stackToFree);
+        token_t *stackToken = (token_t *) tmpStackItem->data;
+        if(stackToken->type == TTYPE_STR || stackToken->type == TTYPE_ID){
+            free(stackToken->attribute.string);
+        }
+        stack_pop(stackToFree);
+    }
+    free(stackToFree);
+    stackToFree = NULL;
+}
+
+void freePsaResources(t_array* infix, t_array* postfix, stack_general_t* s){
+    stack_free(s);
+    freeArray(infix);
+    freeArray(postfix);
 }
 
 void printArray(t_array* toPrint){
@@ -138,7 +164,7 @@ void printArray(t_array* toPrint){
 int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr){
     if(s == NULL){
         printf("Inf2post stack is NULL\n");
-        return 1;
+        return NULL_PASSED;
     }
     int i =0;
     while(i != infixArray->currLen){
@@ -172,7 +198,7 @@ int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr)
         //pop deletes token on the top
         stack_popNoDataFree(s);
     }
-    return 0;
+    return SUCCESS;
 }
 
 
@@ -298,6 +324,25 @@ int getPriority(const token_t* const token){
     }
 }
 
+bool isOperator(const token_t* const token){
+    switch(token->type){
+        case TTYPE_ISNEQ:
+        case TTYPE_ISEQ:
+        case TTYPE_GT:
+        case TTYPE_GTOREQ:
+        case TTYPE_LS:
+        case TTYPE_LSOREQ:
+        case TTYPE_ADD:
+        case TTYPE_SUB:
+        case TTYPE_MUL:
+        case TTYPE_DIV:
+        case TTYPE_IDIV:
+            return true;
+        default:
+            return false;
+    }
+}
+
 //evaluate postfix expression
 int postfixEval(t_array* postfix){
 
@@ -322,20 +367,24 @@ int postfixEval(t_array* postfix){
         stack_popNoDataFree(evalS);
 
         //checks if all variables in expression are defined
+
         int checkDefine = checkDefinedVarInPostfix(postfix);
-        if(checkDefine == SYMBOL_NOT_FOUND){
-            printf("SYMBOL NOT FOUND\n");
+        if(checkDefine == ERROR_SEM_DEFINITION){
+            stack_popNoDataFree(evalS);
+            free(evalS);
             stack_free(tokenGarbageS);
-            stack_free(evalS);
-            return 1;
+            return ERROR_SEM_DEFINITION;
         }
+
         //check if expression semantic is correct
         int semantic = checkSemantic(operand1, operand2, &postfix->arr[i]);
 
         //if semantic is correct it generates code for binary expression
-        if(semantic == 0){
+        if(semantic != SUCCESS){
             //code gen -return string
-
+            /*****************GENERATE*******************/
+            //char* semi_result = generate_expression(operand1, operand2, &postfix->arr[i]);
+            /****************GENERATE*******************/
             /*****************DELETE THIS*******************/
             char* name = malloc(10);
             strcpy(name, "qwertyuio");
@@ -343,57 +392,32 @@ int postfixEval(t_array* postfix){
 
             //generate token for semi-result
             token_t* newToken = tokenGen(name);
+            if(newToken == NULL){
+                return ALLOC_ERROR;
+            }
+            newToken->attribute.string = name;
+            name = NULL;
+            newToken->type = TTYPE_ID;
+
+
             //pushed it to the postfix evaluation stack as operand
             stack_general_push(evalS, newToken);
             //also pushed it to new tokens array so it's memory can be freed later
             stack_general_push(tokenGarbageS, newToken);
         }
         else{
-            stack_free(evalS);
+            stack_popNoDataFree(evalS);
+            free(evalS);
             stack_free(tokenGarbageS);
-            return -1;
+            return semantic;
         }
     }
-
-
-    //WRITE FUNCTION THAT FREES STRINGS
-    while (!stack_empty(evalS)) {
-        stack_popNoDataFree(evalS);
-    }
+    stack_popNoDataFree(evalS);
     free(evalS);
-    free(((token_t*)tokenGarbageS->top->data)->attribute.string);
-    stack_free(tokenGarbageS);
-
-
-    return 0;
+    freeTokenStack(tokenGarbageS);
+    return SUCCESS;
 }
 
-bool isOperator(const token_t* const token){
-    switch(token->type){
-        case TTYPE_ISNEQ:
-        case TTYPE_ISEQ:
-        case TTYPE_GT:
-        case TTYPE_GTOREQ:
-        case TTYPE_LS:
-        case TTYPE_LSOREQ:
-        case TTYPE_ADD:
-        case TTYPE_SUB:
-        case TTYPE_MUL:
-        case TTYPE_DIV:
-        case TTYPE_IDIV:
-            return true;
-        default:
-            return false;
-    }
-}
-
-//generate new token as semi-result in postfix evaluation
-token_t* tokenGen(char* name){
-    token_t* tmp = malloc(sizeof(token_t));
-    tmp->type = TTYPE_ID;
-    tmp->attribute.string = name;
-    return tmp;
-}
 
 //loop through the postfix array and if token is variable check if it's defined
 int checkDefinedVarInPostfix(t_array* postfix){
@@ -401,12 +425,12 @@ int checkDefinedVarInPostfix(t_array* postfix){
     for(int i = 0; i < postfix->currLen ; i++){
         if(postfix->arr[i].type == TTYPE_ID){
             checkDef = check_if_defined_var(postfix->arr[i].attribute.string);
-            if(checkDef == SYMBOL_NOT_FOUND){
-                return SYMBOL_NOT_FOUND;
+            if(checkDef != VARIABLE_FOUND){
+                return ERROR_SEM_DEFINITION;
             }
         }
     }
-    return VARIABLE_FOUND;
+    return SUCCESS;
 }
 
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
@@ -414,33 +438,33 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         if(isOperator(operator)){
             if(operator->type == TTYPE_IDIV){
                 if(operand1->type == TTYPE_DOUBLE || operand2->type == TTYPE_DOUBLE){
-                    return 1;
+                    return ERROR_SEM_TYPE;
                 }
                 else if(operand1->attribute.integer == 0){
-                    return 1;
+                    return ERROR_DIV_ZERO;
                 }
-                return 0;
+                return SUCCESS;
             }
             if(operator->type == TTYPE_DIV) {
                 if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
-                    return 1;
+                    return ERROR_DIV_ZERO;
                 }
-                return 0;
+                return SUCCESS;
             }
         }
         else{
-            return 1;
+            return ERROR_SEM_OTHER;
         }
     }
     if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
         if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
         operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
-            return 1;
+            return ERROR_SEM_TYPE;
         }
-        return 0;
+        return SUCCESS;
     }
     if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
-        return 1;
+        return ERROR_SEM_TYPE;
     }
-    return 0;
+    return SUCCESS;
 }

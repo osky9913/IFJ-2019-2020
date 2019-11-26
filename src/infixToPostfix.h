@@ -61,4 +61,6 @@ int postfixEval(t_array* postfix);
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator);
 token_t* tokenGen(char* name);
 int checkDefinedVarInPostfix(t_array* postfix);
+void freeTokenStack(stack_general_t* stackToFree);
+void freePsaResources(t_array* infix, t_array* postfix, stack_general_t* s);
 #endif
