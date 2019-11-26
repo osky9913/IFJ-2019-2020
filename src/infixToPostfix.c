@@ -464,7 +464,7 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         }
         return SUCCESS;
     }
-    if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
+    if((operand1->type == TTYPE_STR && (operand2->type != TTYPE_STR && operand2->type != TTYPE_ID) ) || (operand2->type == TTYPE_STR && (operand1->type != TTYPE_STR && operand1->type != TTYPE_ID))){
         fprintf(stderr, "Line %d - String and non string as operands in expression.\n", line_counter);
         return ERROR_SEM_TYPE;
     }
