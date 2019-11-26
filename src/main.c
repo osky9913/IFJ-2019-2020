@@ -23,8 +23,20 @@ int main(void) {
             printf("semantic error - undefined symbol\n");
             break;
 
+        case ERROR_SEM_TYPE:
+            printf("semantic error - invalid operand types\n");
+            break;
+
         case ERROR_SEM_PARAM_COUNT:
             printf("semantic error - invalid function parameter count\n");
+            break;
+
+        case ERROR_SEM_OTHER:
+            printf("semantic error - other\n");
+            break;
+
+        case ERROR_DIV_ZERO:
+            printf("error - division by zero\n");
             break;
 
         default:
