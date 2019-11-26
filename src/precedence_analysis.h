@@ -6,6 +6,7 @@
 #include "general_stack.h"
 #include "errors.h"
 #include "parser.h"
+#include "infixToPostfix.h"
 #include <stdbool.h>
 
 #define P '<' // push to stack

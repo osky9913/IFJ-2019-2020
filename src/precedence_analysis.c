@@ -251,6 +251,28 @@ int psa(){
     //declaration of needed data structures
     stack_general_t* PAStack = stack_general_init();//precedence analysis stack of symbols
 
+
+    int check;
+    t_array infixArr;
+    t_array postfix;
+    stack_general_t* s = stack_general_init();
+    if(s == NULL){
+        return ERROR_INTERNAL;
+    }
+    check = tokenArrCreateInit(&infixArr);
+    if(check == ALLOC_ERROR) {
+        return ERROR_INTERNAL;
+    }
+    check = tokenArrCreateInit(&postfix);
+    if(check == ALLOC_ERROR) {
+        freeArray(&infixArr);
+        return ERROR_INTERNAL;
+    }
+
+
+
+
+
     //pushing starting symbol - DOLLAR '$'
     if(stack_general_push_int(PAStack, DOLLAR) == ALLOC_ERROR){
         printf("ALLOC ERROR IN PRECEDENCE ANALYSIS REDUCING FUNCTION\n");
@@ -263,6 +285,9 @@ int psa(){
     //loop through whole expression
     while(curr_token.type != TTYPE_COLUMN && curr_token.type != TTYPE_EOL){
 
+
+        copyTokenToArray(&infixArr, &curr_token);
+
         //applying rules and checking for error indicating syntax error
         int psaCheck = apply_psa_rule(PAStack);
         printf("PSACHECK:%d\n",psaCheck);
@@ -271,6 +296,7 @@ int psa(){
         if(psaCheck) {
             printf("INCORRECT SYNTAX\n");
             stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
             return 1;
         }
 
@@ -282,12 +308,52 @@ int psa(){
     if(psaCheck) {
         printf("INCORRECT SYNTAX\n");
         stack_free(PAStack);
+        freePsaResources(&infixArr, &postfix, s);
         return 1;
     }
-    unget_token();
 
-    //free stack memory
-    stack_free(PAStack);
-    return 0;
+
+    infixToPostfix(s, &infixArr, &postfix);
+    int precAnalysis = postfixEval(&postfix);
+
+
+    switch(precAnalysis){
+        case SUCCESS:
+            printf("%d\n",precAnalysis);
+            unget_token();
+            stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
+            return SUCCESS;
+        case ERROR_SEM_DEFINITION:
+            printf("%d\n",precAnalysis);
+            unget_token();
+            stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
+            return ERROR_SEM_DEFINITION;
+        case ERROR_SEM_TYPE:
+            printf("%d\n",precAnalysis);
+            unget_token();
+            stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
+            return ERROR_SEM_TYPE;
+        case ERROR_DIV_ZERO:
+            printf("%d\n",precAnalysis);
+            unget_token();
+            stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
+            return ERROR_DIV_ZERO;
+        case ERROR_SEM_OTHER:
+            printf("%d\n",precAnalysis);
+            unget_token();
+            stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
+            return ERROR_SEM_OTHER;
+        default:
+            printf("%d\n",precAnalysis);
+            unget_token();
+            stack_free(PAStack);
+            freePsaResources(&infixArr, &postfix, s);
+            return ERROR_INTERNAL;
+    }
 
 }

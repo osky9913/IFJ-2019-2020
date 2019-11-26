@@ -345,6 +345,12 @@ bool isOperator(const token_t* const token){
 
 //evaluate postfix expression
 int postfixEval(t_array* postfix){
+    //checks if all variables in expression are defined
+
+    int checkDefine = checkDefinedVarInPostfix(postfix);
+    if(checkDefine == ERROR_SEM_DEFINITION){
+        return ERROR_SEM_DEFINITION;
+    }
 
     //creating stack for collecting new semi-result tokens
     stack_general_t* tokenGarbageS = stack_general_init();
@@ -366,21 +372,11 @@ int postfixEval(t_array* postfix){
         token_t *operand2 = (token_t *) tmpStackItem2->data;
         stack_popNoDataFree(evalS);
 
-        //checks if all variables in expression are defined
-
-        int checkDefine = checkDefinedVarInPostfix(postfix);
-        if(checkDefine == ERROR_SEM_DEFINITION){
-            stack_popNoDataFree(evalS);
-            free(evalS);
-            stack_free(tokenGarbageS);
-            return ERROR_SEM_DEFINITION;
-        }
 
         //check if expression semantic is correct
         int semantic = checkSemantic(operand1, operand2, &postfix->arr[i]);
-
         //if semantic is correct it generates code for binary expression
-        if(semantic != SUCCESS){
+        if(semantic == SUCCESS){
             //code gen -return string
             /*****************GENERATE*******************/
             //char* semi_result = generate_expression(operand1, operand2, &postfix->arr[i]);
@@ -424,6 +420,7 @@ int checkDefinedVarInPostfix(t_array* postfix){
     int checkDef;
     for(int i = 0; i < postfix->currLen ; i++){
         if(postfix->arr[i].type == TTYPE_ID){
+
             checkDef = check_if_defined_var(postfix->arr[i].attribute.string);
             if(checkDef != VARIABLE_FOUND){
                 return ERROR_SEM_DEFINITION;
@@ -457,6 +454,8 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         }
     }
     if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
+        printf("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n");
+
         if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
         operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
             return ERROR_SEM_TYPE;
@@ -464,7 +463,9 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         return SUCCESS;
     }
     if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
+        printf("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n");
         return ERROR_SEM_TYPE;
     }
+    printf("DDDDDDDDDDDDDDDDDDDDD\n");
     return SUCCESS;
 }
