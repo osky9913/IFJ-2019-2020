@@ -7,9 +7,7 @@
 
 #include "parser.h"
 
-/* TODO: recursive calls, polish scope problems
- */
-
+/* Some global variables */
 bool in_function = false;
 token_t curr_token = { .type = TTYPE_EOF };
 token_t token_stash[2];
@@ -28,6 +26,7 @@ int init_resources() {
     token_stash[1].type = TTYPE_EOF;
     token_stash[1].attribute.string = NULL;
 
+    /* Initialize symbol tables */
     symtable_init(&table_global);
     symtable_init(&table_local);
 
@@ -72,9 +71,9 @@ int r_program() {
                     break;
 
                 case KEY_RETURN:
-                    fprintf(stderr, "Line %d - UNEXPECTED_TOKEN 'return' in r_program.\n",
+                    fprintf(stderr, "Line %d - ERROR_SYNTAX 'return' in r_program.\n",
                             line_counter);
-                    retvalue = UNEXPECTED_TOKEN;
+                    retvalue = ERROR_SYNTAX;
                     break;
 
                 default:
@@ -91,9 +90,9 @@ int r_program() {
             break;
 
         default:
-            fprintf(stderr, "Line %d - UNEXPECTED_TOKEN in r_program "
+            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_program "
                     "- not a statement or def.\n", line_counter);
-            retvalue = UNEXPECTED_TOKEN;
+            retvalue = ERROR_SYNTAX;
             break;
     }
     return retvalue;
@@ -126,25 +125,25 @@ int r_statement() {
                     break;
 
                 default:
-                    fprintf(stderr, "Line %d - UNEXPECTED_TOKEN 'None' in r_statement.\n",
+                    fprintf(stderr, "Line %d - ERROR_SYNTAX 'None' in r_statement.\n",
                             line_counter);
-                    retvalue = UNEXPECTED_TOKEN;
+                    retvalue = ERROR_SYNTAX;
                     break;
             }
             break;
 
         default:
-            fprintf(stderr, "Line %d - UNEXPECTED_TOKEN in r_statement.\n", line_counter);
-            retvalue = UNEXPECTED_TOKEN;
+            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_statement.\n", line_counter);
+            retvalue = ERROR_SYNTAX;
     }
 
     if (retvalue != SUCCESS) return retvalue;
 
     next_token(true);
     if (curr_token.type != TTYPE_EOL) { /* eol */
-        fprintf(stderr, "Line %d - UNEXPECTED_TOKEN %d in r_statement - didn't "
+        fprintf(stderr, "Line %d - ERROR_SYNTAX %d in r_statement - didn't "
                 "end with eol.\n", line_counter, curr_token.type);
-        retvalue = UNEXPECTED_TOKEN;
+        retvalue = ERROR_SYNTAX;
     }
 
     return retvalue;
@@ -165,14 +164,14 @@ int r_statement_list() {
             if (curr_token.attribute.keyword != KEY_DEF) {
                 retvalue = r_statement();
             } else {
-                retvalue = UNEXPECTED_TOKEN;
+                retvalue = ERROR_SYNTAX;
             }
             break;
 
         default:
-            fprintf(stderr, "Line %d - UNEXPECTED_TOKEN %d in r_statement_list.\n",
+            fprintf(stderr, "Line %d - ERROR_SYNTAX %d in r_statement_list.\n",
                     line_counter, curr_token.type);
-            retvalue = UNEXPECTED_TOKEN;
+            retvalue = ERROR_SYNTAX;
             break;
     }
 
@@ -184,18 +183,18 @@ int r_statement_list() {
 }
 
 int r_function_def() {
-    int retvalue = UNEXPECTED_TOKEN;
+    int retvalue = ERROR_SYNTAX;
     in_function = true;
 
     next_token(false);
-    if (curr_token.type != TTYPE_ID) return UNEXPECTED_TOKEN;
+    if (curr_token.type != TTYPE_ID) return ERROR_SYNTAX;
 
     /* Let's try to add the function to our symtable */
     if ((retvalue = define_function(curr_token.attribute.string)) != SUCCESS)
         return retvalue;
 
     next_token(false);
-    if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;  /* ( */
+    if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;  /* ( */
 
     next_token(false);
     retvalue = r_param_list_def(); /* <param_list_def> */
@@ -215,14 +214,14 @@ int r_function_def() {
     param_count = 0;
 
     /* params_list has already loaded this token */
-    if (curr_token.type != TTYPE_RTBRAC) return UNEXPECTED_TOKEN; /* ) */
+    if (curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX; /* ) */
 
     next_token(false);
-    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* EOL */
+    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* EOL */
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* INDENT */
+    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* INDENT */
 
     next_token(false);
     retvalue = r_statement(); /* <statement> */
@@ -232,7 +231,7 @@ int r_function_def() {
     retvalue = r_statement_list(); /* <statement_list> */
     if (retvalue != SUCCESS) return retvalue;
 
-    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* DEDENT */
+    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* DEDENT */
     
     in_function = false;
     symtable_clear_all(&table_local);
@@ -276,8 +275,8 @@ int r_params_def() {
             retvalue = r_params_def(); /* <params_def> */
 
         } else {
-            fprintf(stderr, "Line %d - UNEXPECTED_TOKEN in r_params_def.\n", line_counter);
-            retvalue = UNEXPECTED_TOKEN;
+            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_params_def.\n", line_counter);
+            retvalue = ERROR_SYNTAX;
         }
     }
 
@@ -325,9 +324,9 @@ int r_params() {
                 break;
 
             default:
-                fprintf(stderr, "Line %d - UNEXPECTED_TOKEN in r_params - "
+                fprintf(stderr, "Line %d - ERROR_SYNTAX in r_params - "
                         "wrong parameter.\n", line_counter);
-                retvalue = UNEXPECTED_TOKEN;
+                retvalue = ERROR_SYNTAX;
                 break;
         }
     }
@@ -341,40 +340,40 @@ int r_if_else() {
     if ((retvalue = psa()) != SUCCESS) return retvalue; /* if expr */
 
     next_token(true);
-    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
 
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* eol */
+    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
 
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* indent */
+    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
-    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* dedent */
+    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
     next_token(false);
-    if (curr_token.type != TTYPE_KEYWORD) return UNEXPECTED_TOKEN;
-    if (curr_token.attribute.keyword != KEY_ELSE) return UNEXPECTED_TOKEN; /* else */
+    if (curr_token.type != TTYPE_KEYWORD) return ERROR_SYNTAX;
+    if (curr_token.attribute.keyword != KEY_ELSE) return ERROR_SYNTAX; /* else */
 
     next_token(true);
-    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
 
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* eol */
+    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
 
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* indent */
+    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
-    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* dedent */
+    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
     return retvalue;
 }
@@ -385,34 +384,34 @@ int r_cycle() {
     if ((retvalue = psa()) != SUCCESS) return retvalue; /* while expr */
 
     next_token(true);
-    if (curr_token.type != TTYPE_COLUMN) return UNEXPECTED_TOKEN; /* : */
+    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
 
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return UNEXPECTED_TOKEN; /* eol */
+    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
 
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return UNEXPECTED_TOKEN; /* indent */
+    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
-    if (curr_token.type != TTYPE_DEDENT) return UNEXPECTED_TOKEN; /* dedent */
+    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
     return retvalue;
 }
 
 int r_function_ret() {
     if (!in_function)
-        return RETURN_IN_PROGRAM_BODY; /* return statement cannot exist outside a
-                                          function definition - TODO: check?? */
+        return ERROR_SYNTAX; /* return statement cannot exist outside a
+                                          function definition */
     next_token(false);
     return r_retvalue();
 }
 
 int r_retvalue() {
-    int retvalue = UNEXPECTED_TOKEN;
+    int retvalue = ERROR_SYNTAX;
 
     if (curr_token.type == TTYPE_EOL) { /* eps */
         unget_token();
@@ -443,7 +442,7 @@ int r_value() {
 }
 
 int r_rest() {
-    int retvalue = UNEXPECTED_TOKEN;
+    int retvalue = ERROR_SYNTAX;
 
     switch (curr_token.type) {
         case TTYPE_LTBRAC:
@@ -451,69 +450,17 @@ int r_rest() {
 
             /* the statement is a function call, let's check the semantics */
             next_token(true); /* First load the last token */
-            retvalue = check_if_defined_func(curr_token.attribute.string);
-            switch (retvalue) {
-                case FUNCTION_FOUND:
-                    retvalue = UNEXPECTED_TOKEN;
-                    curr_function_call = symtable_search(&table_global,
-                            curr_token.attribute.string);
-                    if (!curr_function_call) return ERROR_INTERNAL;
-
-                    if (!in_function) { /* check the dependencies */
-                        if (check_function_dependencies(curr_function_call))
-                            return ERROR_SEM_DEFINITION;
-                    }
-
-                    break;
-
-                case VARIABLE_FOUND:
-                    fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                            "has already been defined as a variable.\n", line_counter,
-                            curr_token.attribute.string);
-                    return ERROR_SEM_DEFINITION;
-                    break;
-
-                case SYMBOL_NOT_FOUND:
-                    if (in_function) {
-                        retvalue = add_undefined_function(curr_token.attribute.string);
-                        if (retvalue !=SUCCESS) return retvalue;
-
-                    } else {
-                        fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                                "is undefinded.\n", line_counter,
-                                curr_token.attribute.string);
-                        return ERROR_SEM_DEFINITION;
-                    }
-                    break;
-
-                default:
-                    break;
-            }
+            if ((retvalue = check_function_call(curr_token.attribute.string)) != SUCCESS)
+                return retvalue;
 
             next_token(true);
             if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
             /* Check parameter count */
-            if (in_function) {
-                if (!curr_function_call->attributes.func_att.defined) {
-
-                    if (curr_function_call->attributes.func_att.param_count
-                            == -1) {
-                        curr_function_call->attributes.func_att.param_count
-                            = param_count;
-                    }
-                }
-
-            }
-            if ((param_count
-                    != curr_function_call->attributes.func_att.param_count) &&
-                    (curr_function_call->attributes.func_att.param_count >= 0)) {
-                fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
-                        "count when calling function '%s'.\n", line_counter,
-                        curr_function_call->id);
-                return ERROR_SEM_PARAM_COUNT;
-            }
+            if((retvalue = check_parameter_count_call(param_count)) != SUCCESS)
+                return retvalue;
             param_count = 0;
+
             break;
 
         case TTYPE_ASSIGN: /* assignment - we need to check if the assigned value
@@ -556,68 +503,16 @@ int r_rest() {
 
                     /* the statement is a function call, let's check the semantics */
                     next_token(true);
-                    retvalue = check_if_defined_func(curr_token.attribute.string);
-                    switch (retvalue) {
-                        case FUNCTION_FOUND:
-                            retvalue = UNEXPECTED_TOKEN;
-                            curr_function_call = symtable_search(&table_global,
-                                    curr_token.attribute.string);
-                            if (!curr_function_call) return ERROR_INTERNAL;
-
-                            if (!in_function) { /* check the dependencies */
-                                if (check_function_dependencies(curr_function_call))
-                                    return ERROR_SEM_DEFINITION;
-                            }
-
-                            break;
-
-                        case VARIABLE_FOUND:
-                            fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                                    "has already been defined as a variable.\n", line_counter,
-                                    curr_token.attribute.string);
-                            return ERROR_SEM_DEFINITION;
-                            break;
-
-                        case SYMBOL_NOT_FOUND:
-                            if (in_function) {
-                                retvalue = add_undefined_function(curr_token.attribute.string);
-                                if (retvalue !=SUCCESS) return retvalue;
-
-                            } else {
-                                fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                                        "is undefinded.\n", line_counter,
-                                        curr_token.attribute.string);
-                                return ERROR_SEM_DEFINITION;
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
+                    if ((retvalue = check_function_call(curr_token.attribute.string))
+                            != SUCCESS)
+                        return retvalue;
 
                     next_token(true);
-                    if((retvalue = r_function_call()) != SUCCESS) return retvalue;
+                    if ((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
                     /* Check parameter count */
-                    if (in_function) {
-                        if (!curr_function_call->attributes.func_att.defined) {
-
-                            if (curr_function_call->attributes.func_att.param_count
-                                    == -1) {
-                                curr_function_call->attributes.func_att.param_count
-                                    = param_count;
-                            }
-                        }
-
-                    }
-                    if ((param_count
-                            != curr_function_call->attributes.func_att.param_count) &&
-                            (curr_function_call->attributes.func_att.param_count >= 0)) {
-                        fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
-                                "count when calling function '%s'.\n", line_counter,
-                                curr_function_call->id);
-                        return ERROR_SEM_PARAM_COUNT;
-                    }
+                    if ((retvalue = check_parameter_count_call(param_count)))
+                        return retvalue;
                     param_count = 0;
 
                 } else {
@@ -629,7 +524,7 @@ int r_rest() {
                 retvalue = psa();
             }
 
-            if(undef_symbol) undef_symbol->attributes.var_att.defined = true;
+            if (undef_symbol) undef_symbol->attributes.var_att.defined = true;
 
             break;
 
@@ -643,19 +538,19 @@ int r_rest() {
 }
 
 int r_function_call() {
-    int retvalue = UNEXPECTED_TOKEN;
-    if (curr_token.type != TTYPE_LTBRAC) return UNEXPECTED_TOKEN;
+    int retvalue = ERROR_SYNTAX;
+    if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;
 
     next_token(false);
     if ((retvalue = r_param_list()) != SUCCESS) return retvalue;
-    if (curr_token.type != TTYPE_RTBRAC) return UNEXPECTED_TOKEN;
+    if (curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX;
 
     return retvalue;
 }
 
 /*
 int r_term() {
-    int retvalue = UNEXPECTED_TOKEN;
+    int retvalue = ERROR_SYNTAX;
 
     if (curr_token.type == TTYPE_ID) { // id
         retvalue = SUCCESS;
@@ -668,16 +563,16 @@ int r_term() {
 }
 
 int r_literal() {
-    int retvalue = UNEXPECTED_TOKEN;
+    int retvalue = ERROR_SYNTAX;
     switch (curr_token.type) {
         case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR: case TTYPE_NONE:
             retvalue = SUCCESS;
             break;
 
         default:
-            fprintf(stderr, "Line %d - UNEXPECTED_TOKEN in r_literal - not a literal .\n",
+            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_literal - not a literal .\n",
                     line_counter);
-            retvalue = UNEXPECTED_TOKEN;
+            retvalue = ERROR_SYNTAX;
             break;
     }
 

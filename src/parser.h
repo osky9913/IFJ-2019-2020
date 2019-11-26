@@ -19,10 +19,6 @@
 #include "semantic.h"
 
 
-#define SUCCESS 0
-#define UNEXPECTED_TOKEN 2
-#define RETURN_IN_PROGRAM_BODY 6
-
 symtable_t table_global, table_local;
 
 /**

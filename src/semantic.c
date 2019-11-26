@@ -1,14 +1,13 @@
 /**
  *	@file   semantic.c
  *	@author Simon Sedlacek, xsedla1h
- *	@date
  *	@brief Semantic analysis module
  */
 
 
 #include "semantic.h"
 
-int check_function_dependencies(symbol_t *function) {
+int check_function_dependencies(const symbol_t *function) {
     if (function) {
         for (unsigned i = 0; i < function->attributes.func_att.dep_len; i++) {
             if (!function->attributes.func_att.depends[i]->attributes.func_att.defined) {
@@ -230,14 +229,14 @@ int add_undefined_function(const char *id) {
             fprintf(stderr, "Line %d - Internal error: Could not reallocate "
                     "the dependency list for function %s.\n", line_counter,
                     curr_function_def->id);
+            return ERROR_INTERNAL;
         }
-
     }
 
     return SUCCESS;
 }
 
-int check_parameter_valid(token_t token) {
+int check_parameter_valid(const token_t token) {
     if (token.type == TTYPE_ID) {
         switch (check_if_defined_var(token.attribute.string)) {
             case FUNCTION_FOUND:
@@ -253,6 +252,70 @@ int check_parameter_valid(token_t token) {
             default:
                 break;
         }
+    }
+    return SUCCESS;
+}
+
+int check_parameter_count_call(const int param_count) {
+    if (in_function) {
+        if (!curr_function_call->attributes.func_att.defined) {
+
+            if (curr_function_call->attributes.func_att.param_count == -1) {
+                curr_function_call->attributes.func_att.param_count = param_count;
+            }
+        }
+
+    }
+    if ((param_count != curr_function_call->attributes.func_att.param_count) &&
+            (curr_function_call->attributes.func_att.param_count >= 0)) {
+
+        fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
+                "count when calling function '%s'.\n", line_counter,
+                curr_function_call->id);
+        return ERROR_SEM_PARAM_COUNT;
+    }
+
+    return SUCCESS;
+}
+
+int check_function_call(const char *id) {
+    int retvalue = check_if_defined_func(id);
+    switch (retvalue) {
+        case FUNCTION_FOUND:
+            retvalue = ERROR_SYNTAX;
+            curr_function_call = symtable_search(&table_global,
+                    curr_token.attribute.string);
+            if (!curr_function_call) return ERROR_INTERNAL;
+
+            if (!in_function) { /* check the dependencies */
+                if (check_function_dependencies(curr_function_call))
+                    return ERROR_SEM_DEFINITION;
+            }
+
+            break;
+
+        case VARIABLE_FOUND:
+            fprintf(stderr, "Line %d - Semantic error: Function '%s' "
+                    "has already been defined as a variable.\n", line_counter,
+                    curr_token.attribute.string);
+            return ERROR_SEM_DEFINITION;
+            break;
+
+        case SYMBOL_NOT_FOUND:
+            if (in_function) {
+                retvalue = add_undefined_function(curr_token.attribute.string);
+                if (retvalue !=SUCCESS) return retvalue;
+
+            } else {
+                fprintf(stderr, "Line %d - Semantic error: Function '%s' "
+                        "is undefinded.\n", line_counter,
+                        curr_token.attribute.string);
+                return ERROR_SEM_DEFINITION;
+            }
+            break;
+
+        default:
+            break;
     }
     return SUCCESS;
 }
