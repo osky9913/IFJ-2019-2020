@@ -18,6 +18,11 @@ int check_function_dependencies(symbol_t *function) {
                         function->attributes.func_att.depends[i]->id,
                         curr_function_call->id);
                 return ERROR_SEM_DEFINITION;
+            } else {
+                /* Recursively call this function in order to check all the dependencies
+                 * of all dependencies */
+                if (check_function_dependencies(function->attributes.func_att.depends[i]))
+                    return ERROR_SEM_DEFINITION;
             }
         }
     }
