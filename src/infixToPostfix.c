@@ -163,16 +163,11 @@ void printArray(t_array* toPrint){
 
 int infixToPostfix(stack_general_t* s, t_array* infixArray, t_array* postfixArr){
     if(s == NULL){
-        printf("Inf2post stack is NULL\n");
         return NULL_PASSED;
     }
     int i =0;
     while(i != infixArray->currLen){
 
-        /************* REMOVE LATER *************/
-        //printArray(postfixArr);
-        //printf("\n");
-        /************* REMOVE LATER *************/
 
         //infix to postfix algorithm
         if(isOperator(&(infixArray->arr[i]))){
@@ -454,7 +449,6 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         }
     }
     if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
-        printf("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n");
 
         if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
         operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
@@ -463,9 +457,7 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         return SUCCESS;
     }
     if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
-        printf("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n");
         return ERROR_SEM_TYPE;
     }
-    printf("DDDDDDDDDDDDDDDDDDDDD\n");
     return SUCCESS;
 }
