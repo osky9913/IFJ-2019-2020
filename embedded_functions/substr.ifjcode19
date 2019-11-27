@@ -1,0 +1,87 @@
+.IFJcode19
+JUMP $$main
+
+#-----------------------------
+#substr(s, i, n)
+LABEL $substr
+PUSHFRAME
+DEFVAR LF@%retval
+MOVE LF@%retval string@
+DEFVAR LF@str_len
+DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente
+TYPE LF@passed_type LF@%1
+JUMPIFEQ &substr&continue1 LF@passed_type string@string	#arg1 je to typ string?
+MOVE LF@%retval string@None
+JUMP &substr&end
+
+LABEL &substr&continue1
+TYPE LF@passed_type LF@%2
+JUMPIFEQ &substr&continue2 LF@passed_type string@int 	#arg2 je to typ int?
+MOVE LF@%retval string@None		#nieje int -> koniec
+JUMP &substr&end
+
+LABEL &substr&continue2
+TYPE LF@passed_type LF@%3
+JUMPIFEQ &substr&continue3 LF@passed_type string@int 	#arg3 je to typ int?
+MOVE LF@%retval string@None		#nieje int -> koniec
+JUMP &substr&end
+
+LABEL &substr&continue3
+DEFVAR LF@final_str_len
+STRLEN LF@str_len LF@%1
+SUB LF@final_str_len LF@str_len LF@%2					#len(s)−𝑖
+SUB LF@str_len LF@str_len int@1
+DEFVAR LF@cond_up_length
+DEFVAR LF@cond_down_length
+DEFVAR LF@cond_final
+LT LF@cond_up_length LF@%2 LF@str_len 					# i < strlen-1
+GT LF@cond_down_length LF@%2 int@-1						# i > -1
+AND LF@cond_final LF@cond_up_length LF@cond_down_length		#(i < strlen-1 && i > -1)
+JUMPIFEQ &substr&continue4 LF@cond_final bool@true 
+MOVE LF@%retval string@None
+JUMP &substr&end
+
+LABEL &substr&continue4
+DEFVAR LF@actual_char
+DEFVAR LF@cond_str_len
+DEFVAR LF@last_index
+LT LF@cond_str_len LF@final_str_len LF@%3
+JUMPIFEQ &substr&continue5 LF@cond_str_len bool@true		# len(s)−𝑖 < n
+#velkost pozadovaneho stringu je mensia ako pocet zostavajucich charakterov, len(s)−𝑖 > n
+ADD LF@last_index LF@%2 LF@%3								#cyklim po index [i + n]
+JUMP &substr&cycle1
+LABEL &substr&continue5
+ADD LF@str_len LF@str_len int@1
+MOVE LF@last_index LF@str_len
+
+LABEL &substr&cycle1
+JUMPIFEQ &substr&end LF@last_index LF@%2
+GETCHAR LF@actual_char LF@%1 LF@%2							#chcem char z LF@%1[i]
+CONCAT LF@%retval LF@%retval LF@actual_char
+ADD LF@%2 LF@%2 int@1											#inkrementujem i++(LF@%2++)
+JUMP &substr&cycle1
+
+#velkost pozadovaneho stringu je vacsie ako pocet zostavajucich charakterov, len(s)−𝑖 > n
+
+LABEL &substr&end
+POPFRAME
+RETURN
+
+#-----------------------------
+
+LABEL $$main # main body
+CREATEFRAME		#----no main-body vars
+PUSHFRAME
+DEFVAR LF@y
+CREATEFRAME		#----
+DEFVAR TF@%1
+MOVE TF@%1 string@hlabladla
+DEFVAR TF@%2
+MOVE TF@%2 int@3
+DEFVAR TF@%3
+MOVE TF@%3 int@3
+CALL $substr
+MOVE LF@y TF@%retval
+WRITE LF@y
+EXIT int@0
+# end of main body

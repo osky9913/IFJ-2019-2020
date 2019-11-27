@@ -123,4 +123,27 @@ int str_find_char(string_t* s, char c) {
     }
     return charFound;
 
-} 
+}
+
+
+void create_unic_variable(string_t *result, int *unic) {
+
+    char variable[20] = "var";
+    result->index = 0;
+    for (size_t i = 0; i < strlen(variable); i++) {
+        string_append_char(result, variable[i]);
+    }
+    string_append_char(result, (char) *unic);
+    *unic = *unic + 1;
+}
+
+void string_append(string_t *s1, char *s2) {
+    int i = 0;
+    char temp_iterator = s2[i];
+    while (s2[i] != '\0') {
+        string_append_char(s1, temp_iterator);
+        i++;
+        temp_iterator = s2[i];
+    }
+}
+

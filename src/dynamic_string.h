@@ -78,4 +78,9 @@ char *string_copy_data(string_t *s);
  */
 int str_find_char(string_t* s, char c);
 
+void create_unic_variable(string_t *result, int *unic);
+
+void string_append(string_t *s1, char *s2);
+
+
 #endif
