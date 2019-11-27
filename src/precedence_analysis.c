@@ -1,3 +1,11 @@
+/**
+ *	@file   precedence_analysis.c
+ *	@author Marek Sarvas, xsarva00
+ *	@brief Precedence syntax analysis module
+ */
+
+
+
 #include "precedence_analysis.h"
 
 const char PREC_TABLE[7][7] =

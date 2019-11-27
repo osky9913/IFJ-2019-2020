@@ -1,3 +1,9 @@
+/**
+ *	@file   precedence_semantic.h
+ *	@author Marek Sarvas, xsarva00
+ *	@brief Header file for precedence semantic analysis
+ */
+
 #ifndef INFTOPOST
 #define INFTOPOST
 

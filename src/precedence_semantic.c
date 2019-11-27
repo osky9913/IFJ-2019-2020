@@ -1,4 +1,10 @@
-#include "infixToPostfix.h"
+#include "precedence_semantic.h"
+/**
+ *	@file   precedence_semantic.c
+ *	@author Marek Sarvas, xsarva00
+ *	@brief Precedence semantic analysis module
+ */
+
 #include <string.h>
 
 

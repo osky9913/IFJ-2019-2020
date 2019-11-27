@@ -1,3 +1,9 @@
+/**
+ *	@file   precedence_analysis.h
+ *	@author Marek Sarvas, xsarva00
+ *	@brief Header file for precedence syntax analysis
+ */
+
 #ifndef PRECEDENCE_ANALYSIS
 #define PRECEDENCE_ANALYSIS
 
@@ -6,7 +12,7 @@
 #include "general_stack.h"
 #include "errors.h"
 #include "parser.h"
-#include "infixToPostfix.h"
+#include "precedence_semantic.h"
 #include <stdbool.h>
 
 #define P '<' // push to stack
