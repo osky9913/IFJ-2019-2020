@@ -380,20 +380,14 @@ int postfixEval(t_array* postfix, const char* assignmentID){
         //if semantic is correct it generates code for binary expression
         if(semantic == SUCCESS){
             //code gen -return string
-            /*****************GENERATE*******************/
-            //char* semiResult = generate_expression(operand1, &postfix->arr[i], operand2);
-            /****************GENERATE*******************/
-            /*****************DELETE THIS*******************/
-            char* name = malloc(10);
-            strcpy(name, "qwertyuio");
-            /****************DELETE THIS*******************/
+            char* semiResult = generate_expression(operand1, &postfix->arr[i], operand2);
 
             //generate token for semi-result
-            token_t* newToken = tokenGen(name);
+            token_t* newToken = tokenGen(semiResult);
             if(newToken == NULL){
                 return ALLOC_ERROR;
             }
-            name = NULL;
+            semiResult = NULL;
 
 
             //pushed it to the postfix evaluation stack as operand
@@ -409,13 +403,13 @@ int postfixEval(t_array* postfix, const char* assignmentID){
             return semantic;
         }
     }
-    /*
+
     if(assignmentID != NULL){
         stack_general_item_t *tmpStackItemResult = stack_general_top(evalS);
         token_t *result = (token_t *) tmpStackItemResult->data;
         generate_assign(assignmentID, result);
     }
-     */
+
     stack_popNoDataFree(evalS);
     free(evalS);
     freeTokenStack(tokenGarbageS);

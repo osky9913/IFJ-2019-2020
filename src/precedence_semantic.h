@@ -14,6 +14,7 @@
 #include "precedence_analysis.h"
 #include "general_stack.h"
 #include "symtable.h"
+#include "generate.h"
 #include <string.h>
 #include <stdbool.h>
 
