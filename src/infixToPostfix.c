@@ -339,10 +339,10 @@ bool isOperator(const token_t* const token){
 }
 
 //evaluate postfix expression
-int postfixEval(t_array* postfix){
+int postfixEval(t_array* postfix, const char* assignmentID){
     //checks if all variables in expression are defined
 
-    int checkDefine = checkDefinedVarInPostfix(postfix);
+    int checkDefine = checkDefinedVarInPostfix(postfix, assignmentID);
     if(checkDefine == ERROR_SEM_DEFINITION){
         fprintf(stderr, "Line %d - Not defined variable\n", line_counter);
         return ERROR_SEM_DEFINITION;
@@ -413,12 +413,12 @@ int postfixEval(t_array* postfix){
 
 
 //loop through the postfix array and if token is variable check if it's defined
-int checkDefinedVarInPostfix(t_array* postfix){
+int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
     int checkDef;
     for(int i = 0; i < postfix->currLen ; i++){
         if(postfix->arr[i].type == TTYPE_ID){
 
-            checkDef = check_if_defined_var(postfix->arr[i].attribute.string, NULL);
+            checkDef = check_if_defined_var(postfix->arr[i].attribute.string, assignmentID);
             if(checkDef != VARIABLE_FOUND){
                 fprintf(stderr, "Line %d - %s Var no defined.\n", line_counter, postfix->arr[i].attribute.string);
                 return ERROR_SEM_DEFINITION;

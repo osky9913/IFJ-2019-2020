@@ -57,10 +57,10 @@ void freeArray(t_array* toDelete);
 void printArray(t_array* toPrint);
 int getPriority(const token_t* token);
 bool isOperator(const token_t* token);
-int postfixEval(t_array* postfix);
+int postfixEval(t_array* postfix, const char* assignmentID);
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator);
 token_t* tokenGen(char* name);
-int checkDefinedVarInPostfix(t_array* postfix);
+int checkDefinedVarInPostfix(t_array* postfix,  const char* assignmentID);
 void freeTokenStack(stack_general_t* stackToFree);
 void freePsaResources(t_array* infix, t_array* postfix, stack_general_t* s);
 #endif

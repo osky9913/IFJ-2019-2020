@@ -238,7 +238,7 @@ int apply_psa_rule( stack_general_t* PAStack){
 }
 
 
-int psa(){
+int psa(const char* assignmentID){
     //declaration of needed data structures
     stack_general_t* PAStack = stack_general_init();//precedence analysis stack of symbols
 
@@ -259,9 +259,6 @@ int psa(){
         freeArray(&infixArr);
         return ERROR_INTERNAL;
     }
-
-
-
 
 
     //pushing starting symbol - DOLLAR '$'
@@ -305,7 +302,7 @@ int psa(){
 
 
     infixToPostfix(s, &infixArr, &postfix);
-    int precAnalysis = postfixEval(&postfix);
+    int precAnalysis = postfixEval(&postfix, assignmentID);
 
 
 

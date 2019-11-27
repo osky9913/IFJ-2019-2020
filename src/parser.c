@@ -340,7 +340,7 @@ int r_params() {
 int r_if_else() {
     int retvalue = SUCCESS;
 
-    if ((retvalue = psa()) != SUCCESS) return retvalue; /* if expr */
+    if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* if expr */
 
     next_token(true);
     if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
@@ -384,7 +384,7 @@ int r_if_else() {
 int r_cycle() {
     int retvalue = SUCCESS;
 
-    if ((retvalue = psa()) != SUCCESS) return retvalue; /* while expr */
+    if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
 
     next_token(true);
     if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
@@ -422,7 +422,7 @@ int r_retvalue() {
 
     } else { /* Call psa, I want no part in this... */
         unget_token();
-        retvalue = psa();
+        retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
     }
 
     return retvalue;
@@ -438,7 +438,7 @@ int r_value() {
 
     } else { /* expression */
         unget_token();
-        retvalue = psa();
+        retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
     }
 
     return retvalue;
@@ -521,11 +521,11 @@ int r_rest() {
 
                 } else {
                     unget_token();
-                    retvalue = psa();
+                    retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
                 }
 
             } else {
-                retvalue = psa();
+                retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
             }
 
             if (undef_symbol) {
@@ -538,7 +538,7 @@ int r_rest() {
 
         default: /* expression */
             unget_token();
-            retvalue = psa();
+            retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
             break;
     }
 
