@@ -17,6 +17,7 @@
 #include "errors.h"
 #include "general_stack.h"
 #include "semantic.h"
+#include "generate.h"
 
 
 symtable_t table_global, table_local;

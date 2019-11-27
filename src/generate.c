@@ -43,6 +43,7 @@ void start_program() {
     string_append(output_code, "JUMP %MAIN\n");
 }
 
+
 void printing_frame_to_variable(string_t *frame) {
     if (in_function) {
         string_append(frame, "LF-");
@@ -121,6 +122,25 @@ void get_type_variable(string_t *id_type, string_t *output_string, token_t *oper
     string_append(output_string, "\n");
 }
 
+void print_variable_from_string(string_t *frame, char *variable) {
+    printing_frame_to_variable(frame);
+    string_append(frame, variable);
+    string_append(frame, " ");
+
+}
+
+void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char *label) {
+    // @todo error label
+    string_append(frame, "JUMPIFNEQ ");
+    string_append(frame, label);
+    print_variable_from_string(frame, variable_type);
+    string_append(frame, type);
+    string_append(frame, "\n");
+
+}
+
+
+
 //rTODO result vracat z funkcie, vymazat ho z parametrov
 char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2) {
     string_t *switching_output;
@@ -159,9 +179,11 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
     // types of operands are not equal -> error
     string_append(switching_output, "JUMPIFNEQ @todo_lable ");
-    string_append(switching_output, variable1->array);
-    string_append(switching_output, " ");
-    string_append(switching_output, variable2->array);
+    print_variable_from_string(switching_output, variable1->array);
+    print_variable_from_string(switching_output, variable2->array);
+    string_append(switching_output, "JUMPIFEQ @todo_error_lable ");
+    print_variable_from_string(switching_output, variable1->array);
+    string_append(switching_output, " string@nil");
     string_append(switching_output, "\n");
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
@@ -204,22 +226,45 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_ADD:
+            string_append(switching_output, "JUMPIFEQ #concatenation ");
+            print_variable_from_string(switching_output, variable1->array);
+            string_append(switching_output, "string@string\n");
             string_append(switching_output, "ADD ");
+            adding_operands(switching_output, result, operand1, operand2);
+            string_append(switching_output, "JUMP @todo_expression_end_label\n");
+            string_append(switching_output, "LABEL #concatenation\n");
+            string_append(switching_output, "CONCAT ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_SUB:
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
             string_append(switching_output, "SUB ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_MUL:
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
             string_append(switching_output, "MUL ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_DIV:
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
             string_append(switching_output, "DIV ");
             adding_operands(switching_output, result, operand1, operand2);
+
+
             break;
         case TTYPE_IDIV:
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
+            string_append(switching_output, "JUMPIFNEQ #addition "); // kontrola pri idive  ci su int
+            print_variable_from_string(switching_output, variable1->array);
+            string_append(switching_output, " string@int\n");
+
+
+            string_append(switching_output, "JUMPIFEQ #addition "); // kontrola pri idive  ci  je to rovne nula
+            printing_token_to_frame(switching_output, operand2);
+            string_append(switching_output, " int@0\n");
+
+
             string_append(switching_output, "IDIV ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
@@ -245,14 +290,21 @@ void generate_function(token_t *id) {
     string_append(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
-    string_append(function_definitions, "DEFVAR LF@return_value\n");
+    string_append(function_definitions, "DEFVAR LF@%%return_value\n");
 }
 
 
 void generate_call_function(token_t *id) {
-    string_append(output_code, "CALL !");
-    string_append(output_code, id->attribute.string);
-    string_append(output_code, "\n");
+    string_t *switching_output;
+
+    if (in_function) {
+        switching_output = function_definitions;
+    } else {
+        switching_output = output_code;
+    }
+    string_append(switching_output, "CALL !");
+    string_append(switching_output, id->attribute.string);
+    string_append(switching_output, "\n");
 }
 
 
@@ -294,7 +346,7 @@ void generate_call_param(token_t *id) {
 }
 
 void generate_function_end(token_t *id) {
-    string_append(output_code, "MOVE LF@return_value LF@");
+    string_append(output_code, "MOVE LF@%%return_value LF@");
     string_append(output_code, "POPFRAME \n");
     string_append(output_code, "RETURN \n");
     uniq_param_call = 1;
