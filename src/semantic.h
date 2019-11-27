@@ -70,7 +70,7 @@ int add_symbol_var(const char *id);
  * @return Returns VARIABLE_FOUND on success and FUNCTION_FOUND when it finds a function.
  * Otherwise, returns SYMBOL_NOT_FOUND or INTERNAL_ERROR.
  */
-int check_if_defined_var(const char *id);
+int check_if_defined_var(const char *id, const char *assignment_id);
 
 /**
  * @brief Checks if a function called in the main program body has already been defined.
@@ -89,7 +89,7 @@ int check_if_defined_func(const char *id);
  * @return Returns SUCCESS if the parameter is a valid variable, otherwise returns
  * ERROR_SEM_DEFINITION.
  */
-int check_parameter_valid(const token_t token);
+int check_parameter_valid(const token_t token, const char *assignment_id);
 
 /**
  * @brief After processing the parameters of a function call, this function checks

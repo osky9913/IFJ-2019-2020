@@ -14,6 +14,7 @@ token_t token_stash[2];
 symbol_t *curr_function_def = NULL;
 symbol_t *curr_function_call = NULL;
 int param_count = 0;
+symbol_t *undef_symbol = NULL; // maybe make global
 
 int init_resources() {
     /* Initialize the indent stack for scanner */
@@ -291,7 +292,8 @@ int r_param_list() {
         case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
 
             /* Check if the parameter was a defined variable */
-            if (check_parameter_valid(curr_token)) return ERROR_SEM_DEFINITION;
+            if (check_parameter_valid(curr_token, undef_symbol ? undef_symbol->id : NULL))
+                return ERROR_SEM_DEFINITION;
 
             param_count++;
             next_token(false);
@@ -317,7 +319,8 @@ int r_params() {
             case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
 
                 /* Check if the parameter was a defined variable */
-                if (check_parameter_valid(curr_token)) return ERROR_SEM_DEFINITION;
+            if (check_parameter_valid(curr_token, undef_symbol ? undef_symbol->id : NULL))
+                    return ERROR_SEM_DEFINITION;
 
                 next_token(false);
                 retvalue = r_params(); /* <params> */
@@ -470,7 +473,6 @@ int r_rest() {
 
             /* This block ensures that a construction like bar = foo(bar) is not
              * valid before defining bar */
-            symbol_t *undef_symbol = NULL;
 
             retvalue = add_symbol_var(curr_token.attribute.string);
             switch (retvalue) {
@@ -481,7 +483,9 @@ int r_rest() {
                     else
                         undef_symbol = symtable_search(&table_global,
                                 curr_token.attribute.string);
+                    
                     undef_symbol->attributes.var_att.defined = false;
+
                     retvalue = SUCCESS;
                     break;
 
@@ -524,7 +528,11 @@ int r_rest() {
                 retvalue = psa();
             }
 
-            if (undef_symbol) undef_symbol->attributes.var_att.defined = true;
+            if (undef_symbol) {
+                undef_symbol->attributes.var_att.defined = true;
+                undef_symbol = NULL;
+            }
+
 
             break;
 

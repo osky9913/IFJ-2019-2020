@@ -418,7 +418,7 @@ int checkDefinedVarInPostfix(t_array* postfix){
     for(int i = 0; i < postfix->currLen ; i++){
         if(postfix->arr[i].type == TTYPE_ID){
 
-            checkDef = check_if_defined_var(postfix->arr[i].attribute.string);
+            checkDef = check_if_defined_var(postfix->arr[i].attribute.string, NULL);
             if(checkDef != VARIABLE_FOUND){
                 fprintf(stderr, "Line %d - %s Var no defined.\n", line_counter, postfix->arr[i].attribute.string);
                 return ERROR_SEM_DEFINITION;

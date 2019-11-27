@@ -59,8 +59,8 @@ int check_and_add_parameter_def(const char *id) {
     return SUCCESS;
 }
 
-int check_if_defined_var(const char *id) {
-    symbol_t *symbol;
+int check_if_defined_var(const char *id, const char *assignment_id) {
+    symbol_t *symbol = NULL;
 
     if (in_function) { /* First check the local table */
         symbol = symtable_search(&table_local, id);
@@ -76,15 +76,35 @@ int check_if_defined_var(const char *id) {
         if (symbol->type == STYPE_VAR) {
 
             if (in_function) {
-                /* Add an undefined local variable into the local symtable */
-                symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
-                    .defined = false} };
-                
-                symbol_t *new = symtable_insert(&table_local, id, STYPE_VAR, att);
-                if (!new) return ERROR_INTERNAL;
-            }
+                symbol = symtable_search(&table_local, id);
+                if (symbol) {
 
-            return VARIABLE_FOUND;
+                    if (!symbol->attributes.var_att.defined) {
+                        if (assignment_id) {
+                            /* This is a problem if we try to intialize a variable
+                             * with itself.... */
+                            if (!strcmp(id, assignment_id))
+                                return SYMBOL_NOT_FOUND;
+                        }
+
+                        return VARIABLE_FOUND;
+                    }
+
+                } else {
+
+                    /* Add an undefined local variable into the local symtable */
+                    symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
+                        .defined = false} };
+                    
+                    symbol_t *new = symtable_insert(&table_local, id, STYPE_VAR, att);
+                    if (!new) return ERROR_INTERNAL;
+                    return VARIABLE_FOUND;
+                }
+
+            } else {
+                if (symbol->attributes.var_att.defined)
+                    return VARIABLE_FOUND;
+            }
 
         } else if (symbol->type == STYPE_FUNC) {
             return FUNCTION_FOUND;
@@ -236,9 +256,9 @@ int add_undefined_function(const char *id) {
     return SUCCESS;
 }
 
-int check_parameter_valid(const token_t token) {
+int check_parameter_valid(const token_t token, const char *assignment_id) {
     if (token.type == TTYPE_ID) {
-        switch (check_if_defined_var(token.attribute.string)) {
+        switch (check_if_defined_var(token.attribute.string, assignment_id)) {
             case FUNCTION_FOUND:
                 fprintf(stderr, "Line %d - Sematic error: parameter %s was a "
                         "function id.\n", line_counter, token.attribute.string);
@@ -248,6 +268,9 @@ int check_parameter_valid(const token_t token) {
                 fprintf(stderr, "Line %d - Sematic error: parameter %s was "
                         "undefined.\n", line_counter, token.attribute.string);
                 return ERROR_SEM_DEFINITION;
+
+            case ERROR_INTERNAL:
+                return ERROR_INTERNAL;
 
             default:
                 break;

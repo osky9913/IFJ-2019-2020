@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-int line_counter = 1;
+int line_counter = 0;
 //global variable to determine if we are on new line(time to evaluate indent/dedent)
 //  -1 -> when beginning of the file
 //   0 -> when LA found token thats not EOL
