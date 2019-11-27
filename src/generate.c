@@ -51,7 +51,7 @@ void printing_frame_to_variable(string_t *frame) {
 
 void printing_token_to_frame(string_t *frame, token_t *operand) {
 
-    char temp[70] = {0};
+    char temp[70] = {0}; // el simon 70
 
     printing_frame_to_variable(frame);
     switch (operand->type) {
@@ -59,11 +59,11 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
             string_append(frame, operand->attribute.string);
             break;
         case TTYPE_INT:
-            sprintf(temp, "%ld\0", operand->attribute.integer);
+            sprintf(temp, "%ld", operand->attribute.integer);
             string_append(frame, temp);
             break;
         case TTYPE_DOUBLE:
-            sprintf(temp, "0x%lfp+0\0", operand->attribute.decimal);
+            sprintf(temp, "0x%lfp+0", operand->attribute.decimal);
             string_append(frame, temp);
             break;
         case TTYPE_STR:
@@ -96,17 +96,18 @@ void adding_operands_string(string_t *frame, string_t *result, string_t *operand
 
 }
 
-void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq, char *name) {
+void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq_temp, char *name) {
     variable = string_create_init();
     if (name) {
         string_append(variable, name);
     }
-    create_unic_variable(variable, uniq);
+    create_unic_variable(variable, uniq_temp);
     string_append(output_string, "DEFVAR ");
     printing_frame_to_variable(output_string);
     string_append(output_string, variable->array);
     string_append(output_string, "\n");
-    uniq++;
+    *uniq_temp = *uniq_temp + 1;
+
 }
 
 void get_type_variable(string_t *id_type, string_t *output_string, token_t *operand) {
@@ -114,7 +115,7 @@ void get_type_variable(string_t *id_type, string_t *output_string, token_t *oper
     printing_frame_to_variable(output_string);
     string_append(output_string, id_type->array);
     string_append(output_string, " ");
-    printing_token_to_frame(switching_output, operand);
+    printing_token_to_frame(output_string, operand);
     string_append(output_string, "\n");
 }
 
@@ -131,7 +132,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     //string which will store result of current operation (DEFVAR result)
     define_uniq_variable(result, switching_output, &uniq, NULL);
     //string which will store first operand (DEFVAR operand1)
-    string_t *variable2 = string_create_init();
+    string_t *variable1 = string_create_init();
     define_uniq_variable(variable1, switching_output, &uniq, NULL);
 
     //string which will store second operand (DEFVAR operand1)
@@ -242,6 +243,7 @@ void generate_function(token_t *id) {
     string_append(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
+    string_append(function_definitions, "DEFVAR LF@return_value\n");
 }
 
 
@@ -253,9 +255,22 @@ void generate_call_function(token_t *id) {
 
 
 void generate_def_param(token_t *id) {
-    string_append(function_definitions, "DEFVAR LF@return_value\n");
+    string_append(function_definitions, "DEFVAR ");
+    printing_frame_to_variable(function_definitions);
+    string_append(function_definitions, id->attribute.string);
+    string_append(function_definitions, "\n");
 
-    define_uniq_variable(id->attribute.string, function_definitions, &uniq_param_def, "%%param");
+    string_t *parameter = string_create_init();
+    string_append(parameter, "%%param");
+    create_unic_variable(parameter, &uniq_param_def);
+    uniq_param_def++;
+    string_append(parameter, "\n");
+    string_append(function_definitions, "MOVE ");
+    printing_frame_to_variable(function_definitions);
+    string_append(function_definitions, id->attribute.string);
+    string_append(function_definitions, " ");
+    printing_frame_to_variable(function_definitions);
+    string_append(function_definitions, parameter->array);
     // todo uvolnit
 }
 
@@ -523,7 +538,7 @@ void declaration_variable(token_t *variable) {
 }
 
 void end_program() {
-    printf("%s\n\0", output_code->array);
+    printf("%s\n", output_code->array);
     string_free(output_code);
 }
 
