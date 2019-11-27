@@ -36,6 +36,8 @@ int uniq_expression = 1;
 
 void start_program() {
     output_code = string_create_init();
+    function_definitions = string_create_init();
+    errors = string_create_init();
 
     string_append(output_code, ".IFJcode19\n");
     string_append(output_code, "JUMP %MAIN\n");
