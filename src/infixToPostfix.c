@@ -375,7 +375,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
         if(semantic == SUCCESS){
             //code gen -return string
             /*****************GENERATE*******************/
-            //char* semi_result = generate_expression(operand1, operand2, &postfix->arr[i]);
+            //char* semiResult = generate_expression(operand1, &postfix->arr[i], operand2);
             /****************GENERATE*******************/
             /*****************DELETE THIS*******************/
             char* name = malloc(10);
@@ -387,9 +387,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
             if(newToken == NULL){
                 return ALLOC_ERROR;
             }
-            newToken->attribute.string = name;
             name = NULL;
-            newToken->type = TTYPE_ID;
 
 
             //pushed it to the postfix evaluation stack as operand
@@ -405,6 +403,13 @@ int postfixEval(t_array* postfix, const char* assignmentID){
             return semantic;
         }
     }
+    /*
+    if(assignmentID != NULL){
+        stack_general_item_t *tmpStackItemResult = stack_general_top(evalS);
+        token_t *result = (token_t *) tmpStackItemResult->data;
+        generate_assign(assignmentID, result);
+    }
+     */
     stack_popNoDataFree(evalS);
     free(evalS);
     freeTokenStack(tokenGarbageS);
