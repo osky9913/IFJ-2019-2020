@@ -33,6 +33,7 @@ int init_resources() {
 
     if (add_built_in_functions()) return ERROR_INTERNAL;
 
+    start_program();
     return SUCCESS;
 }
 
@@ -46,6 +47,8 @@ void free_resources() {
 
     symtable_clear_all(&table_global);
     symtable_clear_all(&table_local);
+
+    end_program();
 }
 
 int r_program() {
@@ -194,6 +197,8 @@ int r_function_def() {
     if ((retvalue = define_function(curr_token.attribute.string)) != SUCCESS)
         return retvalue;
 
+    /*GEN generate_function(&curr_token); */
+
     next_token(false);
     if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;  /* ( */
 
@@ -251,6 +256,8 @@ int r_param_list_def() {
             return retvalue;
         }
 
+        /*GEN generate_def_param(&curr_token); */
+
         param_count++;
         next_token(false);
         retvalue = r_params_def(); /* <params_def> */
@@ -271,6 +278,8 @@ int r_params_def() {
                     != SUCCESS) {
                 return retvalue;
             }
+
+            /*GEN generate_def_param(&curr_token); */
 
             next_token(false);
             retvalue = r_params_def(); /* <params_def> */
@@ -294,6 +303,8 @@ int r_param_list() {
             /* Check if the parameter was a defined variable */
             if (check_parameter_valid(curr_token, undef_symbol ? undef_symbol->id : NULL))
                 return ERROR_SEM_DEFINITION;
+
+            /*GEN generate_call_param(&curr_token); */
 
             param_count++;
             next_token(false);
@@ -319,8 +330,11 @@ int r_params() {
             case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
 
                 /* Check if the parameter was a defined variable */
-            if (check_parameter_valid(curr_token, undef_symbol ? undef_symbol->id : NULL))
+                if (check_parameter_valid(curr_token,
+                            undef_symbol ? undef_symbol->id : NULL))
                     return ERROR_SEM_DEFINITION;
+
+                /*GEN generate_call_param(&curr_token); */
 
                 next_token(false);
                 retvalue = r_params(); /* <params> */
@@ -351,6 +365,8 @@ int r_if_else() {
     next_token(false);
     if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
+    /*GEN generate_if(&expression); */
+
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
@@ -371,6 +387,8 @@ int r_if_else() {
     next_token(false);
     if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
+    /*GEN generate_else(); */
+
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
@@ -378,13 +396,19 @@ int r_if_else() {
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
+    // GEN ELSE END 
+
     return retvalue;
 }
 
 int r_cycle() {
     int retvalue = SUCCESS;
+    
+    /*GEN generate_while_lable(); */
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
+
+    /* GEN generate_while(&expression); */
 
     next_token(true);
     if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
@@ -401,6 +425,8 @@ int r_cycle() {
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
+
+    /*GEN generate_while_end() */
 
     return retvalue;
 }
@@ -420,9 +446,13 @@ int r_retvalue() {
         unget_token();
         retvalue = SUCCESS;
 
+        /* GEN generate_function_end_no_return() */
+
     } else { /* Call psa, I want no part in this... */
         unget_token();
-        retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
+        retvalue = psa(NULL);
+
+        /* GEN generate_function_end(&expression) */
     }
 
     return retvalue;
@@ -438,7 +468,7 @@ int r_value() {
 
     } else { /* expression */
         unget_token();
-        retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
+        retvalue = psa(NULL);
     }
 
     return retvalue;
@@ -455,9 +485,13 @@ int r_rest() {
             next_token(true); /* First load the last token */
             if ((retvalue = check_function_call(curr_token.attribute.string)) != SUCCESS)
                 return retvalue;
+               
+            /*GEN generate_call_function_frame(&curr_token) - CREATEFRAME*/
 
             next_token(true);
             if((retvalue = r_function_call()) != SUCCESS) return retvalue;
+
+            /*GEN generate_call_function_call(&curr_function_call) - PUSHFRAME, CALL*/
 
             /* Check parameter count */
             if((retvalue = check_parameter_count_call(param_count)) != SUCCESS)
@@ -471,9 +505,10 @@ int r_rest() {
 
             next_token(true);
 
+            /* GEN declaration_variable(&curr_token); */
+
             /* This block ensures that a construction like bar = foo(bar) is not
              * valid before defining bar */
-
             retvalue = add_symbol_var(curr_token.attribute.string);
             switch (retvalue) {
                 case NEW_VARIABLE:
@@ -490,6 +525,12 @@ int r_rest() {
                     break;
 
                 case SUCCESS:
+                    if (in_function)
+                        undef_symbol = symtable_search(&table_local,
+                                curr_token.attribute.string);
+                    else
+                        undef_symbol = symtable_search(&table_global,
+                                curr_token.attribute.string);
                     break;
 
                 default:
@@ -511,8 +552,12 @@ int r_rest() {
                             != SUCCESS)
                         return retvalue;
 
+                    /*GEN generate_call_function_frame(&curr_token) - CREATEFRAME*/
+
                     next_token(true);
                     if ((retvalue = r_function_call()) != SUCCESS) return retvalue;
+
+                    /*GEN generate_call_function_call(&curr_function_call) - PUSHFRAME, CALL*/
 
                     /* Check parameter count */
                     if ((retvalue = check_parameter_count_call(param_count)))
@@ -532,8 +577,6 @@ int r_rest() {
                 undef_symbol->attributes.var_att.defined = true;
                 undef_symbol = NULL;
             }
-
-
             break;
 
         default: /* expression */
@@ -555,39 +598,6 @@ int r_function_call() {
 
     return retvalue;
 }
-
-/*
-int r_term() {
-    int retvalue = ERROR_SYNTAX;
-
-    if (curr_token.type == TTYPE_ID) { // id
-        retvalue = SUCCESS;
-
-    } else { // probably literal 
-        retvalue = r_literal();
-    }
-
-    return retvalue;
-}
-
-int r_literal() {
-    int retvalue = ERROR_SYNTAX;
-    switch (curr_token.type) {
-        case TTYPE_INT: case TTYPE_DOUBLE: case TTYPE_STR: case TTYPE_NONE:
-            retvalue = SUCCESS;
-            break;
-
-        default:
-            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_literal - not a literal .\n",
-                    line_counter);
-            retvalue = ERROR_SYNTAX;
-            break;
-    }
-
-    return retvalue;
-}
-*/
-
 
 int next_token(bool load_from_stash) {
     int retvalue;
