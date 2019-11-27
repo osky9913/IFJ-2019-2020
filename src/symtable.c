@@ -52,7 +52,6 @@ symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type,
     if (target) {
         target->type = type;
         target->attributes = attributes;
-        return target;
 
     } else {
 
@@ -62,12 +61,26 @@ symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type,
         if (new_item == NULL)
             return NULL;
 
-        new_item->id = malloc(strlen(id) + 1); 
+        if (!(new_item->id = malloc(strlen(id) + 1))) {
+            free(new_item);
+            return NULL;
+        }
+
         strcpy(new_item->id, id);
         new_item->type = type;
         new_item->attributes = attributes;
 
-        new_item->next = NULL;
+        if (type == STYPE_FUNC) {
+            if (!(new_item->attributes.func_att.depends = malloc(sizeof(symbol_t *)
+                            * DEPEND_LEN))) {
+                free(new_item->id);
+                free(new_item);
+                return NULL;
+            }
+            new_item->attributes.func_att.dep_len = 0;
+        }
+
+        new_item->next = (*table)[index];
         (*table)[index] = new_item;
         return new_item;
     }
@@ -91,6 +104,9 @@ void symtable_delete(symtable_t *table, const char *id) {
                 previous->next = target->next;
             }
 
+            if (target->type == STYPE_FUNC)
+                free(target->attributes.func_att.depends);
+            free(target->id);
             free(target);
             return;
         }
@@ -109,6 +125,10 @@ void symtable_clear_all(symtable_t *table) {
                 symbol_t *first = (*table)[i];
                 symbol_t *second = first->next;
                 (*table)[i] = second;
+
+                if (first->type == STYPE_FUNC) /* free the dependency list */
+                    free(first->attributes.func_att.depends);
+                free(first->id);
                 free(first);
             }
         }

@@ -5,8 +5,8 @@
  *	@brief Parser header file
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef __PARSER_H__
+#define __PARSER_H__
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -16,11 +16,10 @@
 #include "precedence_analysis.h"
 #include "errors.h"
 #include "general_stack.h"
+#include "semantic.h"
 
 
-#define SUCCESS 0
-#define UNEXPECTED_TOKEN 2
-#define RETURN_IN_PROGRAM_BODY 6
+symtable_t table_global, table_local;
 
 /**
  * @brief Indicates whether the currently analyzed block
@@ -32,6 +31,14 @@ extern bool in_function;
  * @brief A variable that stores the currently processed token.
  */
 extern token_t curr_token;
+
+/**
+ * @brief A variable that stores the currently processed symbol. Useful
+ * when we need to check the number of function parameters and don't want
+ * to lose the reference to it's id.
+ */
+extern symbol_t *curr_function_def;
+extern symbol_t *curr_function_call;
 
 /**
  * @brief A variable that stores up to two tokens at a time.
@@ -49,14 +56,6 @@ int init_resources();
  * @brief Frees all the resources for the compiler.
  */
 void free_resources();
-
-/**
- * @brief Checks the return code of lexical analysis passed in the parameter
- * retcode, if retcode indicates that an error had ocurred, frees all the resources
- * and exits the program with a corresponding error code.
- * @param retcode The return code which is to be processed.
- */
-void lex_check(int retcode);
 
 /**
  * @brief Reads the next token from standard input, stores it

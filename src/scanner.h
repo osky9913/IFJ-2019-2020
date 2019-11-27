@@ -12,6 +12,7 @@
 
 stack_general_t* dent_stack;
 
+extern int line_counter;
 extern int new_line;
 extern int indents_to_pop;
 extern int indent;

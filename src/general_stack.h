@@ -37,6 +37,11 @@ int stack_general_push_char(stack_general_t *stack, char data);
 
 
 void stack_pop(stack_general_t *stack);
+/**
+ * [Pops item from the top of the stack but does not free memory of item's data
+ * @param stack [Stack from which will be item poped]
+ */
+void stack_popNoDataFree(stack_general_t *stack);
 
 bool stack_empty(stack_general_t *stack);
 
