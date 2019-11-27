@@ -22,5 +22,4 @@ MOVE TF@%1 int@42
 CALL $chr
 MOVE LF@y TF@%retval
 WRITE LF@y
-EXIT int@0
 # end of main body

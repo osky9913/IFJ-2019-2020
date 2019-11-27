@@ -6,12 +6,15 @@ JUMP $$main
 LABEL $ord
 PUSHFRAME
 DEFVAR LF@%retval
+DEFVAR LF@y
 DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente
 DEFVAR LF@compare_type 	#string na porovnanie typu s argumentom funkcie
 DEFVAR LF@param1		#prvy argument	
 MOVE LF@param1 LF@%1
 TYPE LF@passed_type LF@param1
 JUMPIFEQ &ord&continue1 LF@passed_type string@string	#je to typ string?
+DPRINT string@Bad\032data\032type\032passed\032into\032first\032argument\032off\032function\032ord\040expected\032string\041\033
+EXIT int@4
 MOVE LF@%retval string@None
 JUMP &ord&end
 LABEL &ord&continue1
@@ -19,8 +22,8 @@ DEFVAR LF@param2 					#druhy argument
 MOVE LF@param2 LF@%2
 TYPE LF@passed_type LF@param2
 JUMPIFEQ &ord&continue2 LF@passed_type string@int 	#je to typ int?
-MOVE LF@%retval string@None		#nieje int -> koniec
-JUMP &ord&end
+DPRINT string@Bad\032data\032type\032passed\032into\032second\032argument\032off\032function\032ord\040expected\032int\041\033
+EXIT int@4
 LABEL &ord&continue2
 DEFVAR LF@str_len
 DEFVAR LF@cond_up_length
@@ -35,7 +38,7 @@ JUMPIFEQ &ord&succes LF@cond_final bool@true
 MOVE LF@%retval string@None
 JUMP &ord&end
 LABEL &ord&succes
-GETCHAR LF@%retval LF@param1 LF@param2
+STRI2INT LF@%retval LF@param1 LF@param2
 LABEL &ord&end
 POPFRAME
 RETURN
@@ -48,14 +51,11 @@ PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
 DEFVAR TF@%1
-MOVE TF@%1 string@Himotherfucker\032X!
+MOVE TF@%1 int@4
 DEFVAR TF@%2
 MOVE TF@%2 int@10
 CALL $ord
 MOVE LF@y TF@%retval
 WRITE LF@y
-DEFVAR LF@pog
-MOVE LF@pog string@wegotitboys
-WRITE LF@pog
 EXIT int@0
 # end of main body

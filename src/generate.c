@@ -19,35 +19,26 @@ ADDS/SUBS/MULS/DIVS/IDIVS
  fucking @todo div delenie nulou , div pretypovanie na float, every sprintf rewrite you dump bitch, retval in func def
 
 */
-
-
-
 #include "generate.h"
 #include "scanner.h"
 #include "parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-
 string_t *output_code;
 string_t *function_definitions;
 string_t *errors;
-
 
 int uniq = 1;
 int uniq_param_call = 1;
 int uniq_param_def = 1;
 int uniq_expression = 1;
 
-
-
 void start_program() {
     output_code = string_create_init();
 
     string_append(output_code, ".IFJcode19\n");
     string_append(output_code, "JUMP %MAIN\n");
-
-
 }
 
 void printing_frame_to_variable(string_t *frame) {
@@ -56,10 +47,7 @@ void printing_frame_to_variable(string_t *frame) {
     } else {
         string_append(frame, "GF-");
     }
-
-
 }
-
 
 void printing_token_to_frame(string_t *frame, token_t *operand) {
 
@@ -90,8 +78,6 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
 void adding_operands(string_t *frame, string_t *result, token_t *operand1, token_t *operand2) {
     string_append(frame, result->array);
     string_append(frame, " ");
-
-
     printing_token_to_frame(frame, operand1);
     string_append(frame, " ");
     printing_token_to_frame(frame, operand2);
@@ -103,8 +89,6 @@ void adding_operands(string_t *frame, string_t *result, token_t *operand1, token
 void adding_operands_string(string_t *frame, string_t *result, string_t *operand1, string_t *operand2) {
     string_append(frame, result->array);
     string_append(frame, " ");
-
-
     string_append(frame, operand1->array);
     string_append(frame, " ");
     string_append(frame, operand2->array);
@@ -112,88 +96,63 @@ void adding_operands_string(string_t *frame, string_t *result, string_t *operand
 
 }
 
+void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq, char *name) {
+    variable = string_create_init();
+    if (name) {
+        string_append(variable, name);
+    }
+    create_unic_variable(variable, uniq);
+    string_append(output_string, "DEFVAR ");
+    printing_frame_to_variable(output_string);
+    string_append(output_string, variable->array);
+    string_append(output_string, "\n");
+    uniq++;
+}
 
+void get_type_variable(string_t *id_type, string_t *output_string, token_t *operand) {
+    string_append(output_string, "TYPE ");
+    printing_frame_to_variable(output_string);
+    string_append(output_string, id_type->array);
+    string_append(output_string, " ");
+    printing_token_to_frame(switching_output, operand);
+    string_append(output_string, "\n");
+}
 
-
-string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *operand2, string_t *result) {
-
-
+//rTODO result vracat z funkcie, vymazat ho z parametrov
+char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2) {
     string_t *switching_output;
-
 
     if (in_function) {
         switching_output = function_definitions;
     } else {
         switching_output = output_code;
     }
-
-
+    string_t *result = string_create_init();
     //string which will store result of current operation (DEFVAR result)
-    result = string_create_init();
-    create_unic_variable(result, &uniq);
-    string_append(switching_output, "DEFVAR ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, result->array);
-    string_append(switching_output, "\n");
-
-
+    define_uniq_variable(result, switching_output, &uniq, NULL);
     //string which will store first operand (DEFVAR operand1)
-    string_t *variable1 = string_create_init();
-    create_unic_variable(variable1, &uniq);
-    string_append(switching_output, "DEFVAR ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, variable1->array);
-    string_append(switching_output, "\n");
+    string_t *variable2 = string_create_init();
+    define_uniq_variable(variable1, switching_output, &uniq, NULL);
 
     //string which will store second operand (DEFVAR operand1)
     string_t *variable2 = string_create_init();
-    create_unic_variable(variable2, &uniq);
-    string_append(switching_output, "DEFVAR ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, variable2->array);
-    string_append(switching_output, "\n");
-
-
+    define_uniq_variable(variable2, switching_output, &uniq, NULL);
 
     //string used as temporary storing place in operator >= or <=
     string_t *result_eq_1 = string_create_init();
-    create_unic_variable(result_eq_1, &uniq);
-    string_append(switching_output, "DEFVAR ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, result_eq_1->array);
-    string_append(switching_output, "\n");
+    define_uniq_variable(result_eq_1, switching_output, &uniq, NULL);
 
     //string used as temporary storing place in operator >= or <=
     string_t *result_eq_2 = string_create_init();
-    create_unic_variable(result_eq_2, &uniq);
-    string_append(switching_output, "DEFVAR ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, result_eq_2->array);
-    string_append(switching_output, "\n");
-
-
+    define_uniq_variable(result_eq_2, switching_output, &uniq, NULL);
 
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
-
-
-
-
     // type of first operand
-    string_append(switching_output, "TYPE ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, variable1->array);
-    string_append(switching_output, " ");
-    printing_token_to_frame(switching_output, operand1);
-    string_append(switching_output, "\n");
+    get_type_variable(variable1, switching_output, operand1);
 
     // type of second operand
-    string_append(switching_output, "TYPE ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, variable2->array);
-    string_append(switching_output, " ");
-    printing_token_to_frame(switching_output, operand2);
-    string_append(switching_output, "\n");
+    get_type_variable(variable2, switching_output, operand2);
 
     // types of operands are not equal -> error
     string_append(switching_output, "JUMPIFNEQ @todo_lable ");
@@ -201,8 +160,6 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
     string_append(switching_output, " ");
     string_append(switching_output, variable2->array);
     string_append(switching_output, "\n");
-
-
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
     // vykonavanie expression
@@ -220,7 +177,6 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
             adding_operands_string(switching_output, result, result_eq_1, result_eq_2);
 
             break;
-
         case TTYPE_GTOREQ:
             //check if operand1 < operand2
             string_append(switching_output, "GT ");
@@ -231,11 +187,7 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
             //(op1 < op2) or (op1 == op2) => operand1 <= operand2
             string_append(switching_output, "OR ");
             adding_operands_string(switching_output, result, result_eq_1, result_eq_2);
-
-
             break;
-
-
         case TTYPE_ISEQ:
             string_append(switching_output, "EQ ");
             adding_operands(switching_output, result, operand1, operand2);
@@ -248,7 +200,6 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
             string_append(switching_output, "GT ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
-
         case TTYPE_ADD:
             string_append(switching_output, "ADD ");
             adding_operands(switching_output, result, operand1, operand2);
@@ -273,15 +224,14 @@ string_t *genenarte_expression(token_t *operand1, token_t *operator, token_t *op
             sprintf(output_code->array, "%s THERE IS A PROBLEM\n", output_code->array);
 
     }
-
+    char *final_result = string_copy_data(result);
+    string_free(result);
     string_free(result_eq_1);
     string_free(result_eq_2);
     string_free(variable1);
     string_free(variable2);
-    return result;
-
+    return final_result;
 }
-
 
 void generate_create_frame() {
     string_append(function_definitions, "CREATEFRAME\n");
@@ -292,8 +242,6 @@ void generate_function(token_t *id) {
     string_append(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
-
-
 }
 
 
@@ -301,36 +249,23 @@ void generate_call_function(token_t *id) {
     string_append(output_code, "CALL !");
     string_append(output_code, id->attribute.string);
     string_append(output_code, "\n");
-
-
 }
 
 
 void generate_def_param(token_t *id) {
-    string_append(function_definitions, "DEFVAR LF@return_value");
-    string_append(function_definitions, "DEFVAR ");
-    string_append(function_definitions, id->attribute.string);
-    string_append(function_definitions, "\n");
+    string_append(function_definitions, "DEFVAR LF@return_value\n");
 
-    string_t *parameter = string_create_init();
-    string_append(parameter, "%param");
-    create_unic_variable(parameter, &uniq_param_def);
-
-
-    string_append(function_definitions, parameter->array);
-    uniq_param_def++;
-
+    define_uniq_variable(id->attribute.string, function_definitions, &uniq_param_def, "%%param");
     // todo uvolnit
 }
 
 void generate_call_param(token_t *id) {
     string_t *parameter = string_create_init();
-    string_append(parameter, "%param");
+    string_append(parameter, "%%param");
     create_unic_variable(parameter, &uniq_param_call);
     uniq_param_call++;
 
-    string_append(output_code, "DEFVAR ");
-    string_append(output_code, "TF-");
+    string_append(output_code, "DEFVAR TF@");
     string_append(output_code, parameter->array);
     string_append(output_code, "MOVE ");
     string_append(output_code, parameter->array);
@@ -341,9 +276,7 @@ void generate_call_param(token_t *id) {
     // todo uvolnit
 }
 
-
 void generate_function_end(token_t *id) {
-
     string_append(output_code, "MOVE LF@return_value LF@");
     string_append(output_code, "POPFRAME \n");
     string_append(output_code, "RETURN \n");
@@ -354,7 +287,6 @@ void generate_function_end(token_t *id) {
 
 
 void generate_function_end_no_return(token_t *id) {
-
     string_append(output_code, "POPFRAME \n");
     string_append(output_code, "RETURN \n");
     uniq_param_call = 1;
@@ -383,39 +315,15 @@ void generate_while(token_t *expression) {
     }
 
     string_t *while_expression = string_create_init();
-    string_append(while_expression
-    "%while_expression");
-    //DEFVAR while_expression
-    create_unic_variable(while_expression, &uniq_expression);
-    string_append(switching_output, "DEFVAR ");
-    uniq_expression++;
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, while_expression->array);
-    string_append(switching_output, "\n");
-
+    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%%while_expression");
 
     if (expression->type == TTYPE_ID) {
 
         string_t *id_type = string_create_init();
-        string_append(id_type, "%while_check_type");
-        //DEFVAR id_type
-        create_unic_variable(id_type, &uniq_expression);
-        string_append(switching_output, "DEFVAR ");
-        uniq_expression++;
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, id_type->array);
-        string_append(switching_output, "\n");
+        define_uniq_variable(id_type, switching_output, &uniq_expression, "%%while_check_type");
 
         //TYPE id_type expression
-        string_append(switching_output, "TYPE ");
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, id_type->array);
-        string_append(switching_output, " ");
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, " ");
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, expression->attribute.string)
-        string_append(switching_output, "\n");
+        get_type_variable(id_type, switching_output, expression);
 
         //JUMPIFEQ int_label id_type string@int
         string_append(switching_output, "JUMPIFEQ @todo_while_int_label ");
@@ -500,39 +408,17 @@ void generate_if(token_t *expression) {
         switching_output = output_code;
     }
 
-    string_t *if_expression = string_create_init();
-    string_append(if_expression
-    "%while_expression");
     //DEFVAR while_expression
-    create_unic_variable(if_expression, &uniq_expression);
-    string_append(switching_output, "DEFVAR ");
-    uniq_expression++;
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, if_expression->array);
-    string_append(switching_output, "\n");
+    string_t *while_expression = NULL;
+    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%%while_expression");
 
     if (expression->type == TTYPE_ID) {
 
         string_t *id_type = string_create_init();
-        string_append(id_type, "%if_check_type");
-        //DEFVAR id_type
-        create_unic_variable(id_type, &uniq_expression);
-        string_append(switching_output, "DEFVAR ");
-        uniq_expression++;
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, id_type->array);
-        string_append(switching_output, "\n");
+        define_uniq_variable(id_type, switching_output, &uniq_expression, "%%if_check_type");
 
         //TYPE id_type expression
-        string_append(switching_output, "TYPE ");
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, id_type->array);
-        string_append(switching_output, " ");
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, " ");
-        printing_frame_to_variable(switching_output);
-        string_append(switching_output, expression->attribute.string)
-        string_append(switching_output, "\n");
+        get_type_variable(id_type, switching_output, expression);
 
         //JUMPIFEQ int_label id_type string@int
         string_append(switching_output, "JUMPIFEQ @todo_if_int_label ");
@@ -621,10 +507,7 @@ void generate_assign(token_t *destination, token_t *content) {
     printing_token_to_frame(switching_output, destination);
     string_append(switching_output, " ");
     printing_token_to_frame(switching_output, content);
-
-
 }
-
 
 void declaration_variable(token_t *variable) {
     string_t *switching_output;
@@ -637,16 +520,12 @@ void declaration_variable(token_t *variable) {
     string_append(switching_output, "DEFVAR ");
     printing_token_to_frame(switching_output, variable);
     string_append(switching_output, "\n");
-
-
 }
 
 void end_program() {
     printf("%s\n\0", output_code->array);
     string_free(output_code);
 }
-
-
 
 
 //symtable search -> attributs function attributy param count
