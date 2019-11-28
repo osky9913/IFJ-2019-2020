@@ -41,7 +41,7 @@ void start_program() {
 
     string_append(function_definitions, ".IFJcode19\n");
     string_append(function_definitions, "JUMP %MAIN\n\n\n");
-    string_append(output_code, "\n\n\nLABEL %MAIN");
+    string_append(output_code, "\n\n\nLABEL %MAIN\n");
 }
 
 
@@ -288,7 +288,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 }
 
 void generate_create_frame() {
-    string_append(function_definitions, "CREATEFRAME\n");
+    string_append(output_code, "CREATEFRAME\n");
 }
 
 void generate_function(token_t *id) {
@@ -296,7 +296,7 @@ void generate_function(token_t *id) {
     string_append(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
-    string_append(function_definitions, "DEFVAR LF@%%return_value\n");
+    string_append(function_definitions, "DEFVAR LF@%return_value\n");
 }
 
 
@@ -321,7 +321,7 @@ void generate_def_param(token_t *id) {
     string_append(function_definitions, "\n");
 
     string_t *parameter = string_create_init();
-    string_append(parameter, "%%param");
+    string_append(parameter, "%param");
     create_unic_variable(parameter, &uniq_param_def);
     uniq_param_def++;
     string_append(parameter, "\n");
@@ -336,12 +336,13 @@ void generate_def_param(token_t *id) {
 
 void generate_call_param(token_t *id) {
     string_t *parameter = string_create_init();
-    string_append(parameter, "%%param");
+    string_append(parameter, "%param");
     create_unic_variable(parameter, &uniq_param_call);
     uniq_param_call++;
 
     string_append(output_code, "DEFVAR TF@");
     string_append(output_code, parameter->array);
+    string_append(output_code, "\n");
     string_append(output_code, "MOVE ");
     string_append(output_code, parameter->array);
     string_append(output_code, " ");
@@ -381,12 +382,12 @@ void generate_while(token_t *expression) {
     }
 
     string_t *while_expression = string_create_init();
-    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%%while_expression");
+    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%while_expression");
 
     if (expression->type == TTYPE_ID) {
 
         string_t *id_type = string_create_init();
-        define_uniq_variable(id_type, switching_output, &uniq_expression, "%%while_check_type");
+        define_uniq_variable(id_type, switching_output, &uniq_expression, "%while_check_type");
 
         //TYPE id_type expression
         get_type_variable(id_type, switching_output, expression);
@@ -418,8 +419,9 @@ void generate_while(token_t *expression) {
         string_append(switching_output, "JUMPIFEQ @todo_while_end_label ");
         printing_frame_to_variable(switching_output);
         string_append(switching_output, expression->attribute.string);
-        string_append(switching_output, "bool@false");
+        string_append(switching_output, "bool@false\n");
         string_append(switching_output, "JUMP @todo_while_body_label ");
+        string_append(switching_output, "\n");
     }
     if (expression->type == TTYPE_INT) {
         //id_type was int, now we compare if expression is zero
@@ -476,12 +478,12 @@ void generate_if(token_t *expression) {
 
     //DEFVAR while_expression
     string_t *while_expression = NULL;
-    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%%while_expression");
+    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%while_expression");
 
     if (expression->type == TTYPE_ID) {
 
         string_t *id_type = string_create_init();
-        define_uniq_variable(id_type, switching_output, &uniq_expression, "%%if_check_type");
+        define_uniq_variable(id_type, switching_output, &uniq_expression, "%if_check_type");
 
         //TYPE id_type expression
         get_type_variable(id_type, switching_output, expression);
