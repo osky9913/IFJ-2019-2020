@@ -40,8 +40,8 @@ void start_program() {
     errors = string_create_init();
 
     string_append(function_definitions, ".IFJcode19\n");
-    string_append(function_definitions, "JUMP %MAIN\n\n\n");
-    string_append(output_code, "\n\n\nLABEL %MAIN\n");
+    string_append(function_definitions, "JUMP %MAIN\n\n");
+    string_append(output_code, "\n\nLABEL %MAIN\n");
 }
 
 
@@ -105,13 +105,11 @@ void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq
     if (name) {
         string_append(variable, name);
     }
-    create_unic_variable(variable, uniq_temp);
+    create_unic_variable(variable, uniq_temp, "var");
     string_append(output_string, "DEFVAR ");
     printing_frame_to_variable(output_string);
     string_append(output_string, variable->array);
     string_append(output_string, "\n");
-    *uniq_temp = *uniq_temp + 1;
-
 }
 
 void get_type_variable(string_t *id_type, string_t *output_string, token_t *operand) {
@@ -292,11 +290,11 @@ void generate_create_frame() {
 }
 
 void generate_function(token_t *id) {
-    string_append(function_definitions, "LABEL !");
+    string_append(function_definitions, "\n\nLABEL !");
     string_append(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
-    string_append(function_definitions, "DEFVAR LF@%return_value\n");
+    string_append(function_definitions, "DEFVAR LF@%%return_value\n");
 }
 
 
@@ -321,8 +319,7 @@ void generate_def_param(token_t *id) {
     string_append(function_definitions, "\n");
 
     string_t *parameter = string_create_init();
-    string_append(parameter, "%param");
-    create_unic_variable(parameter, &uniq_param_def);
+    create_unic_variable(parameter, &uniq_param_def, "%param");
     uniq_param_def++;
     string_append(parameter, "\n");
     string_append(function_definitions, "MOVE ");
@@ -336,8 +333,7 @@ void generate_def_param(token_t *id) {
 
 void generate_call_param(token_t *id) {
     string_t *parameter = string_create_init();
-    string_append(parameter, "%param");
-    create_unic_variable(parameter, &uniq_param_call);
+    create_unic_variable(parameter, &uniq_param_call, "%param");
     uniq_param_call++;
 
     string_append(output_code, "DEFVAR TF@");
@@ -561,6 +557,33 @@ void generate_else() {
     string_append(switching_output, "\n");
 
     //uniq for if labels will be set to one
+}
+
+void generate_elseif_end(){
+    string_t *switching_output;
+    if (in_function) {
+        switching_output = function_definitions;
+    } else {
+        switching_output = output_code;
+    }
+    string_append(switching_output, "LABEL @todo_elseif_end_label");
+    string_append(switching_output, "\n");
+}
+
+void generate_assign_retvalue(const char *dest){
+    string_t *switching_output;
+    if (in_function) {
+        switching_output = function_definitions;
+    } else {
+        switching_output = output_code;
+    }
+
+    string_append(switching_output, "MOVE ");
+    printing_frame_to_variable(switching_output);
+    string_append(switching_output, "%%return_value ");
+    printing_frame_to_variable(switching_output);
+    string_append(switching_output, dest);
+    string_append(switching_output, "\n");
 }
 
 void generate_assign(const char *destination, token_t *content) {

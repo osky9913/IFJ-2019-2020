@@ -50,6 +50,10 @@ void generate_if(token_t *expression);
 
 void generate_else();
 
+void generate_elseif_end();
+
+void generate_assign_retvalue(const char *dest);
+
 void generate_assign(const char *destination, token_t *content);
 
 void declaration_variable(token_t *variable);
