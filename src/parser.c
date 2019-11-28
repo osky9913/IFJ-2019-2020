@@ -238,6 +238,8 @@ int r_function_def() {
     retvalue = r_statement_list(); /* <statement_list> */
     if (retvalue != SUCCESS) return retvalue;
 
+    generate_function_end();
+
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* DEDENT */
     
     in_function = false;
