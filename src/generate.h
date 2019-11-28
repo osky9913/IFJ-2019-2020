@@ -30,9 +30,9 @@ void generate_def_param(token_t *id);
 
 void generate_call_param(token_t *id);
 
-void generate_function_end(token_t *id);
+void generate_function_end();
 
-void generate_function_end_no_return(token_t *id);
+void generate_function_end_no_return();
 
 void generate_while_lable();
 

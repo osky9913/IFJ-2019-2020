@@ -129,12 +129,12 @@ int str_find_char(string_t* s, char c) {
 void create_unic_variable(string_t *result, int *unic) {
 
     char variable[20] = "var";
-    char number_string[20] = '\0'
+    char number_string[20] = {0};
     result->index = 0;
     for (size_t i = 0; i < strlen(variable); i++) {
         string_append_char(result, variable[i]);
     }
-    sprintf(number_string, "%d", *unic)
+    sprintf(number_string, "%d", *unic);
     string_append(result, number_string);
     *unic = *unic + 1;
 }
