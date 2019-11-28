@@ -419,7 +419,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
             generate_assign(assignmentID, result);
             break;
         case RETURN:
-            generate_function_end(result);
+            generate_assign("%%return_value", result);
             break;
         default:
             break;
