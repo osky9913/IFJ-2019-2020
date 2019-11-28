@@ -140,8 +140,8 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
 }
 
 void generate_error_labels(){
-    string_append(errors,"LABEL !neq_operands_error\n")
-    string_append(errors,"DPRINT\032string@Operands\032are\032not\032thez\032same\032type!")
+    string_append(errors,"LABEL !neq_operands_error\n");
+    string_append(errors,"DPRINT\032string@Operands\032are\032not\032thez\032same\032type!");
 
 }
 
