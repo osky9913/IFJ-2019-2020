@@ -48,6 +48,8 @@ void generate_assign(string_t *destination, token_t *content);
 
 void declaration_variable(token_t *variable);
 
+void free_finals_string();
+
 
 void end_program();
 #endif //GENERATE_H

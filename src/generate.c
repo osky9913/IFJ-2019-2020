@@ -591,9 +591,19 @@ void declaration_variable(token_t *variable) {
     string_append(switching_output, "\n");
 }
 
+void free_finals_string() {
+    string_free_array(output_code);
+    string_free_array(errors);
+    string_free_array(function_definitions);
+
+}
+
+
 void end_program() {
-    printf("%s\n", output_code->array);
-    string_free(output_code);
+    string_append(function_definitions, output_code->array);
+    string_append(function_definitions, errors->array);
+    printf("%s", function_definitions->array);
+
 }
 
 
