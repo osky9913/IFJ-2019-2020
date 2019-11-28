@@ -140,12 +140,11 @@ void create_unic_variable(string_t *result, int *unic) {
 }
 
 void string_append(string_t *s1, char *s2) {
-    int i = 0;
-    char temp_iterator = s2[i];
-    while (s2[i] != '\0') {
-        string_append_char(s1, temp_iterator);
-        i++;
-        temp_iterator = s2[i];
+    unsigned len = strlen(s2);
+
+    for (unsigned i = 0; i < len; i++) {
+        if (string_append_char(s1, s2[i]) == STR_ALLOC_ERROR)
+            return;
     }
 }
 

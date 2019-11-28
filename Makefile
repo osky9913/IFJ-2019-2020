@@ -59,4 +59,4 @@ infoToPost: $(PREC_C) src/*
 
 .PHONY: clean
 clean:
-	rm -f *.o ifj scanner_test parser
+	rm -f *.o ifj scanner_test parser vgcor*

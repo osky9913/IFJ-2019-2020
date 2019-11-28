@@ -49,7 +49,7 @@ void free_resources() {
     symtable_clear_all(&table_global);
     symtable_clear_all(&table_local);
 
-    end_program();
+    free_finals_string();
 }
 
 int r_program() {

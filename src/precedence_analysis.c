@@ -308,11 +308,18 @@ int psa(const char* assignmentID){
         return ERROR_SYNTAX;
     }
 
-
+    //changing infix expression to postfix
     infixToPostfix(s, &infixArr, &postfix);
+
+    //checking if relational operator is only in if or while statement
+    int lastOperator = getPriority(&(postfix.arr[postfix.currLen-1]));
+    if((psa_state != IF && psa_state != WHILE) && lastOperator == 0){
+        unget_token();
+        stack_free(PAStack);
+        freePsaResources(&infixArr, &postfix, s);
+        return ERROR_SEM_OTHER;
+    }
     int precAnalysis = postfixEval(&postfix, assignmentID);
-
-
 
     switch(precAnalysis){
         case SUCCESS:

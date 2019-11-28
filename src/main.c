@@ -12,7 +12,8 @@ int main(void) {
     int retvalue;
     switch(retvalue = r_program()) {
         case SUCCESS:
-            printf("program is correct\n");
+            //printf("program is correct\n");
+            end_program();
             break;
 
         case ERROR_SYNTAX:
