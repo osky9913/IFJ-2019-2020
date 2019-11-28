@@ -5,6 +5,7 @@ parser
 semantic_input.py
 parser_input.py
 vgcore*
+CMakeLists.txt
 .gdb*
 # Prerequisites
 *.d
