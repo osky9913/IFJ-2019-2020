@@ -39,16 +39,16 @@ void start_program() {
     function_definitions = string_create_init();
     errors = string_create_init();
 
-    string_append(output_code, ".IFJcode19\n");
-    string_append(output_code, "JUMP %MAIN\n");
+    string_append(function_definitions, ".IFJcode19\n");
+    string_append(function_definitions, "JUMP %MAIN\n\n\n");
 }
 
 
 void printing_frame_to_variable(string_t *frame) {
     if (in_function) {
-        string_append(frame, "LF-");
+        string_append(frame, "LF@");
     } else {
-        string_append(frame, "GF-");
+        string_append(frame, "GF@");
     }
 }
 
@@ -139,7 +139,11 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
 
 }
 
+void generate_error_labels(){
+    string_append(errors,"LABEL !neq_operands_error\n")
+    string_append(errors,"DPRINT\032string@Operands\032are\032not\032thez\032same\032type!")
 
+}
 
 //rTODO result vracat z funkcie, vymazat ho z parametrov
 char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2) {
@@ -181,6 +185,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     string_append(switching_output, "JUMPIFNEQ @todo_lable ");
     print_variable_from_string(switching_output, variable1->array);
     print_variable_from_string(switching_output, variable2->array);
+    string_append(switching_output, "\n");
     string_append(switching_output, "JUMPIFEQ @todo_error_lable ");
     print_variable_from_string(switching_output, variable1->array);
     string_append(switching_output, " string@nil");
@@ -345,21 +350,12 @@ void generate_call_param(token_t *id) {
     // todo uvolnit
 }
 
-void generate_function_end(token_t *id) {
-    string_append(output_code, "MOVE LF@%%return_value LF@");
-    string_append(output_code, "POPFRAME \n");
-    string_append(output_code, "RETURN \n");
+void generate_function_end() {
+    string_append(function_definitions, "POPFRAME \n");
+    string_append(function_definitions, "RETURN \n");
     uniq_param_call = 1;
     uniq_param_def = 1;
 
-}
-
-
-void generate_function_end_no_return(token_t *id) {
-    string_append(output_code, "POPFRAME \n");
-    string_append(output_code, "RETURN \n");
-    uniq_param_call = 1;
-    uniq_param_def = 1;
 }
 
 void generate_while_lable() {
@@ -573,9 +569,10 @@ void generate_assign(string_t *destination, token_t *content) {
     }
 
     string_append(switching_output, "MOVE ");
-    print_variable_from_string(switching_output, destination->array);
+    print_variable_from_string(switching_output, (char*)destination->array);
     string_append(switching_output, " ");
     printing_token_to_frame(switching_output, content);
+    string_append(switching_output, "\n");
 }
 
 void declaration_variable(token_t *variable) {
