@@ -41,6 +41,7 @@ void start_program() {
 
     string_append(function_definitions, ".IFJcode19\n");
     string_append(function_definitions, "JUMP %MAIN\n\n\n");
+    string_append(output_code, "\n\n\nLABEL %MAIN");
 }
 
 
@@ -122,7 +123,7 @@ void get_type_variable(string_t *id_type, string_t *output_string, token_t *oper
     string_append(output_string, "\n");
 }
 
-void print_variable_from_string(string_t *frame, char *variable) {
+void print_variable_from_string(string_t *frame, const char *variable) {
     printing_frame_to_variable(frame);
     string_append(frame, variable);
     string_append(frame, " ");
@@ -299,7 +300,7 @@ void generate_function(token_t *id) {
 }
 
 
-void generate_call_function(token_t *id) {
+void generate_call_function(const char* id) {
     string_t *switching_output;
 
     if (in_function) {
@@ -308,7 +309,7 @@ void generate_call_function(token_t *id) {
         switching_output = output_code;
     }
     string_append(switching_output, "CALL !");
-    string_append(switching_output, id->attribute.string);
+    string_append(switching_output, id);
     string_append(switching_output, "\n");
 }
 

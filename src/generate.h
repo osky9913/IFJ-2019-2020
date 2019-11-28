@@ -18,6 +18,12 @@ void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq
 
 void get_type_variable(string_t *id_type, string_t *output_string, token_t *operand);
 
+void print_variable_from_string(string_t *frame, const char *variable);
+
+void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char *label);
+
+void generate_error_labels();
+
 char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2);
 
 void generate_create_frame();
