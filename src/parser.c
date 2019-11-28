@@ -356,8 +356,6 @@ int r_if_else() {
     int retvalue = SUCCESS;
     psa_state = IF;
     
-    //GEN if head
-
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* if expr */
 
     psa_state = DEFAULT;
@@ -495,7 +493,7 @@ int r_rest() {
             next_token(true);
             if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
-            generate_call_function(&curr_function_call);
+            generate_call_function(curr_function_call->id);
 
             /* Check parameter count */
             if((retvalue = check_parameter_count_call(param_count)) != SUCCESS)
@@ -562,12 +560,14 @@ int r_rest() {
                     next_token(true);
                     if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
-                    generate_call_function(&curr_function_call);
+                    generate_call_function(curr_function_call->id);
 
                     /* Check parameter count */
                     if ((retvalue = check_parameter_count_call(param_count)))
                         return retvalue;
                     param_count = 0;
+
+                    /* assign the retvalue  GEN */
 
                 } else {
                     unget_token();
