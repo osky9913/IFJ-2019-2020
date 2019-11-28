@@ -400,7 +400,7 @@ int r_if_else() {
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
-    // GEN ELSE END 
+    generate_elseif_end();
 
     return retvalue;
 }
@@ -569,7 +569,9 @@ int r_rest() {
                         return retvalue;
                     param_count = 0;
 
-                    /* assign the retvalue  GEN */
+                    if (undef_symbol) {
+                        generate_assign_retvalue(undef_symbol->id);
+                    }
 
                 } else {
                     unget_token();
