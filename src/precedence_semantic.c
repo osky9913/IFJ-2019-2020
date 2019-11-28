@@ -404,10 +404,25 @@ int postfixEval(t_array* postfix, const char* assignmentID){
         }
     }
 
-    if(assignmentID != NULL){
-        stack_general_item_t *tmpStackItemResult = stack_general_top(evalS);
-        token_t *result = (token_t *) tmpStackItemResult->data;
-        generate_assign(assignmentID, result);
+
+    stack_general_item_t *tmpStackItemResult = stack_general_top(evalS);
+    token_t *result = (token_t *) tmpStackItemResult->data;
+
+    switch(psa_state){
+        case WHILE:
+            generate_while(result);
+            break;
+        case IF:
+            generate_if(result);
+            break;
+        case ASSIGN:
+            generate_assign(assignmentID, result);
+            break;
+        case RETURN:
+            generate_function_end(result);
+            break;
+        default:
+            break;
     }
 
     stack_popNoDataFree(evalS);
