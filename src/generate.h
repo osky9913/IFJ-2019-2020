@@ -44,7 +44,7 @@ void generate_if(token_t *expression);
 
 void generate_else();
 
-void generate_assign(token_t *destination, token_t *content);
+void generate_assign(string_t *destination, token_t *content);
 
 void declaration_variable(token_t *variable);
 

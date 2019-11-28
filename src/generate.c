@@ -564,7 +564,7 @@ void generate_else() {
     //uniq for if labels will be set to one
 }
 
-void generate_assign(token_t *destination, token_t *content) {
+void generate_assign(string_t *destination, token_t *content) {
     string_t *switching_output;
     if (in_function) {
         switching_output = function_definitions;
@@ -573,7 +573,7 @@ void generate_assign(token_t *destination, token_t *content) {
     }
 
     string_append(switching_output, "MOVE ");
-    printing_token_to_frame(switching_output, destination);
+    print_variable_from_string(switching_output, destination->array);
     string_append(switching_output, " ");
     printing_token_to_frame(switching_output, content);
 }
