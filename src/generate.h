@@ -24,6 +24,8 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
 
 void generate_error_labels();
 
+//void convert_float_to_int(string_t* frame, token_t* operand);
+
 char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2);
 
 void generate_create_frame();

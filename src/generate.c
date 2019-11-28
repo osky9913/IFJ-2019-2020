@@ -16,7 +16,8 @@ IDIV //
 ADDS/SUBS/MULS/DIVS/IDIVS
 
 
- fucking @todo div delenie nulou , div pretypovanie na float, every sprintf rewrite you dump bitch, retval in func def
+ fucking todo   div delenie nulou?? , div pretypovanie na float, fokin labels, fokin string uniq array disappearing, fokin add embedded functions,
+                fokin print is not done at all, fok maj lajf, about to kms brb
 
 */
 #include "generate.h"
@@ -40,8 +41,12 @@ void start_program() {
     errors = string_create_init();
 
     string_append(function_definitions, ".IFJcode19\n");
-    string_append(function_definitions, "JUMP %MAIN\n\n");
-    string_append(output_code, "\n\nLABEL %MAIN\n");
+    string_append(function_definitions, "JUMP %MAIN\n");
+    string_append(function_definitions, "\n#>---------------------------FUNCTIONS---------------------------<\n");
+    string_append(output_code, "\n#>---------------------------FUNCTIONS---------------------------<\n");
+    string_append(output_code, "\n#>---------------------------MAIN---------------------------<\n");
+    string_append(output_code, "\nLABEL %MAIN\n");
+    string_append(errors, "\n#>---------------------------MAIN---------------------------<\n");
 }
 
 
@@ -57,29 +62,31 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
 
     char temp[70] = {0}; // el simon 70
 
-    printing_frame_to_variable(frame);
     switch (operand->type) {
         case TTYPE_ID:
+            printing_frame_to_variable(frame);
             string_append(frame, operand->attribute.string);
             break;
         case TTYPE_INT:
-            sprintf(temp, "%ld", operand->attribute.integer);
+            sprintf(temp, "int@%ld", operand->attribute.integer);
             string_append(frame, temp);
             break;
         case TTYPE_DOUBLE:
-            sprintf(temp, "0x%lfp+0", operand->attribute.decimal);
+            sprintf(temp, "float@0x%lfp+0", operand->attribute.decimal);
             string_append(frame, temp);
             break;
         case TTYPE_STR:
+            string_append(frame, "string@");
             string_append(frame, operand->attribute.string);
             break;
         default:
-            printf("There is a problem");
+            printf("There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR\n");
     }
 }
 
 
 void adding_operands(string_t *frame, string_t *result, token_t *operand1, token_t *operand2) {
+    printing_token_to_frame(frame, operand1);
     string_append(frame, result->array);
     string_append(frame, " ");
     printing_token_to_frame(frame, operand1);
@@ -91,10 +98,13 @@ void adding_operands(string_t *frame, string_t *result, token_t *operand1, token
 
 
 void adding_operands_string(string_t *frame, string_t *result, string_t *operand1, string_t *operand2) {
+    printing_token_to_frame(frame, operand1);
     string_append(frame, result->array);
     string_append(frame, " ");
+    printing_token_to_frame(frame, operand1);
     string_append(frame, operand1->array);
     string_append(frame, " ");
+    printing_token_to_frame(frame, operand1);
     string_append(frame, operand2->array);
     string_append(frame, "\n");
 
@@ -103,9 +113,11 @@ void adding_operands_string(string_t *frame, string_t *result, string_t *operand
 void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq_temp, char *name) {
     variable = string_create_init();
     if (name) {
-        string_append(variable, name);
+        create_unic_variable(variable, uniq_temp, name);
     }
-    create_unic_variable(variable, uniq_temp, "var");
+    else {
+        create_unic_variable(variable, uniq_temp, "var");
+    }
     string_append(output_string, "DEFVAR ");
     printing_frame_to_variable(output_string);
     string_append(output_string, variable->array);
@@ -137,6 +149,12 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
     string_append(frame, "\n");
 
 }
+/*
+void convert_float_to_int(string_t* frame, token_t* operand){
+    string_append(switching_output, "FLOAT2INT ");
+    printing_token_to_frame(switching_output, operand);
+    printing_token_to_frame(switching_output, operand);
+}*/
 
 void generate_error_labels(){
     string_append(errors,"LABEL !neq_operands_error\n");
@@ -159,6 +177,9 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     //string which will store first operand (DEFVAR operand1)
     string_t *variable1 = string_create_init();
     define_uniq_variable(variable1, switching_output, &uniq, NULL);
+
+    //problem is here variable->array is empty after returning from define_uniq_variable
+
 
     //string which will store second operand (DEFVAR operand1)
     string_t *variable2 = string_create_init();
@@ -259,16 +280,28 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             break;
         case TTYPE_IDIV:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
-            string_append(switching_output, "JUMPIFNEQ #addition "); // kontrola pri idive  ci su int
+            string_append(switching_output, "JUMPIFEQ #int_division "); // kontrola pri idive  ci su int
             print_variable_from_string(switching_output, variable1->array);
             string_append(switching_output, " string@int\n");
 
-
+            /*  DELENIE NULOV ZABIJA INTERPRET -> OSETROVAT?
+             *
             string_append(switching_output, "JUMPIFEQ #addition "); // kontrola pri idive  ci  je to rovne nula
             printing_token_to_frame(switching_output, operand2);
             string_append(switching_output, " int@0\n");
+            */
 
+            //nebol to int -> pretypovanie na int
+            //FLOAT2INT operand1 operand1
+            string_append(switching_output, "FLOAT2INT ");
+            printing_token_to_frame(switching_output, operand1);
+            printing_token_to_frame(switching_output, operand1);
+            //FLOAT2INT operand2 operand2
+            string_append(switching_output, "FLOAT2INT ");
+            printing_token_to_frame(switching_output, operand2);
+            printing_token_to_frame(switching_output, operand2);
 
+            string_append(switching_output, "LABEL #int_division\n");
             string_append(switching_output, "IDIV ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
@@ -286,7 +319,14 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 }
 
 void generate_create_frame() {
-    string_append(output_code, "CREATEFRAME\n");
+    string_t *switching_output;
+
+    if (in_function) {
+        switching_output = function_definitions;
+    } else {
+        switching_output = output_code;
+    }
+    string_append(switching_output, "CREATEFRAME\n");
 }
 
 void generate_function(token_t *id) {
@@ -332,18 +372,25 @@ void generate_def_param(token_t *id) {
 }
 
 void generate_call_param(token_t *id) {
+    string_t *switching_output;
+
+    if (in_function) {
+        switching_output = function_definitions;
+    } else {
+        switching_output = output_code;
+    }
     string_t *parameter = string_create_init();
     create_unic_variable(parameter, &uniq_param_call, "%param");
     uniq_param_call++;
 
-    string_append(output_code, "DEFVAR TF@");
-    string_append(output_code, parameter->array);
-    string_append(output_code, "\n");
-    string_append(output_code, "MOVE ");
-    string_append(output_code, parameter->array);
-    string_append(output_code, " ");
-    printing_token_to_frame(output_code, id);
-    string_append(output_code, "\n");
+    string_append(switching_output, "DEFVAR TF@");
+    string_append(switching_output, parameter->array);
+    string_append(switching_output, "\n");
+    string_append(switching_output, "MOVE ");
+    string_append(switching_output, parameter->array);
+    string_append(switching_output, " ");
+    printing_token_to_frame(switching_output, id);
+    string_append(switching_output, "\n");
 
     // todo uvolnit
 }
@@ -365,6 +412,7 @@ void generate_while_lable() {
     }
 
     string_append(switching_output, "LABEL @todo_while_beginning_label ");
+    string_append(switching_output, "\n");
 }
 
 void generate_while(token_t *expression) {
@@ -390,6 +438,8 @@ void generate_while(token_t *expression) {
 
         //JUMPIFEQ int_label id_type string@int
         string_append(switching_output, "JUMPIFEQ @todo_while_int_label ");
+        string_append(switching_output, "\n");
+
         printing_frame_to_variable(switching_output);
         string_append(switching_output, id_type->array);
         string_append(switching_output, " string@int\n");
@@ -402,15 +452,18 @@ void generate_while(token_t *expression) {
 
         //JUMPIFEQ bool_label id_type string@bool
         string_append(switching_output, "JUMPIFEQ @todo_while_bool_label ");
+        string_append(switching_output, "\n");
         printing_frame_to_variable(switching_output);
         string_append(switching_output, id_type->array);
         string_append(switching_output, " string@bool\n");
 
         //while (string) or while (None) -> while end
-        string_append(switching_output, "JUMP @todo_while_end_label ");
+        string_append(switching_output, "JUMP @todo_while_end_label");
+        string_append(switching_output, "\n");
 
         //id_type was bool, now we compare if expression is false
         string_append(switching_output, "LABEL @todo_while_bool_label ");
+        string_append(switching_output, "\n");
         //JUMPIFEQ @todo_while_end_label expression bool@false
         string_append(switching_output, "JUMPIFEQ @todo_while_end_label ");
         printing_frame_to_variable(switching_output);
@@ -431,6 +484,7 @@ void generate_while(token_t *expression) {
         string_append(switching_output, "int@0");
         string_append(switching_output, "\n");
         string_append(switching_output, "JUMP @todo_while_body_label ");
+        string_append(switching_output, "\n");
     }
     if (expression->type == TTYPE_DOUBLE) {
         //id_type was float, now we compare if expression is zero
@@ -504,20 +558,23 @@ void generate_if(token_t *expression) {
         string_append(switching_output, " string@bool\n");
 
         //if (string) or if (None) -> else
-        string_append(switching_output, "JUMP @todo_else_label ");
+        string_append(switching_output, "JUMP @todo_else_label \n");
 
         //id_type was bool, now we compare if expression is false
         string_append(switching_output, "LABEL @todo_if_bool_label ");
+        string_append(switching_output, "\n");
         //JUMPIFEQ @todo_while_end_label expression bool@false
         string_append(switching_output, "JUMPIFEQ @todo_else_label ");
         printing_frame_to_variable(switching_output);
         string_append(switching_output, expression->attribute.string);
-        string_append(switching_output, "bool@false");
+        string_append(switching_output, "bool@false\n");
         string_append(switching_output, "JUMP @todo_if_label ");
+        string_append(switching_output, "\n");
     }
     if (expression->type == TTYPE_INT) {
         //id_type was int, now we compare if expression is zero
         string_append(switching_output, "LABEL @todo_if_int_label ");
+        string_append(switching_output, "\n");
         //JUMPIFEQ @todo_while_end_label expression int@0
         string_append(switching_output, "JUMPIFEQ @todo_else_label ");
         printing_frame_to_variable(switching_output);
@@ -544,6 +601,7 @@ void generate_if(token_t *expression) {
     }
 
     string_append(switching_output, "LABEL @todo_if_label");
+    string_append(switching_output, "\n");
 }
 
 void generate_else() {
@@ -577,10 +635,7 @@ void generate_assign_retvalue(const char *dest){
     } else {
         switching_output = output_code;
     }
-
-    string_append(switching_output, "MOVE ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, "%%return_value ");
+    string_append(switching_output, "MOVE TF@%%return_value ");
     printing_frame_to_variable(switching_output);
     string_append(switching_output, dest);
     string_append(switching_output, "\n");
