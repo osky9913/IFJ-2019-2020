@@ -198,7 +198,7 @@ int r_function_def() {
     if ((retvalue = define_function(curr_token.attribute.string)) != SUCCESS)
         return retvalue;
 
-    /*GEN generate_function(&curr_token); */
+    generate_function(&curr_token);
 
     next_token(false);
     if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;  /* ( */
@@ -257,7 +257,7 @@ int r_param_list_def() {
             return retvalue;
         }
 
-        /*GEN generate_def_param(&curr_token); */
+        generate_def_param(&curr_token);
 
         param_count++;
         next_token(false);
@@ -280,7 +280,7 @@ int r_params_def() {
                 return retvalue;
             }
 
-            /*GEN generate_def_param(&curr_token); */
+            generate_def_param(&curr_token);
 
             next_token(false);
             retvalue = r_params_def(); /* <params_def> */
@@ -305,7 +305,7 @@ int r_param_list() {
             if (check_parameter_valid(curr_token, undef_symbol ? undef_symbol->id : NULL))
                 return ERROR_SEM_DEFINITION;
 
-            /*GEN generate_call_param(&curr_token); */
+            generate_call_param(&curr_token);
 
             param_count++;
             next_token(false);
@@ -335,7 +335,7 @@ int r_params() {
                             undef_symbol ? undef_symbol->id : NULL))
                     return ERROR_SEM_DEFINITION;
 
-                /*GEN generate_call_param(&curr_token); */
+                generate_call_param(&curr_token);
 
                 next_token(false);
                 retvalue = r_params(); /* <params> */
@@ -355,6 +355,8 @@ int r_params() {
 int r_if_else() {
     int retvalue = SUCCESS;
     psa_state = IF;
+    
+    //GEN if head
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* if expr */
 
@@ -368,8 +370,6 @@ int r_if_else() {
 
     next_token(false);
     if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
-
-    /*GEN generate_if(&expression); */
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
@@ -391,7 +391,7 @@ int r_if_else() {
     next_token(false);
     if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
-    /*GEN generate_else(); */
+    generate_else();
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
@@ -409,11 +409,9 @@ int r_cycle() {
     int retvalue = SUCCESS;
     psa_state = WHILE;
     
-    /*GEN generate_while_lable(); */
+    generate_while_lable();
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
-
-    /* GEN generate_while(&expression); */
 
     psa_state = DEFAULT;
 
@@ -433,7 +431,7 @@ int r_cycle() {
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
-    /*GEN generate_while_end() */
+    generate_while_end();
 
     return retvalue;
 }
@@ -454,15 +452,12 @@ int r_retvalue() {
         unget_token();
         retvalue = SUCCESS;
 
-        /* GEN generate_function_end_no_return() */
-
     } else { /* Call psa, I want no part in this... */
         unget_token();
         retvalue = psa(NULL);
-
-        /* GEN generate_function_end(&expression) */
     }
 
+    generate_function_end();
     psa_state = DEFAULT;
     return retvalue;
 }
@@ -495,12 +490,12 @@ int r_rest() {
             if ((retvalue = check_function_call(curr_token.attribute.string)) != SUCCESS)
                 return retvalue;
                
-            /*GEN generate_call_function_frame(&curr_token) - CREATEFRAME*/
+            generate_create_frame();
 
             next_token(true);
             if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
-            /*GEN generate_call_function_call(&curr_function_call) - PUSHFRAME, CALL*/
+            generate_call_function(&curr_function_call);
 
             /* Check parameter count */
             if((retvalue = check_parameter_count_call(param_count)) != SUCCESS)
@@ -515,7 +510,7 @@ int r_rest() {
             psa_state = ASSIGN;
             next_token(true);
 
-            /* GEN declaration_variable(&curr_token); */
+            declaration_variable(&curr_token);
 
             /* This block ensures that a construction like bar = foo(bar) is not
              * valid before defining bar */
@@ -562,12 +557,12 @@ int r_rest() {
                             != SUCCESS)
                         return retvalue;
 
-                    /*GEN generate_call_function_frame(&curr_token) - CREATEFRAME*/
+                    generate_create_frame();
 
                     next_token(true);
-                    if ((retvalue = r_function_call()) != SUCCESS) return retvalue;
+                    if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
-                    /*GEN generate_call_function_call(&curr_function_call) - PUSHFRAME, CALL*/
+                    generate_call_function(&curr_function_call);
 
                     /* Check parameter count */
                     if ((retvalue = check_parameter_count_call(param_count)))
