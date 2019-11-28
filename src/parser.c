@@ -15,6 +15,7 @@ symbol_t *curr_function_def = NULL;
 symbol_t *curr_function_call = NULL;
 int param_count = 0;
 symbol_t *undef_symbol = NULL; // maybe make global
+psa_state_t psa_state = DEFAULT;
 
 int init_resources() {
     /* Initialize the indent stack for scanner */
@@ -353,8 +354,11 @@ int r_params() {
 
 int r_if_else() {
     int retvalue = SUCCESS;
+    psa_state = IF;
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* if expr */
+
+    psa_state = DEFAULT;
 
     next_token(true);
     if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
@@ -403,12 +407,15 @@ int r_if_else() {
 
 int r_cycle() {
     int retvalue = SUCCESS;
+    psa_state = WHILE;
     
     /*GEN generate_while_lable(); */
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
 
     /* GEN generate_while(&expression); */
+
+    psa_state = DEFAULT;
 
     next_token(true);
     if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
@@ -435,6 +442,7 @@ int r_function_ret() {
     if (!in_function)
         return ERROR_SYNTAX; /* return statement cannot exist outside a
                                           function definition */
+    psa_state = RETURN;
     next_token(false);
     return r_retvalue();
 }
@@ -455,6 +463,7 @@ int r_retvalue() {
         /* GEN generate_function_end(&expression) */
     }
 
+    psa_state = DEFAULT;
     return retvalue;
 }
 
@@ -503,6 +512,7 @@ int r_rest() {
         case TTYPE_ASSIGN: /* assignment - we need to check if the assigned value
                               comes from an expression or a function call */
 
+            psa_state = ASSIGN;
             next_token(true);
 
             /* GEN declaration_variable(&curr_token); */
@@ -577,6 +587,8 @@ int r_rest() {
                 undef_symbol->attributes.var_att.defined = true;
                 undef_symbol = NULL;
             }
+
+            psa_state = DEFAULT;
             break;
 
         default: /* expression */

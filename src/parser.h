@@ -19,7 +19,18 @@
 #include "semantic.h"
 #include "generate.h"
 
+typedef enum {
+    DEFAULT,
+    IF,
+    WHILE,
+    ASSIGN,
+    RETURN,
+} psa_state_t;
 
+/** @brief This variable indicates the currently parsed construction - PSA */
+extern psa_state_t psa_state;
+
+/* Local and global symtables */
 symtable_t table_global, table_local;
 
 /**
