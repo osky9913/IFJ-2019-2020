@@ -3,7 +3,7 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $len
+LABEL $inputs
 PUSHFRAME
 DEFVAR LF@%retval
 MOVE LF@%retval string@
@@ -32,7 +32,7 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-CALL $len
+CALL $inputs
 MOVE LF@y TF@%retval
 WRITE LF@y
 EXIT int@0

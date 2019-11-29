@@ -58,6 +58,162 @@ void start_program() {
     string_append(function_definitions, ".IFJcode19\n");
     string_append(function_definitions, "JUMP %MAIN\n");
     string_append(function_definitions, "\n#>---------------------------FUNCTIONS---------------------------<\n");
+
+    //inputi
+    string_append(function_definitions, "LABEL $inputi\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%%return_value\n"
+                                        "READ LF@%%return_value int\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //inputf
+    string_append(function_definitions, "LABEL $inputf\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "READ LF@%%return_value float\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //inputs
+    string_append(function_definitions, "LABEL $inputs\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "MOVE LF@%%return_value string@\n"
+                                        "DEFVAR LF@actual_string\n"
+                                        "DEFVAR LF@actual_char\n"
+                                        "DEFVAR LF@str_len\n"
+                                        "DEFVAR LF@increment\n"
+                                        "MOVE LF@increment int@0\n"
+                                        "READ LF@actual_string string\n"
+                                        "STRLEN LF@str_len LF@actual_string\n"
+                                        "SUB LF@str_len LF@str_len int@1\n"
+                                        "LABEL &len&cycle\n"
+                                        "GETCHAR LF@actual_char LF@actual_string LF@increment\n"
+                                        "JUMPIFEQ &len&end LF@increment LF@str_len\n"
+                                        "CONCAT LF@%%return_value LF@%retval LF@actual_char\n"
+                                        "ADD LF@increment LF@increment int@1\n"
+                                        "JUMP &len&cycle\n"
+                                        "LABEL &len&end\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //len
+    string_append(function_definitions, "LABEL $len\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "STRLEN LF@%%return_value LF@%1\t#dlzka stringu v prvom argumente, len(s)\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //chr
+    string_append(function_definitions, "LABEL $chr\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "INT2CHAR LF@%%return_value LF@%1\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //substr
+    string_append(function_definitions, "#substr(s, i, n)\n"
+                                        "LABEL $substr\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "MOVE LF@%%return_value string@\n"
+                                        "DEFVAR LF@str_len\n"
+                                        "DEFVAR LF@passed_type \t#premenna na ulozenie typu hodnoty v prvom argumente\n"
+                                        "TYPE LF@passed_type LF@%1\n"
+                                        "JUMPIFEQ &substr&continue1 LF@passed_type string@string\t#arg1 je to typ string?\n"
+                                        "MOVE LF@%%return_value string@None\n"
+                                        "JUMP &substr&end\n"
+                                        "\n"
+                                        "LABEL &substr&continue1\n"
+                                        "TYPE LF@passed_type LF@%2\n"
+                                        "JUMPIFEQ &substr&continue2 LF@passed_type string@int \t#arg2 je to typ int?\n"
+                                        "MOVE LF@%%return_value string@None\t\t#nieje int -> koniec\n"
+                                        "JUMP &substr&end\n"
+                                        "\n"
+                                        "LABEL &substr&continue2\n"
+                                        "TYPE LF@passed_type LF@%3\n"
+                                        "JUMPIFEQ &substr&continue3 LF@passed_type string@int \t#arg3 je to typ int?\n"
+                                        "MOVE LF@%%return_value string@None\t\t#nieje int -> koniec\n"
+                                        "JUMP &substr&end\n"
+                                        "\n"
+                                        "LABEL &substr&continue3\n"
+                                        "DEFVAR LF@final_str_len\n"
+                                        "STRLEN LF@str_len LF@%1\n"
+                                        "SUB LF@final_str_len LF@str_len LF@%2\t\t\t\t\t#len(s)−"
+                                        "SUB LF@str_len LF@str_len int@1\n"
+                                        "DEFVAR LF@cond_up_length\n"
+                                        "DEFVAR LF@cond_down_length\n"
+                                        "DEFVAR LF@cond_final\n"
+                                        "LT LF@cond_up_length LF@%2 LF@str_len \t\t\t\t\t# i < strlen-1\n"
+                                        "GT LF@cond_down_length LF@%2 int@-1\t\t\t\t\t\t# i > -1\n"
+                                        "AND LF@cond_final LF@cond_up_length LF@cond_down_length\t\t#(i < strlen-1 && i > -1)\n"
+                                        "JUMPIFEQ &substr&continue4 LF@cond_final bool@true \n"
+                                        "MOVE LF@%%return_value string@None\n"
+                                        "JUMP &substr&end\n"
+                                        "\n"
+                                        "LABEL &substr&continue4\n"
+                                        "DEFVAR LF@actual_char\n"
+                                        "DEFVAR LF@cond_str_len\n"
+                                        "DEFVAR LF@last_index\n"
+                                        "LT LF@cond_str_len LF@final_str_len LF@%3\n"
+                                        "JUMPIFEQ &substr&continue5 LF@cond_str_len bool@true\t\t# len(s)− < n\n"
+                                        "#velkost pozadovaneho stringu je mensia ako pocet zostavajucich charakterov, len(s)− > n\n"
+                                        "ADD LF@last_index LF@%2 LF@%3\t\t\t\t\t\t\t\t#cyklim po index [i + n]\n"
+                                        "JUMP &substr&cycle1\n"
+                                        "LABEL &substr&continue5\n"
+                                        "ADD LF@str_len LF@str_len int@1\n"
+                                        "MOVE LF@last_index LF@str_len\n"
+                                        "\n"
+                                        "LABEL &substr&cycle1\n"
+                                        "JUMPIFEQ &substr&end LF@last_index LF@%2\n"
+                                        "GETCHAR LF@actual_char LF@%1 LF@%2\t\t\t\t\t\t\t#chcem char z LF@%1[i]\n"
+                                        "CONCAT LF@%%return_value LF@%%return_value LF@actual_char\n"
+                                        "ADD LF@%2 LF@%2 int@1\t\t\t\t\t\t\t\t\t\t\t#inkrementujem i++(LF@%2++)\n"
+                                        "JUMP &substr&cycle1\n"
+                                        "\n"
+                                        "#velkost pozadovaneho stringu je vacsie ako pocet zostavajucich charakterov, len(s)− > n\n"
+                                        "\n"
+                                        "LABEL &substr&end\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //ord
+    string_append(function_definitions, "LABEL $ord\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "DEFVAR LF@y\n"
+                                        "DEFVAR LF@passed_type \t#premenna na ulozenie typu hodnoty v prvom argumente\n"
+                                        "DEFVAR LF@compare_type \t#string na porovnanie typu s argumentom funkcie\n"
+                                        "DEFVAR LF@param1\t\t#prvy argument\t\n"
+                                        "MOVE LF@param1 LF@%1\n"
+                                        "TYPE LF@passed_type LF@param1\n"
+                                        "JUMPIFEQ &ord&continue1 LF@passed_type string@string\t#je to typ string?\n"
+                                        "DPRINT string@Bad\\032data\\032type\\032passed\\032into\\032first\\032argument\\032off\\032function\\032ord\\040expected\\032string\\041\\033\n"
+                                        "EXIT int@4\n"
+                                        "MOVE LF@%%return_value string@None\n"
+                                        "JUMP &ord&end\n"
+                                        "LABEL &ord&continue1\n"
+                                        "DEFVAR LF@param2 \t\t\t\t\t#druhy argument\t\t\n"
+                                        "MOVE LF@param2 LF@%2\n"
+                                        "TYPE LF@passed_type LF@param2\n"
+                                        "JUMPIFEQ &ord&continue2 LF@passed_type string@int \t#je to typ int?\n"
+                                        "DPRINT string@Bad\\032data\\032type\\032passed\\032into\\032second\\032argument\\032off\\032function\\032ord\\040expected\\032int\\041\\033\n"
+                                        "EXIT int@4\n"
+                                        "LABEL &ord&continue2\n"
+                                        "DEFVAR LF@str_len\n"
+                                        "DEFVAR LF@cond_up_length\n"
+                                        "DEFVAR LF@cond_down_length\n"
+                                        "DEFVAR LF@cond_final\n"
+                                        "STRLEN LF@str_len LF@param1\n"
+                                        "SUB LF@str_len LF@str_len int@1\t\t\t\t\t\t\t\t#strlen - 1\n"
+                                        "LT LF@cond_up_length LF@param2 LF@str_len \t\t\t\t\t#param2 < strlen-1\n"
+                                        "GT LF@cond_down_length LF@param2 int@-1\t\t\t\t\t\t#param2 > -1\n"
+                                        "AND LF@cond_final LF@cond_up_length LF@cond_down_length\t\t#(param2 < strlen-1 && param2 > -1)\n"
+                                        "JUMPIFEQ &ord&succes LF@cond_final bool@true \n"
+                                        "MOVE LF@%%return_value string@None\n"
+                                        "JUMP &ord&end\n"
+                                        "LABEL &ord&succes\n"
+                                        "STRI2INT LF@%%return_value LF@param1 LF@param2\n"
+                                        "LABEL &ord&end\n"
+                                        "POPFRAME\n"
+                                        "RETURN");
     string_append(output_code, "\n#>---------------------------FUNCTIONS---------------------------<\n");
     string_append(output_code, "\n#>---------------------------MAIN---------------------------<\n");
     string_append(output_code, "\nLABEL %MAIN\n");
@@ -75,7 +231,7 @@ void printing_frame_to_variable(string_t *frame) {
 
 void printing_token_to_frame(string_t *frame, token_t *operand) {
 
-    char temp[70] = {0}; // el simon 70
+    char temp[2000] = {0}; // el simon 70
 
     switch (operand->type) {
         case TTYPE_ID:
@@ -186,7 +342,9 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     string_t *end_of_expression = string_create_init();
     create_unic_label(end_of_expression, &uniq, "%end_expression_label");
     string_t *concatenation_label = string_create_init();
-    create_unic_label(concatenation_label, &uniq_expression, "%concatenation");
+    create_unic_label(concatenation_label, &uniq_concat_label, "%concatenation");
+    string_t *label_int_dodge= string_create_init();
+    create_unic_label(label_int_dodge, &uniq_concat_label, "%label_float_dodge");
 
     string_append(switching_output, "\n#evaluating expression\n");
 
@@ -248,6 +406,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_ADD:
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
             string_append(switching_output, "JUMPIFEQ ");
             string_append(switching_output, concatenation_label->array);
             string_append(switching_output, " ");
@@ -265,45 +424,40 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             break;
         case TTYPE_SUB:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
             string_append(switching_output, "SUB ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_MUL:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
             string_append(switching_output, "MUL ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_DIV:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
-            string_append(switching_output, "DIV ");
-            adding_operands(switching_output, result, operand1, operand2);
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@float", label_int_dodge->array);
 
+            string_append(switching_output, "JUMPIFEQ ");
+            string_append(switching_output,"%error_label_0 ");
+            printing_token_to_frame(switching_output,operand1);
+            string_append(switching_output," int@0\n");
 
+            string_append(switching_output, "LABEL ");
+            string_append(switching_output, label_int_dodge->array);
+
+            //delenie nulou pre float
+            string_append(switching_output, "\nJUMPIFEQ ");
+            string_append(switching_output,"%error_label_0 ");
+            printing_token_to_frame(switching_output,operand1);
+            string_append(switching_output," float@0x0.0p+0\n");
             break;
         case TTYPE_IDIV:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
-            string_append(switching_output, "JUMPIFEQ %int_division "); // kontrola pri idive  ci su int
-            print_variable_from_string(switching_output, variable1->array);
-            string_append(switching_output, " string@int\n");
+            check_if_op_type_eq(switching_output, variable1->array, "string@float", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
 
-            /*  DELENIE NULOV ZABIJA INTERPRET -> OSETROVAT?
-             *
-            string_append(switching_output, "JUMPIFEQ %addition "); // kontrola pri idive  ci  je to rovne nula
-            printing_token_to_frame(switching_output, operand2);
-            string_append(switching_output, " int@0\n");
-            */
-
-            //nebol to int -> pretypovanie na int
-            //FLOAT2INT operand1 operand1
-            string_append(switching_output, "FLOAT2INT ");
-            printing_token_to_frame(switching_output, operand1);
-            printing_token_to_frame(switching_output, operand1);
-            //FLOAT2INT operand2 operand2
-            string_append(switching_output, "FLOAT2INT ");
-            printing_token_to_frame(switching_output, operand2);
-            printing_token_to_frame(switching_output, operand2);
-
-            string_append(switching_output, "LABEL %int_division\n");
             string_append(switching_output, "IDIV ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
@@ -315,6 +469,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     string_append(switching_output, end_of_expression->array);
     string_append(switching_output, "\n");
     char *final_result = string_copy_data(result);
+    string_free(label_int_dodge);
     string_free(end_of_expression);
     string_free(concatenation_label);
     string_free(result);
