@@ -277,6 +277,15 @@ int psa(const char* assignmentID){
 
     next_token(true);
 
+    if (curr_token.type == TTYPE_EOL || curr_token.type == TTYPE_COLUMN) {
+        stack_free(PAStack);
+        freePsaResources(&infixArr, &postfix, s);
+        fprintf(stderr, "Line %d - Syntax error in psa - expression cannot be empty.\n",
+                line_counter);
+        return ERROR_SYNTAX;
+
+    }
+
     //loop through whole expression
     while(curr_token.type != TTYPE_COLUMN && curr_token.type != TTYPE_EOL){
 
@@ -292,7 +301,7 @@ int psa(const char* assignmentID){
 
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
-            fprintf(stderr, "Line %d - Syntax error\n", line_counter);
+            fprintf(stderr, "Line %d - Syntax error in psa\n", line_counter);
             return ERROR_SYNTAX;
         }
 
@@ -304,7 +313,7 @@ int psa(const char* assignmentID){
     if(psaCheck) {
         stack_free(PAStack);
         freePsaResources(&infixArr, &postfix, s);
-        fprintf(stderr, "Line %d - Syntax error\n", line_counter);
+        fprintf(stderr, "Line %d - Syntax error in psa\n", line_counter);
         return ERROR_SYNTAX;
     }
 
