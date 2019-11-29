@@ -74,7 +74,7 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
             string_append(frame, operand->attribute.string);
             break;
         default:
-            printf("There is a problem");
+            printf("There is a problem, line: %d\n", line_counter);
     }
 }
 
