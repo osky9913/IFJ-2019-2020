@@ -43,6 +43,17 @@ void start_program() {
     function_definitions = string_create_init();
     errors = string_create_init();
 
+    string_append(errors, "EXIT int@0\n");
+    string_append(errors, "LABEL %error_label_semantic\n");
+    string_append(errors, "DPRINT string@RUNTIME_SEMANTIC_ERROR\n");
+    string_append(errors, "EXIT int@4\n");
+
+    string_append(errors, "LABEL %error_label_0\n");
+    string_append(errors, "DPRINT string@DIVISION_BY_ZERO\n");
+    string_append(errors, "EXIT int@4\n");
+
+
+
     string_append(function_definitions, ".IFJcode19\n");
     string_append(function_definitions, "JUMP %MAIN\n");
     string_append(function_definitions, "\n#>---------------------------FUNCTIONS---------------------------<\n");
@@ -108,17 +119,6 @@ void adding_operands_string(string_t *frame, string_t *result, string_t *operand
     print_variable_from_string(frame, operand1->array);
     print_variable_from_string(frame, operand2->array);
     string_append(frame, "\n");
-
-  /*  printing_token_to_frame(frame, operand1);
-    string_append(frame, result->array);
-    string_append(frame, " ");
-    printing_token_to_frame(frame, operand1);
-    string_append(frame, operand1->array);
-    string_append(frame, " ");
-    printing_token_to_frame(frame, operand1);
-    string_append(frame, operand2->array);
-    string_append(frame, "\n");*/
-
 }
 
 string_t* define_uniq_variable(string_t *output_string, int *uniq_temp, char *name) {
@@ -168,14 +168,10 @@ void convert_float_to_int(string_t* frame, token_t* operand){
     printing_token_to_frame(switching_output, operand);
 }*/
 
-void generate_error_labels(){
-    string_append(errors,"LABEL !neq_operands_error\n");
-    string_append(errors,"DPRINT\032string@Operands\032are\032not\032thez\032same\032type!");
 
-}
 
 //rTODO result vracat z funkcie, vymazat ho z parametrov
-char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2) {
+char *generate_expression(token_t *operand2, token_t *operator, token_t *operand1) {
     string_t *switching_output;
 
     if (in_function) {
@@ -211,11 +207,11 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     get_type_variable(variable2, switching_output, operand2);
 
     // types of operands are not equal -> error
-    string_append(switching_output, "JUMPIFNEQ %todo_lable ");
+    string_append(switching_output, "JUMPIFNEQ %error_label_semantic ");
     print_variable_from_string(switching_output, variable1->array);
     print_variable_from_string(switching_output, variable2->array);
     string_append(switching_output, "\n");
-    string_append(switching_output, "JUMPIFEQ %todo_error_lable ");
+    string_append(switching_output, "JUMPIFEQ %error_label_semantic ");
     print_variable_from_string(switching_output, variable1->array);
     string_append(switching_output, " string@nil");
     string_append(switching_output, "\n");
@@ -271,24 +267,24 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_SUB:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
             string_append(switching_output, "SUB ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_MUL:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
             string_append(switching_output, "MUL ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_DIV:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
             string_append(switching_output, "DIV ");
             adding_operands(switching_output, result, operand1, operand2);
 
 
             break;
         case TTYPE_IDIV:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
             string_append(switching_output, "JUMPIFEQ %int_division "); // kontrola pri idive  ci su int
             print_variable_from_string(switching_output, variable1->array);
             string_append(switching_output, " string@int\n");
@@ -440,6 +436,7 @@ void generate_call_function(const char* id) {
         string_append(switching_output, print_label->array);
         string_append(switching_output, "\n");
         generate_print(print_label->array);
+        string_free(print_label);
     }
     else{
         string_append(switching_output, "CALL !");
@@ -796,6 +793,8 @@ void generate_if(token_t *expression) {
     string_append(switching_output, "\n");
     string_append(switching_output, "\n#in if statement\n");
 
+    string_free(id_type);
+    string_free(if_expression);
     string_free(if_int_label);
     string_free(if_float_label);
     string_free(if_bool_label);
@@ -870,7 +869,6 @@ void generate_assign(const char *destination, token_t *content) {
 
     string_append(switching_output, "MOVE ");
     print_variable_from_string(switching_output, destination);
-    string_append(switching_output, " ");
     printing_token_to_frame(switching_output, content);
     string_append(switching_output, "\n");
 }

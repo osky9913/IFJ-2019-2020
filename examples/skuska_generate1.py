@@ -1,5 +1,3 @@
-a = 5
-if a > 10:
-    print('hehehe')
-else:
-    pass
+c = 0
+a = 5 / c
+b = 5 - 3
