@@ -3,12 +3,17 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $len
+LABEL !len
 PUSHFRAME
-DEFVAR LF@%retval
-STRLEN LF@%retval LF@%1	#dlzka stringu v prvom argumente, len(s)
+DEFVAR LF@%%return_value
+DEFVAR LF@type
+TYPE LF@type LF@%param1
+JUMPIFNEQ %len_wrong_type LF@type string@string
+STRLEN LF@%%return_value LF@%param1	#dlzka stringu v prvom argumente, len(s)
 POPFRAME
 RETURN
+LABEL %len_wrong_type
+EXIT int@4
 
 #-----------------------------
 
@@ -17,10 +22,10 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-DEFVAR TF@%1
-MOVE TF@%1 string@Himotherfucker\032X!
-CALL $len
-MOVE LF@y TF@%retval
+DEFVAR TF@%param1
+MOVE TF@%param1 string@Himotherfucker\032X!
+CALL !len
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0
 # end of main body

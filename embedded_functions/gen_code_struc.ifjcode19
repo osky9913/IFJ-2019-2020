@@ -3,7 +3,7 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $foo
+LABEL !foo
 PUSHFRAME
 DEFVAR LF@a
 ADD LF@var LF@var int@3
@@ -21,8 +21,8 @@ PUSHFRAME
 DEFVAR LF@*expr*val
 DEFVAR LF@var
 CREATEFRAME		#----
-CALL $foo
-MOVE LF@y TF@%retval
+CALL !foo
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0
 # end of main body

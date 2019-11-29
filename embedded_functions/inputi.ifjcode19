@@ -3,9 +3,9 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $inputi
+LABEL !inputi
 PUSHFRAME
-DEFVAR LF@%%%return_value
+DEFVAR LF@%%return_value
 READ LF@%%return_value int
 POPFRAME
 RETURN
@@ -17,7 +17,7 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-CALL $inputi
+CALL !inputi
 MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0

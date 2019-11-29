@@ -3,12 +3,17 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $chr
+LABEL !chr
 PUSHFRAME
-DEFVAR LF@%retval
-INT2CHAR LF@%retval LF@%1
+DEFVAR LF@%%return_value
+DEFVAR LF@type
+TYPE LF@type LF@%param1
+JUMPIFNEQ %chr_wrong_type LF@type string@int
+INT2CHAR LF@%%return_value LF@%param1
 POPFRAME
 RETURN
+LABEL %chr_wrong_type
+EXIT int@4
 
 #-----------------------------
 
@@ -17,9 +22,8 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-DEFVAR TF@%1
-MOVE TF@%1 int@42
-CALL $chr
-MOVE LF@y TF@%retval
+DEFVAR TF@%param1
+CALL !chr
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 # end of main body

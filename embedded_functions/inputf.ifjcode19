@@ -3,10 +3,10 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $inputf
+LABEL !inputf
 PUSHFRAME
-DEFVAR LF@%retval
-READ LF@%retval float
+DEFVAR LF@%%return_value
+READ LF@%%return_value float
 POPFRAME
 RETURN
 
@@ -17,8 +17,8 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-CALL $inputf
-MOVE LF@y TF@%retval
+CALL !inputf
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0
 # end of main body

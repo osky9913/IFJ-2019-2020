@@ -3,10 +3,10 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $inputs
+LABEL !len
 PUSHFRAME
-DEFVAR LF@%retval
-MOVE LF@%retval string@
+DEFVAR LF@%%return_value
+MOVE LF@%%return_value string@
 DEFVAR LF@actual_string
 DEFVAR LF@actual_char
 DEFVAR LF@str_len
@@ -18,7 +18,7 @@ SUB LF@str_len LF@str_len int@1
 LABEL &len&cycle
 GETCHAR LF@actual_char LF@actual_string LF@increment
 JUMPIFEQ &len&end LF@increment LF@str_len
-CONCAT LF@%retval LF@%retval LF@actual_char
+CONCAT LF@%%return_value LF@%%return_value LF@actual_char
 ADD LF@increment LF@increment int@1
 JUMP &len&cycle
 LABEL &len&end
@@ -32,8 +32,8 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-CALL $inputs
-MOVE LF@y TF@%retval
+CALL !len
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0
 # end of main body

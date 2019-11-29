@@ -3,42 +3,43 @@ JUMP $$main
 
 #-----------------------------
 
-LABEL $ord
+LABEL !ord
 PUSHFRAME
-DEFVAR LF@%retval
+DEFVAR LF@%%return_value
 DEFVAR LF@y
 DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente
 DEFVAR LF@compare_type 	#string na porovnanie typu s argumentom funkcie
 DEFVAR LF@param1		#prvy argument	
-MOVE LF@param1 LF@%1
+MOVE LF@param1 LF@%param1
 TYPE LF@passed_type LF@param1
 JUMPIFEQ &ord&continue1 LF@passed_type string@string	#je to typ string?
 DPRINT string@Bad\032data\032type\032passed\032into\032first\032argument\032off\032function\032ord\040expected\032string\041\033
 EXIT int@4
-MOVE LF@%retval string@None
+
+MOVE LF@%%return_value string@None
 JUMP &ord&end
 LABEL &ord&continue1
 DEFVAR LF@param2 					#druhy argument		
-MOVE LF@param2 LF@%2
+MOVE LF@param2 LF@%param2
 TYPE LF@passed_type LF@param2
 JUMPIFEQ &ord&continue2 LF@passed_type string@int 	#je to typ int?
 DPRINT string@Bad\032data\032type\032passed\032into\032second\032argument\032off\032function\032ord\040expected\032int\041\033
 EXIT int@4
+
 LABEL &ord&continue2
 DEFVAR LF@str_len
 DEFVAR LF@cond_up_length
 DEFVAR LF@cond_down_length
 DEFVAR LF@cond_final
 STRLEN LF@str_len LF@param1
-SUB LF@str_len LF@str_len int@1								#strlen - 1
 LT LF@cond_up_length LF@param2 LF@str_len 					#param2 < strlen-1
 GT LF@cond_down_length LF@param2 int@-1						#param2 > -1
 AND LF@cond_final LF@cond_up_length LF@cond_down_length		#(param2 < strlen-1 && param2 > -1)
 JUMPIFEQ &ord&succes LF@cond_final bool@true 
-MOVE LF@%retval string@None
+MOVE LF@%%return_value string@None
 JUMP &ord&end
 LABEL &ord&succes
-STRI2INT LF@%retval LF@param1 LF@param2
+STRI2INT LF@%%return_value LF@param1 LF@param2
 LABEL &ord&end
 POPFRAME
 RETURN
@@ -50,12 +51,12 @@ CREATEFRAME		#----no main-body vars
 PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
-DEFVAR TF@%1
-MOVE TF@%1 int@4
-DEFVAR TF@%2
-MOVE TF@%2 int@10
-CALL $ord
-MOVE LF@y TF@%retval
+DEFVAR TF@%param1
+MOVE TF@%param1 string@
+DEFVAR TF@%param2
+MOVE TF@%param2 int@0
+CALL !ord
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0
 # end of main body
