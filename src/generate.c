@@ -209,11 +209,11 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     get_type_variable(variable2, switching_output, operand2);
 
     // types of operands are not equal -> error
-    string_append(switching_output, "JUMPIFNEQ @todo_lable ");
+    string_append(switching_output, "JUMPIFNEQ %todo_lable ");
     print_variable_from_string(switching_output, variable1->array);
     print_variable_from_string(switching_output, variable2->array);
     string_append(switching_output, "\n");
-    string_append(switching_output, "JUMPIFEQ @todo_error_lable ");
+    string_append(switching_output, "JUMPIFEQ %todo_error_lable ");
     print_variable_from_string(switching_output, variable1->array);
     string_append(switching_output, " string@nil");
     string_append(switching_output, "\n");
@@ -258,42 +258,42 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_ADD:
-            string_append(switching_output, "JUMPIFEQ #concatenation ");
+            string_append(switching_output, "JUMPIFEQ %concatenation ");
             print_variable_from_string(switching_output, variable1->array);
             string_append(switching_output, "string@string\n");
             string_append(switching_output, "ADD ");
             adding_operands(switching_output, result, operand1, operand2);
-            string_append(switching_output, "JUMP @todo_expression_end_label\n");
-            string_append(switching_output, "LABEL #concatenation\n");
+            string_append(switching_output, "JUMP %todo_expression_end_label\n");
+            string_append(switching_output, "LABEL %concatenation\n");
             string_append(switching_output, "CONCAT ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_SUB:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
             string_append(switching_output, "SUB ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_MUL:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
             string_append(switching_output, "MUL ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_DIV:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
             string_append(switching_output, "DIV ");
             adding_operands(switching_output, result, operand1, operand2);
 
 
             break;
         case TTYPE_IDIV:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "@todo_error_label ");
-            string_append(switching_output, "JUMPIFEQ #int_division "); // kontrola pri idive  ci su int
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%todo_error_label ");
+            string_append(switching_output, "JUMPIFEQ %int_division "); // kontrola pri idive  ci su int
             print_variable_from_string(switching_output, variable1->array);
             string_append(switching_output, " string@int\n");
 
             /*  DELENIE NULOV ZABIJA INTERPRET -> OSETROVAT?
              *
-            string_append(switching_output, "JUMPIFEQ #addition "); // kontrola pri idive  ci  je to rovne nula
+            string_append(switching_output, "JUMPIFEQ %addition "); // kontrola pri idive  ci  je to rovne nula
             printing_token_to_frame(switching_output, operand2);
             string_append(switching_output, " int@0\n");
             */
@@ -308,7 +308,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             printing_token_to_frame(switching_output, operand2);
             printing_token_to_frame(switching_output, operand2);
 
-            string_append(switching_output, "LABEL #int_division\n");
+            string_append(switching_output, "LABEL %int_division\n");
             string_append(switching_output, "IDIV ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
@@ -445,7 +445,7 @@ void generate_call_function(const char* id) {
 
 void generate_def_param(token_t *id) {
     string_append(function_definitions, "DEFVAR ");
-    printing_frame_to_variable(function_definitions);
+    //printing_frame_to_variable(function_definitions); -> redundant LF@
     print_variable_from_string(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
 
@@ -520,8 +520,6 @@ void generate_while(token_t *expression) {
 
         //JUMPIFEQ int_label id_type string@int
         string_append(switching_output, "JUMPIFEQ %todo_while_int_label ");
-        string_append(switching_output, "\n");
-
         printing_frame_to_variable(switching_output);
         string_append(switching_output, id_type->array);
         string_append(switching_output, " string@int\n");
@@ -534,7 +532,6 @@ void generate_while(token_t *expression) {
 
         //JUMPIFEQ bool_label id_type string@bool
         string_append(switching_output, "JUMPIFEQ %todo_while_bool_label ");
-        string_append(switching_output, "\n");
         printing_frame_to_variable(switching_output);
         string_append(switching_output, id_type->array);
         string_append(switching_output, " string@bool\n");
@@ -550,7 +547,7 @@ void generate_while(token_t *expression) {
         string_append(switching_output, "JUMPIFEQ %todo_while_end_label ");
         printing_frame_to_variable(switching_output);
         string_append(switching_output, expression->attribute.string);
-        string_append(switching_output, "bool@false\n");
+        string_append(switching_output, " bool@false\n");
         string_append(switching_output, "JUMP %todo_while_body_label ");
         string_append(switching_output, "\n");
     }
@@ -596,7 +593,7 @@ void generate_while_end() {
     } else {
         switching_output = output_code;
     }
-    string_append(switching_output, "LABEL %todo_while_end_label ");
+    string_append(switching_output, "LABEL %todo_while_end_labe\n");
     //uniq for while labels will be set to one
 }
 
@@ -632,7 +629,6 @@ void generate_if(token_t *expression) {
         //JUMPIFEQ bool_label id_type string@bool
         string_append(switching_output, "JUMPIFEQ %todo_if_bool_label ");
         printing_frame_to_variable(switching_output);
-        string_append(switching_output, " ");
         string_append(switching_output, id_type->array);
         string_append(switching_output, " string@bool\n");
 
@@ -646,7 +642,7 @@ void generate_if(token_t *expression) {
         string_append(switching_output, "JUMPIFEQ %todo_else_label ");
         printing_frame_to_variable(switching_output);
         string_append(switching_output, expression->attribute.string);
-        string_append(switching_output, "bool@false\n");
+        string_append(switching_output, " bool@false\n");
         string_append(switching_output, "JUMP %todo_if_label ");
         string_append(switching_output, "\n");
     }
@@ -675,7 +671,7 @@ void generate_if(token_t *expression) {
         string_append(switching_output, expression->attribute.string);
         string_append(switching_output, "float@0x0.0p+0");
         string_append(switching_output, "\n");
-        string_append(switching_output, "JUMP %todo_if_label ");
+        string_append(switching_output, "JUMP %todo_if_label");
         string_append(switching_output, "\n");
     }
 
