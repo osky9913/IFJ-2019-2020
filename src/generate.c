@@ -411,7 +411,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output, concatenation_label->array);
             string_append(switching_output, " ");
             print_variable_from_string(switching_output, variable1->array);
-            string_append(switching_output, "string@string\n");
+            string_append(switching_output, " string@string\n");
             string_append(switching_output, "ADD ");
             adding_operands(switching_output, result, operand1, operand2);
             string_append(switching_output, "JUMP ");

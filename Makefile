@@ -17,7 +17,9 @@ PARSER_C=src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_s
 PREC_C= src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c src/precedence_analysis.c src/general_stack.c src/symtable.c src/infixToPostfix.c src/semantic.c inf2post_main.c
 
 
-all:  test_scanner test_general_stack test_symtable test_scanner_id
+all: parser
+
+test_all:  test_scanner test_general_stack test_symtable test_scanner_id
 
 test_scanner: src/dynamic_string.c src/scanner.c src/general_stack.c $(TEST_SRC)/test_scanner.c
 	$(CC) $(CFLAGS) -o $(TEST_BIN)$@ $^ $(LINKS)
@@ -39,8 +41,6 @@ test_scanner_id: src/dynamic_string.c src/scanner.c src/general_stack.c $(TEST_S
 tests_random: all
 	rm output.txt ; touch output.txt ; ./tests.sh output.txt ; cat output.txt | grep "ERROR" ; cat output.txt | grep "usage"
 
-parser: $(PARSER_C) src/*
-	gcc $(CFLAGS) -o $@ $(PARSER_C)
 
 
 tests_scanner_test_case: test_scanner_id
@@ -55,6 +55,8 @@ tests_scanner_test_case: test_scanner_id
 infoToPost: $(PREC_C) src/* 
 	$(CC) $(CFLAGS) -o $@ $(PREC_C) 
 
+parser: $(PARSER_C) src/*
+	gcc $(CFLAGS) -o $@ $(PARSER_C)
 
 
 .PHONY: clean
