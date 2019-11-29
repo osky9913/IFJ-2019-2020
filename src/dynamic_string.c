@@ -128,7 +128,7 @@ int str_find_char(string_t* s, char c) {
 
 void create_unic_variable(string_t *result, int *unic, char* base_name) {
 
-    char variable[20] = "\0";
+    char variable[20] = {0};
     sprintf(variable,"%s", base_name);
     char number_string[20] = {0};
     result->index = 0;
