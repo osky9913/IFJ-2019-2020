@@ -510,7 +510,6 @@ int r_rest() {
             psa_state = ASSIGN;
             next_token(true);
 
-            declaration_variable(&curr_token);
 
             /* This block ensures that a construction like bar = foo(bar) is not
              * valid before defining bar */
@@ -526,6 +525,7 @@ int r_rest() {
                     
                     undef_symbol->attributes.var_att.defined = false;
 
+                    declaration_variable(&curr_token);
                     retvalue = SUCCESS;
                     break;
 
