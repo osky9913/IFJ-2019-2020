@@ -14,7 +14,7 @@ void adding_operands(string_t *frame, string_t *result, token_t *operand1, token
 
 void adding_operands_string(string_t *frame, string_t *result, string_t *operand1, string_t *operand2);
 
-void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq, char *name);
+string_t* define_uniq_variable(string_t *output_string, int *uniq, char *name);
 
 void get_type_variable(string_t *id_type, string_t *output_string, token_t *operand);
 
