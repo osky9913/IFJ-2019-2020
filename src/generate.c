@@ -60,21 +60,21 @@ void start_program() {
     string_append(function_definitions, "\n#>---------------------------FUNCTIONS---------------------------<\n");
 
     //inputi
-    string_append(function_definitions, "LABEL $inputi\n"
+    string_append(function_definitions, "LABEL !inputi\n"
                                         "PUSHFRAME\n"
-                                        "DEFVAR LF@%%%return_value\n"
+                                        "DEFVAR LF@%%return_value\n"
                                         "READ LF@%%return_value int\n"
                                         "POPFRAME\n"
                                         "RETURN\n");
     //inputf
-    string_append(function_definitions, "LABEL $inputf\n"
+    string_append(function_definitions, "LABEL !inputf\n"
                                         "PUSHFRAME\n"
                                         "DEFVAR LF@%%return_value\n"
                                         "READ LF@%%return_value float\n"
                                         "POPFRAME\n"
                                         "RETURN\n");
     //inputs
-    string_append(function_definitions, "LABEL $inputs\n"
+    string_append(function_definitions, "LABEL !inputs\n"
                                         "PUSHFRAME\n"
                                         "DEFVAR LF@%%return_value\n"
                                         "MOVE LF@%%return_value string@\n"
@@ -96,14 +96,14 @@ void start_program() {
                                         "POPFRAME\n"
                                         "RETURN\n");
     //len
-    string_append(function_definitions, "LABEL $len\n"
+    string_append(function_definitions, "LABEL !len\n"
                                         "PUSHFRAME\n"
                                         "DEFVAR LF@%%return_value\n"
                                         "STRLEN LF@%%return_value LF@%1\t#dlzka stringu v prvom argumente, len(s)\n"
                                         "POPFRAME\n"
                                         "RETURN\n");
     //chr
-    string_append(function_definitions, "LABEL $chr\n"
+    string_append(function_definitions, "LABEL !chr\n"
                                         "PUSHFRAME\n"
                                         "DEFVAR LF@%%return_value\n"
                                         "INT2CHAR LF@%%return_value LF@%1\n"
@@ -111,7 +111,7 @@ void start_program() {
                                         "RETURN\n");
     //substr
     string_append(function_definitions, "#substr(s, i, n)\n"
-                                        "LABEL $substr\n"
+                                        "LABEL !substr\n"
                                         "PUSHFRAME\n"
                                         "DEFVAR LF@%%return_value\n"
                                         "MOVE LF@%%return_value string@\n"
@@ -175,7 +175,7 @@ void start_program() {
                                         "POPFRAME\n"
                                         "RETURN\n");
     //ord
-    string_append(function_definitions, "LABEL $ord\n"
+    string_append(function_definitions, "LABEL !ord\n"
                                         "PUSHFRAME\n"
                                         "DEFVAR LF@%%return_value\n"
                                         "DEFVAR LF@y\n"
@@ -1003,7 +1003,7 @@ void generate_elseif_end(){
     string_free(else_if_end_label);
 }
 
-void generate_assign_retvalue(const char *dest){
+void generate_assign_to_retvalue(const char *dest) {
     string_t *switching_output;
     if (in_function) {
         switching_output = function_definitions;
@@ -1015,6 +1015,30 @@ void generate_assign_retvalue(const char *dest){
     string_append(switching_output, dest);
     string_append(switching_output, "\n");
 }
+
+
+void generate_assign_retvalue(const char *dest) {
+    string_t *switching_output;
+    if (in_function) {
+        switching_output = function_definitions;
+    } else {
+        switching_output = output_code;
+    }
+    string_append(switching_output, "MOVE ");
+    printing_frame_to_variable(switching_output);
+    string_append(switching_output, dest);
+    string_append(switching_output, " TF@%%return_value");
+    string_append(switching_output, "\n");
+}
+
+
+
+
+
+
+
+
+
 
 void generate_assign(const char *destination, token_t *content) {
     string_t *switching_output;
