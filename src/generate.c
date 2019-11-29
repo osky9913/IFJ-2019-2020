@@ -37,6 +37,7 @@ int uniq_expression = 1;
 int uniq_label = 1;
 int uniq_while_label = 1;
 int uniq_if_label = 1;
+int uniq_concat_label = 1;
 
 void start_program() {
     output_code = string_create_init();
@@ -154,21 +155,13 @@ void print_variable_from_string(string_t *frame, const char *variable) {
 
 void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char *label) {
     // @todo error label
-    string_append(frame, "JUMPIFNEQ ");
+    string_append(frame, "JUMPIFEQ ");
     string_append(frame, label);
     print_variable_from_string(frame, variable_type);
     string_append(frame, type);
     string_append(frame, "\n");
 
 }
-/*
-void convert_float_to_int(string_t* frame, token_t* operand){
-    string_append(switching_output, "FLOAT2INT ");
-    printing_token_to_frame(switching_output, operand);
-    printing_token_to_frame(switching_output, operand);
-}*/
-
-
 
 //rTODO result vracat z funkcie, vymazat ho z parametrov
 char *generate_expression(token_t *operand2, token_t *operator, token_t *operand1) {
@@ -179,24 +172,23 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     } else {
         switching_output = output_code;
     }
-    string_append(switching_output, "\n#evaluating expression\n");
     string_t *result = define_uniq_variable(switching_output, &uniq, "result");
     //string which will store result of current operation (DEFVAR result)
-
     //string which will store first operand (DEFVAR operand1)
     string_t *variable1 = define_uniq_variable(switching_output, &uniq, "var");
-
-    //problem is here variable->array is empty after returning from define_uniq_variable
-
-
     //string which will store second operand (DEFVAR operand1)
     string_t *variable2 = define_uniq_variable(switching_output, &uniq, "var");
-
     //string used as temporary storing place in operator >= or <=
     string_t *result_eq_1 = define_uniq_variable(switching_output, &uniq,"tmp_result");
-
     //string used as temporary storing place in operator >= or <=
     string_t *result_eq_2 = define_uniq_variable(switching_output, &uniq, "tmp_result");
+    //string used as label for the end of expression evaluation
+    string_t *end_of_expression = string_create_init();
+    create_unic_label(end_of_expression, &uniq, "%end_expression_label");
+    string_t *concatenation_label = string_create_init();
+    create_unic_label(concatenation_label, &uniq_expression, "%concatenation");
+
+    string_append(switching_output, "\n#evaluating expression\n");
 
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
@@ -256,15 +248,20 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_ADD:
-            string_append(switching_output, "JUMPIFEQ %concatenation ");
+            string_append(switching_output, "JUMPIFEQ ");
+            string_append(switching_output, concatenation_label->array);
+            string_append(switching_output, " ");
             print_variable_from_string(switching_output, variable1->array);
             string_append(switching_output, "string@string\n");
             string_append(switching_output, "ADD ");
             adding_operands(switching_output, result, operand1, operand2);
-            string_append(switching_output, "JUMP %todo_expression_end_label\n");
-            string_append(switching_output, "LABEL %concatenation\n");
-            string_append(switching_output, "CONCAT ");
+            string_append(switching_output, "JUMP ");
+            string_append(switching_output, end_of_expression->array);
+            string_append(switching_output, "\nLABEL ");
+            string_append(switching_output, concatenation_label->array);
+            string_append(switching_output, "\nCONCAT ");
             adding_operands(switching_output, result, operand1, operand2);
+            uniq_expression +=1;
             break;
         case TTYPE_SUB:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
@@ -314,7 +311,12 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             printf("%s THERE IS A PROBLEM\n", output_code->array);
 
     }
+    string_append(switching_output, "LABEL ");
+    string_append(switching_output, end_of_expression->array);
+    string_append(switching_output, "\n");
     char *final_result = string_copy_data(result);
+    string_free(end_of_expression);
+    string_free(concatenation_label);
     string_free(result);
     string_free(result_eq_1);
     string_free(result_eq_2);
@@ -766,7 +768,7 @@ void generate_if(token_t *expression) {
     string_append(switching_output, " ");
     printing_frame_to_variable(switching_output);
     string_append(switching_output, if_expression->array);
-    string_append(switching_output, "int@0");
+    string_append(switching_output, " int@0");
     string_append(switching_output, "\n");
     //expression wasnt zero jump to if body
     string_append(switching_output, "JUMP ");
@@ -784,7 +786,7 @@ void generate_if(token_t *expression) {
     string_append(switching_output, " ");
     printing_frame_to_variable(switching_output);
     string_append(switching_output, if_expression->array);
-    string_append(switching_output, "float@0x0.0p+0");
+    string_append(switching_output, " float@0x0.0p+0");
     string_append(switching_output, "\n");
 
     //expression was evaluated as true, continue in if
@@ -887,9 +889,9 @@ void declaration_variable(token_t *variable) {
 }
 
 void free_finals_string() {
-    string_free_array(output_code);
-    string_free_array(errors);
-    string_free_array(function_definitions);
+    string_free(output_code);
+    string_free(errors);
+    string_free(function_definitions);
 
 }
 
