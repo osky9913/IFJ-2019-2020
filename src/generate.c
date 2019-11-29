@@ -79,14 +79,17 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
             string_append(frame, "string@");
             string_append(frame, operand->attribute.string);
             break;
+        case TTYPE_NONE:
+            string_append(frame, "string@nil");
+            break;
         default:
-            printf("There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR\n");
+            printf("There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR/NONE\n");
     }
 }
 
 
 void adding_operands(string_t *frame, string_t *result, token_t *operand1, token_t *operand2) {
-    printing_token_to_frame(frame, operand1);
+    printing_frame_to_variable(frame);
     string_append(frame, result->array);
     string_append(frame, " ");
     printing_token_to_frame(frame, operand1);
@@ -115,8 +118,8 @@ void adding_operands_string(string_t *frame, string_t *result, string_t *operand
 
 }
 
-void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq_temp, char *name) {
-    variable = string_create_init();
+string_t* define_uniq_variable(string_t *output_string, int *uniq_temp, char *name) {
+    string_t* variable = string_create_init();
     if (name) {
         create_unic_variable(variable, uniq_temp, name);
     }
@@ -127,6 +130,7 @@ void define_uniq_variable(string_t *variable, string_t *output_string, int *uniq
     printing_frame_to_variable(output_string);
     string_append(output_string, variable->array);
     string_append(output_string, "\n");
+    return variable;
 }
 
 void get_type_variable(string_t *id_type, string_t *output_string, token_t *operand) {
@@ -176,27 +180,24 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     } else {
         switching_output = output_code;
     }
-    string_t *result = string_create_init();
+    string_append(switching_output, "\n#evaluating expression\n");
+    string_t *result = define_uniq_variable(switching_output, &uniq, "result");
     //string which will store result of current operation (DEFVAR result)
-    define_uniq_variable(result, switching_output, &uniq, NULL);
+
     //string which will store first operand (DEFVAR operand1)
-    string_t *variable1 = string_create_init();
-    define_uniq_variable(variable1, switching_output, &uniq, NULL);
+    string_t *variable1 = define_uniq_variable(switching_output, &uniq, "var");
 
     //problem is here variable->array is empty after returning from define_uniq_variable
 
 
     //string which will store second operand (DEFVAR operand1)
-    string_t *variable2 = string_create_init();
-    define_uniq_variable(variable2, switching_output, &uniq, NULL);
+    string_t *variable2 = define_uniq_variable(switching_output, &uniq, "var");
 
     //string used as temporary storing place in operator >= or <=
-    string_t *result_eq_1 = string_create_init();
-    define_uniq_variable(result_eq_1, switching_output, &uniq, NULL);
+    string_t *result_eq_1 = define_uniq_variable(switching_output, &uniq,"tmp_result");
 
     //string used as temporary storing place in operator >= or <=
-    string_t *result_eq_2 = string_create_init();
-    define_uniq_variable(result_eq_2, switching_output, &uniq, NULL);
+    string_t *result_eq_2 = define_uniq_variable(switching_output, &uniq, "tmp_result");
 
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
@@ -343,9 +344,11 @@ void generate_function(token_t *id) {
     string_append(function_definitions, "DEFVAR LF@%%return_value\n");
 }
 
-void generate_print(){
+void generate_print(const char* label){
     //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token
-    string_append(function_definitions, "\nLABEL !print\n");
+    string_append(function_definitions, "\nLABEL !");
+    string_append(function_definitions, label);
+    string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
     string_append(function_definitions, "DEFVAR LF@%%return_value\n");
     for(int i = uniq_param_def; i <= uniq_param_call; i++){
@@ -359,7 +362,7 @@ void generate_print(){
         string_t *parameter = string_create_init();
         create_unic_variable(parameter, &uniq_param_def, "%param");
         string_append(function_definitions, "MOVE LF@");
-        string_append(function_definitions, parameter->array);
+        string_append(function_definitions, print_variable->array);
         string_append(function_definitions, " LF@");
         string_append(function_definitions, parameter->array);
         string_append(function_definitions, "\n");
@@ -382,12 +385,18 @@ void generate_call_function(const char* id) {
     } else {
         switching_output = output_code;
     }
-    string_append(switching_output, "CALL !");
-    string_append(switching_output, id);
-    string_append(switching_output, "\n");
     if((strcmp(id, "print")) == 0){
-        printf("test\n");
-        generate_print();
+        string_t *print_label = string_create_init();
+        create_unic_variable(print_label, &uniq, "%print");
+        string_append(switching_output, "CALL !");
+        string_append(switching_output, print_label->array);
+        string_append(switching_output, "\n");
+        generate_print(print_label->array);
+    }
+    else{
+        string_append(switching_output, "CALL !");
+        string_append(switching_output, id);
+        string_append(switching_output, "\n");
     }
 }
 
@@ -458,13 +467,11 @@ void generate_while(token_t *expression) {
         switching_output = output_code;
     }
 
-    string_t *while_expression = string_create_init();
-    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%while_expression");
+    string_t *while_expression = define_uniq_variable(switching_output, &uniq_expression, "%while_expression");
 
     if (expression->type == TTYPE_ID) {
 
-        string_t *id_type = string_create_init();
-        define_uniq_variable(id_type, switching_output, &uniq_expression, "%while_check_type");
+        string_t *id_type = define_uniq_variable(switching_output, &uniq_expression, "%while_check_type");
 
         //TYPE id_type expression
         get_type_variable(id_type, switching_output, expression);
@@ -559,13 +566,11 @@ void generate_if(token_t *expression) {
         switching_output = output_code;
     }
     //DEFVAR while_expression
-    string_t *while_expression = NULL;
-    define_uniq_variable(while_expression, switching_output, &uniq_expression, "%while_expression");
+    string_t *while_expression = define_uniq_variable( switching_output, &uniq_expression, "%while_expression");
 
     if (expression->type == TTYPE_ID) {
 
-        string_t *id_type = string_create_init();
-        define_uniq_variable(id_type, switching_output, &uniq_expression, "%if_check_type");
+        string_t *id_type = define_uniq_variable(switching_output, &uniq_expression, "%if_check_type");
 
         //TYPE id_type expression
         get_type_variable(id_type, switching_output, expression);
