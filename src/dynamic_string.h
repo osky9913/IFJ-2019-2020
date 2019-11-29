@@ -80,6 +80,9 @@ int str_find_char(string_t* s, char c);
 
 void create_unic_variable(string_t *result, int *unic, char* base_name);
 
+void create_unic_label(string_t *result, int *unic, char *base_name);
+
+
 void string_append(string_t *s1, const char *s2);
 
 
