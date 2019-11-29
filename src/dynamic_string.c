@@ -140,7 +140,7 @@ void create_unic_variable(string_t *result, int *unic, char* base_name) {
     *unic = *unic + 1;
 }
 
-void string_append(string_t *s1, char *s2) {
+void string_append(string_t *s1, const char *s2) {
     unsigned len = strlen(s2);
 
     for (unsigned i = 0; i < len; i++) {

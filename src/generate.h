@@ -32,6 +32,8 @@ void generate_create_frame();
 
 void generate_function(token_t *id);
 
+void generate_print();
+
 void generate_call_function(const char *id);
 
 void generate_def_param(token_t *id);

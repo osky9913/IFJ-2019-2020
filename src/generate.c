@@ -98,7 +98,12 @@ void adding_operands(string_t *frame, string_t *result, token_t *operand1, token
 
 
 void adding_operands_string(string_t *frame, string_t *result, string_t *operand1, string_t *operand2) {
-    printing_token_to_frame(frame, operand1);
+    print_variable_from_string(frame, result->array);
+    print_variable_from_string(frame, operand1->array);
+    print_variable_from_string(frame, operand2->array);
+    string_append(frame, "\n");
+
+  /*  printing_token_to_frame(frame, operand1);
     string_append(frame, result->array);
     string_append(frame, " ");
     printing_token_to_frame(frame, operand1);
@@ -106,7 +111,7 @@ void adding_operands_string(string_t *frame, string_t *result, string_t *operand
     string_append(frame, " ");
     printing_token_to_frame(frame, operand1);
     string_append(frame, operand2->array);
-    string_append(frame, "\n");
+    string_append(frame, "\n");*/
 
 }
 
@@ -327,6 +332,7 @@ void generate_create_frame() {
         switching_output = output_code;
     }
     string_append(switching_output, "CREATEFRAME\n");
+    uniq_param_call = 1;
 }
 
 void generate_function(token_t *id) {
@@ -337,6 +343,36 @@ void generate_function(token_t *id) {
     string_append(function_definitions, "DEFVAR LF@%%return_value\n");
 }
 
+void generate_print(){
+    //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token
+    string_append(function_definitions, "\nLABEL !print\n");
+    string_append(function_definitions, "PUSHFRAME\n");
+    string_append(function_definitions, "DEFVAR LF@%%return_value\n");
+    for(int i = uniq_param_def; i <= uniq_param_call; i++){
+        string_append(function_definitions, "DEFVAR LF@");
+        string_t *print_variable = string_create_init();
+        create_unic_variable(print_variable, &uniq, "%print_var");
+        string_append(function_definitions, print_variable->array);
+        string_append(function_definitions, " ");
+        string_append(function_definitions, "\n");
+
+        string_t *parameter = string_create_init();
+        create_unic_variable(parameter, &uniq_param_def, "%param");
+        string_append(function_definitions, "MOVE LF@");
+        string_append(function_definitions, parameter->array);
+        string_append(function_definitions, " LF@");
+        string_append(function_definitions, parameter->array);
+        string_append(function_definitions, "\n");
+
+        string_append(function_definitions, "WRITE ");
+        string_append(function_definitions, " LF@");
+        string_append(function_definitions, print_variable->array);
+        string_append(function_definitions, "\n");
+    }
+    string_append(function_definitions,"MOVE LF@%%return_value nil@nil\n");
+    generate_function_end();
+    //uvolnit
+}
 
 void generate_call_function(const char* id) {
     string_t *switching_output;
@@ -349,25 +385,25 @@ void generate_call_function(const char* id) {
     string_append(switching_output, "CALL !");
     string_append(switching_output, id);
     string_append(switching_output, "\n");
+    if((strcmp(id, "print")) == 0){
+        printf("test\n");
+        generate_print();
+    }
 }
 
 
 void generate_def_param(token_t *id) {
     string_append(function_definitions, "DEFVAR ");
     printing_frame_to_variable(function_definitions);
-    string_append(function_definitions, id->attribute.string);
+    print_variable_from_string(function_definitions, id->attribute.string);
     string_append(function_definitions, "\n");
 
     string_t *parameter = string_create_init();
     create_unic_variable(parameter, &uniq_param_def, "%param");
-    uniq_param_def++;
     string_append(parameter, "\n");
     string_append(function_definitions, "MOVE ");
-    printing_frame_to_variable(function_definitions);
-    string_append(function_definitions, id->attribute.string);
-    string_append(function_definitions, " ");
-    printing_frame_to_variable(function_definitions);
-    string_append(function_definitions, parameter->array);
+    print_variable_from_string(function_definitions, id->attribute.string);
+    print_variable_from_string(function_definitions, parameter->array);
     // todo uvolnit
 }
 
@@ -381,12 +417,11 @@ void generate_call_param(token_t *id) {
     }
     string_t *parameter = string_create_init();
     create_unic_variable(parameter, &uniq_param_call, "%param");
-    uniq_param_call++;
 
     string_append(switching_output, "DEFVAR TF@");
     string_append(switching_output, parameter->array);
     string_append(switching_output, "\n");
-    string_append(switching_output, "MOVE ");
+    string_append(switching_output, "MOVE TF@");
     string_append(switching_output, parameter->array);
     string_append(switching_output, " ");
     printing_token_to_frame(switching_output, id);
@@ -398,9 +433,7 @@ void generate_call_param(token_t *id) {
 void generate_function_end() {
     string_append(function_definitions, "POPFRAME \n");
     string_append(function_definitions, "RETURN \n");
-    uniq_param_call = 1;
     uniq_param_def = 1;
-
 }
 
 void generate_while_lable() {
@@ -525,7 +558,6 @@ void generate_if(token_t *expression) {
     } else {
         switching_output = output_code;
     }
-
     //DEFVAR while_expression
     string_t *while_expression = NULL;
     define_uniq_variable(while_expression, switching_output, &uniq_expression, "%while_expression");

@@ -5,9 +5,8 @@ JUMP $$main
 
 LABEL $inputi
 PUSHFRAME
-DEFVAR LF@%retval
-MOVE LF@%retval int@
-READ LF@%retval int
+DEFVAR LF@%%%return_value
+READ LF@%%return_value int
 POPFRAME
 RETURN
 
@@ -19,7 +18,7 @@ PUSHFRAME
 DEFVAR LF@y
 CREATEFRAME		#----
 CALL $inputi
-MOVE LF@y TF@%retval
+MOVE LF@y TF@%%return_value
 WRITE LF@y
 EXIT int@0
 # end of main body
