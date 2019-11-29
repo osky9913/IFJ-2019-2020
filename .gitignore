@@ -8,6 +8,9 @@ vgcore*
 output.txt
 CMakeLists.txt
 .gdb*
+ic19int
+test_input.py
+
 # Prerequisites
 *.d
 

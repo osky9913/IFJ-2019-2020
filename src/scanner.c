@@ -322,27 +322,84 @@ int get_token(token_t* token){
                     fprintf(stderr, "Lexical analysis error: EOF appeared before enclosure of multiline string!\n");
                     return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                 }
+                else if (c == ' ') {
+                    string_append(token_string, "\\032");
+                }
+                else if (c == '\t') {
+                    string_append(token_string, "\\009");
+                }
+                else if (c == '\n') {
+                    string_append(token_string, "\\010");
+                }
+                else if (c == '\n') {
+                    string_append(token_string, "\\010");
+                }
+                else if (c == 11) {
+                    string_append(token_string, "\\011");
+                }
                 //escape sequences
                 else if(c == '\\'){
                     c = getc(stdin);
-                    if(c == '"'){
-                        string_append_char(token_string, c);
-                    }
-                    else if(c == '\''){
-                        string_append_char(token_string, c);
-                    }
-                    else if(c == 't'){
-                        string_append_char(token_string, '\t');
-                    }
-                    else if(c == '\\'){
-                        string_append_char(token_string, c);
-                    }
-                    else if(c == 'x'){
-                        hexa_escape(token_string);
-                    }
-                    else{
-                        ungetc(c, stdin);
-                        string_append_char(token_string, '\\');
+                    switch (c) {
+                        case 'x':
+                            //hexa to decimal
+                            string_append_char(token_string, '\\');
+                            unsigned hexa = 0;
+                            for (int i = 0; i < 2; i++) {
+                                c = getc(stdin);
+                                if (isxdigit(c)) {
+                                    if (isdigit(c)) {
+                                        hexa += (c - '0') * (i == 0 ? 16 : 1);
+
+                                    } else if (isupper(c)) {
+                                        hexa += (c - 'A' + 10) * (i == 0 ? 16 : 1);
+
+                                    } else {
+                                        hexa += (c - 'a' + 10) * (i == 0 ? 16 : 1);
+                                    }
+
+                                } else {
+                                    fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Invalid escape sequence!\n", line_counter);
+                                    return finish_free_resources(ERROR_LEXICAL,
+                                    token, tmp, token_string);  
+                                }
+                            }
+
+                            char tmp[4] = {0};
+
+                            if (hexa < 100)
+                                sprintf(tmp, "0%d", hexa);
+                            else 
+                                sprintf(tmp, "%d", hexa);
+
+                            string_append(token_string, tmp);
+                            break;
+
+                        case '"':
+                            string_append(token_string, "\\034");
+                            break;
+
+                        case '\'':
+                            string_append(token_string, "\\039");
+                            break;
+
+                        case '\\':
+                            string_append(token_string, "\\092");
+                            break;
+
+                        case 'n':
+                            string_append(token_string, "\\010");
+                            break;
+
+                        case 't':
+                            string_append(token_string, "\\009");
+                            break;
+
+                        default:
+                            string_append_char(token_string, '\\');
+                            string_append_char(token_string, c);
+                            break;
                     }
                 }
                 else if(c == '\n'){
@@ -539,6 +596,12 @@ int get_token(token_t* token){
             case 7:  
                 if(c == '\''){
                     return finish_free_resources(SUCCESS, token, tmp, token_string);
+                } 
+                else if (c == ' ') {
+                    string_append(token_string, "\\032");
+                }
+                else if (c == '\t') {
+                    string_append(token_string, "\\009");
                 }
                 else if(c == '\n' || c == EOF){
                     ungetc(c, stdin);
@@ -548,27 +611,66 @@ int get_token(token_t* token){
                 //escape sequence
                 else if(c == '\\'){
                     c = getc(stdin);
-                    if(c == '"'){
-                        string_append_char(token_string, c);
-                    }
-                    else if(c == '\''){
-                        string_append_char(token_string, c);
-                    }
-                    else if(c == 'n'){
-                        string_append_char(token_string, '\n');
-                    }
-                    else if(c == 't'){
-                        string_append_char(token_string, '\t');
-                    }
-                    else if(c == '\\'){
-                        string_append_char(token_string, c);
-                    }
-                    else if(c == 'x'){
-                        hexa_escape(token_string);
-                    }
-                    else{
-                        ungetc(c, stdin);
-                        string_append_char(token_string, '\\');
+                    switch (c) {
+                        case 'x':
+                            //hexa to decimal
+                            string_append_char(token_string, '\\');
+                            unsigned hexa = 0;
+                            for (int i = 0; i < 2; i++) {
+                                c = getc(stdin);
+                                if (isxdigit(c)) {
+                                    if (isdigit(c)) {
+                                        hexa += (c - '0') * (i == 0 ? 16 : 1);
+
+                                    } else if (isupper(c)) {
+                                        hexa += (c - 'A' + 10) * (i == 0 ? 16 : 1);
+
+                                    } else {
+                                        hexa += (c - 'a' + 10) * (i == 0 ? 16 : 1);
+                                    }
+
+                                } else {
+                                    fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Invalid escape sequence!\n", line_counter);
+                                    return finish_free_resources(ERROR_LEXICAL,
+                                    token, tmp, token_string);  
+                                }
+                            }
+
+                            char tmp[4] = {0};
+
+                            if (hexa < 100)
+                                sprintf(tmp, "0%d", hexa);
+                            else 
+                                sprintf(tmp, "%d", hexa);
+
+                            string_append(token_string, tmp);
+                            break;
+
+                        case '"':
+                            string_append(token_string, "\\034");
+                            break;
+
+                        case '\'':
+                            string_append(token_string, "\\039");
+                            break;
+
+                        case '\\':
+                            string_append(token_string, "\\092");
+                            break;
+
+                        case 'n':
+                            string_append(token_string, "\\010");
+                            break;
+
+                        case 't':
+                            string_append(token_string, "\\009");
+                            break;
+
+                        default:
+                            string_append_char(token_string, '\\');
+                            string_append_char(token_string, c);
+                            break;
                     }
                 }
                 else{
