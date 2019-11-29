@@ -350,7 +350,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
 
     int checkDefine = checkDefinedVarInPostfix(postfix, assignmentID);
     if(checkDefine == ERROR_SEM_DEFINITION){
-        fprintf(stderr, "Line %d - Not defined variable\n", line_counter);
+        fprintf(stderr, "Line %d - Undefined variable\n", line_counter);
         return ERROR_SEM_DEFINITION;
     }
 
@@ -440,7 +440,8 @@ int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
 
             checkDef = check_if_defined_var(postfix->arr[i].attribute.string, assignmentID);
             if(checkDef != VARIABLE_FOUND){
-                fprintf(stderr, "Line %d - %s Var no defined.\n", line_counter, postfix->arr[i].attribute.string);
+                fprintf(stderr, "Line %d - Variable %s was undefined.\n",
+                        line_counter, postfix->arr[i].attribute.string);
                 return ERROR_SEM_DEFINITION;
             }
         }
@@ -457,21 +458,22 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
                     return ERROR_SEM_TYPE;
                 }
                 else if(operand1->attribute.integer == 0){
-                    fprintf(stderr, "Line %d - Div by zero.\n", line_counter);
+                    fprintf(stderr, "Line %d - Division by zero.\n", line_counter);
                     return ERROR_DIV_ZERO;
                 }
                 return SUCCESS;
             }
             if(operator->type == TTYPE_DIV) {
                 if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
-                    fprintf(stderr, "Line %d - Div by zero\n", line_counter);
+                    fprintf(stderr, "Line %d - Division by zero\n", line_counter);
                     return ERROR_DIV_ZERO;
                 }
                 return SUCCESS;
             }
         }
         else{
-            fprintf(stderr, "Line %d - Expected operator is not an operator.\n", line_counter);
+            fprintf(stderr, "Line %d - Expected operator is not a valid operator.\n",
+                    line_counter);
             return ERROR_SEM_OTHER;
         }
     }
@@ -479,7 +481,8 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
 
         if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
         operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
-            fprintf(stderr, "Line %d - Arithmetic operators with string beside +.\n", line_counter);
+            fprintf(stderr, "Line %d - The only valid string operation is concatenation\n",
+                    line_counter);
             return ERROR_SEM_TYPE;
         }
         return SUCCESS;
