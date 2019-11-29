@@ -514,8 +514,13 @@ void generate_while(token_t *expression) {
         switching_output = output_code;
     }
 
-    //string_t *while_expression = define_uniq_variable(switching_output, &uniq_expression, "%while_expression");
+    string_t *while_expression = define_uniq_variable(switching_output, &uniq_expression, "%while_expression");
 
+    string_append(switching_output, "MOVE ");
+    print_variable_from_string(switching_output, while_expression->array);
+    string_append(switching_output, " ");
+    printing_token_to_frame(switching_output, expression);
+    string_append(switching_output, "\n");
 
     string_t *while_int_label = string_create_init();
     string_t *while_float_label = string_create_init();
@@ -580,7 +585,7 @@ void generate_while(token_t *expression) {
     string_append(switching_output, while_end_label->array);
     string_append(switching_output, " ");
     printing_frame_to_variable(switching_output);
-    string_append(switching_output, expression->attribute.string);
+    string_append(switching_output, while_expression->array);
     string_append(switching_output, " bool@false\n");
     string_append(switching_output, "JUMP ");
     string_append(switching_output, while_body_label->array);
@@ -596,8 +601,8 @@ void generate_while(token_t *expression) {
     string_append(switching_output, while_end_label->array);
     string_append(switching_output, " ");
     printing_frame_to_variable(switching_output);
-    string_append(switching_output, expression->attribute.string);
-    string_append(switching_output, "int@0\n");
+    string_append(switching_output, while_expression->array);
+    string_append(switching_output, " int@0\n");
     string_append(switching_output, "JUMP ");
     string_append(switching_output, while_body_label->array);
     string_append(switching_output, "\n");
@@ -612,8 +617,8 @@ void generate_while(token_t *expression) {
     string_append(switching_output, while_end_label->array);
     string_append(switching_output, " ");
     printing_frame_to_variable(switching_output);
-    string_append(switching_output, expression->attribute.string);
-    string_append(switching_output, "float@0x0.0p+0");
+    string_append(switching_output, while_expression->array);
+    string_append(switching_output, " float@0x0.0p+0");
     string_append(switching_output, "\n");
 
     string_append(switching_output, "JUMP  ");
