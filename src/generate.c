@@ -351,27 +351,68 @@ void generate_print(const char* label){
     string_append(function_definitions, "\n");
     string_append(function_definitions, "PUSHFRAME\n");
     string_append(function_definitions, "DEFVAR LF@%%return_value\n");
-    for(int i = uniq_param_def; i <= uniq_param_call; i++){
+    //label for potentional next parameters after None
+    string_t* process_next_param = string_create_init();
+    //variable to check type
+    string_t *check_variable = string_create_init();
+    //parameter obtained from function call
+    string_t *parameter = string_create_init();
+    //label to jump to print None
+    string_t *none_label = string_create_init();
+
+    //cycle that prints parametres all parametres of print function
+    for(int i = uniq_param_def; i < uniq_param_call; i++){
+        //we declare variable to which we will use for storing type of passed variable
+        create_unic_variable(check_variable, &uniq, "%check_type");
         string_append(function_definitions, "DEFVAR LF@");
-        string_t *print_variable = string_create_init();
-        create_unic_variable(print_variable, &uniq, "%print_var");
-        string_append(function_definitions, print_variable->array);
-        string_append(function_definitions, " ");
+        string_append(function_definitions, check_variable->array);
         string_append(function_definitions, "\n");
 
-        string_t *parameter = string_create_init();
+        //checking type from passed parameter, generating params according to called params
         create_unic_variable(parameter, &uniq_param_def, "%param");
-        string_append(function_definitions, "MOVE LF@");
-        string_append(function_definitions, print_variable->array);
+        string_append(function_definitions, "TYPE LF@");
+        string_append(function_definitions, check_variable->array);
         string_append(function_definitions, " LF@");
         string_append(function_definitions, parameter->array);
         string_append(function_definitions, "\n");
 
+        //jumps when passed parameter is nil -> NONE_LABEL
+        create_unic_variable(none_label, &uniq, "%none_label");
+        string_append(function_definitions, "JUMPIFEQ ");
+        string_append(function_definitions, none_label->array);
+        string_append(function_definitions, " LF@");
+        string_append(function_definitions,  check_variable->array);
+        string_append(function_definitions, " string@nil\n");
+
+        //parameter wasnt nil -> we can print it
         string_append(function_definitions, "WRITE ");
         string_append(function_definitions, " LF@");
-        string_append(function_definitions, print_variable->array);
+        string_append(function_definitions, parameter->array);
         string_append(function_definitions, "\n");
+
+        //we have to jump over the print of None
+        create_unic_variable(process_next_param, &uniq, "%next_param");
+        string_append(function_definitions, "JUMP ");
+        string_append(function_definitions, process_next_param->array);
+        string_append(function_definitions, "\n");
+
+        //paramter was None -> jumped here
+        string_append(function_definitions, "LABEL ");
+        string_append(function_definitions, none_label->array);
+        string_append(function_definitions, "\n");
+
+        //print None
+        string_append(function_definitions, "WRITE string@None\n");
+
+        //end processing of first parameter
+        string_append(function_definitions, "LABEL ");
+        string_append(function_definitions, process_next_param->array);
+        string_append(function_definitions, "\n");
+        string_append(function_definitions, "WRITE string@\\032\n\n");
     }
+    //printing \n after printing all parameters
+    string_append(function_definitions, "WRITE string@\\010\n");
+    //print always returns nil
     string_append(function_definitions,"MOVE LF@%%return_value nil@nil\n");
     generate_function_end();
     //uvolnit
