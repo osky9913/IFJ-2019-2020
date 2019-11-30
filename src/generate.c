@@ -1131,7 +1131,6 @@ void end_program() {
 }
 
 int insert_definitions(string_t *destination, string_t *definitions) {
-    int l1 = while_label_pos;
     int l2 = definitions->index;
 
     if (destination->index + 2 + l2 >= destination->real) {
@@ -1147,14 +1146,12 @@ int insert_definitions(string_t *destination, string_t *definitions) {
     for (unsigned i = destination->index; i >= while_label_pos; i--) {
         destination->array[i + l2] = destination->array[i];
     }
-    //string_append(destination, definitions->array);
 
-    for (int i = while_label_pos; i < while_label_pos + l2; i++) {
+    for (unsigned i = while_label_pos; i < while_label_pos + l2; i++) {
         destination->array[i] = definitions->array[i - while_label_pos];
     }
-    destination->index = strlen(destination->array);
 
-    //strcpy(destination->array + while_label_pos, definitions->array);
+    destination->index = strlen(destination->array);
 
     return 0;
 }
