@@ -331,8 +331,8 @@ int get_token(token_t* token){
                 else if (c == '\n') {
                     string_append(token_string, "\\010");
                 }
-                else if (c == '\n') {
-                    string_append(token_string, "\\010");
+                else if (c == '#') {
+                    string_append(token_string, "\\035");
                 }
                 else if (c == 11) {
                     string_append(token_string, "\\011");
@@ -602,6 +602,9 @@ int get_token(token_t* token){
                 }
                 else if (c == '\t') {
                     string_append(token_string, "\\009");
+                }
+                else if (c == '#') {
+                    string_append(token_string, "\\035");
                 }
                 else if(c == '\n' || c == EOF){
                     ungetc(c, stdin);
