@@ -337,31 +337,31 @@ int psa(const char* assignmentID){
             freePsaResources(&infixArr, &postfix, s);
             return SUCCESS;
         case ERROR_SEM_DEFINITION:
-            printf("%d\n",precAnalysis);
+            fprintf(stderr, "%d\n",precAnalysis);
             unget_token();
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
             return ERROR_SEM_DEFINITION;
         case ERROR_SEM_TYPE:
-            printf("%d\n",precAnalysis);
+            fprintf(stderr, "%d\n",precAnalysis);
             unget_token();
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
             return ERROR_SEM_TYPE;
         case ERROR_DIV_ZERO:
-            printf("%d\n",precAnalysis);
+            fprintf(stderr, "%d\n",precAnalysis);
             unget_token();
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
             return ERROR_DIV_ZERO;
         case ERROR_SEM_OTHER:
-            printf("%d\n",precAnalysis);
+            fprintf(stderr, "%d\n",precAnalysis);
             unget_token();
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
             return ERROR_SEM_OTHER;
         default:
-            printf("%d\n",precAnalysis);
+            fprintf(stderr, "%d\n",precAnalysis);
             unget_token();
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);

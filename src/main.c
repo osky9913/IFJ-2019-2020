@@ -5,7 +5,6 @@
  */
 
 #include "parser.h"
-#include "errors.h"
 
 int main(void) {
     init_resources();
@@ -17,31 +16,31 @@ int main(void) {
             break;
 
         case ERROR_SYNTAX:
-            printf("syntax is incorrect\n");
+            fprintf(stderr, "syntax is incorrect\n");
             break;
             
         case ERROR_SEM_DEFINITION:
-            printf("semantic error - undefined symbol\n");
+            fprintf(stderr, "semantic error - undefined symbol\n");
             break;
 
         case ERROR_SEM_TYPE:
-            printf("semantic error - invalid operand types\n");
+            fprintf(stderr, "semantic error - invalid operand types\n");
             break;
 
         case ERROR_SEM_PARAM_COUNT:
-            printf("semantic error - invalid function parameter count\n");
+            fprintf(stderr, "semantic error - invalid function parameter count\n");
             break;
 
         case ERROR_SEM_OTHER:
-            printf("semantic error - other\n");
+            fprintf(stderr, "semantic error - other\n");
             break;
 
         case ERROR_DIV_ZERO:
-            printf("error - division by zero\n");
+            fprintf(stderr, "error - division by zero\n");
             break;
 
         default:
-            printf("other error\n");
+            fprintf(stderr, "other error\n");
             break;
 
     }

@@ -66,6 +66,7 @@ void declaration_variable(token_t *variable);
 
 void free_finals_string();
 
+int insert_definitions(string_t *destination, string_t *definitions);
 
 void end_program();
 #endif //GENERATE_H

@@ -29,6 +29,7 @@ ADDS/SUBS/MULS/DIVS/IDIVS
 string_t *output_code;
 string_t *function_definitions;
 string_t *errors;
+string_t *defvars;
 
 int uniq = 1;
 int uniq_param_call = 1;
@@ -39,10 +40,14 @@ int uniq_while_label = 1;
 int uniq_if_label = 1;
 int uniq_concat_label = 1;
 
+int while_label_cnt = 0;
+unsigned while_label_pos = 0;
+
 void start_program() {
     output_code = string_create_init();
     function_definitions = string_create_init();
     errors = string_create_init();
+    defvars = string_create_init();
 
     string_append(errors, "EXIT int@0\n");
     string_append(errors, "LABEL %error_label_semantic\n");
@@ -286,6 +291,7 @@ string_t* define_uniq_variable(string_t *output_string, int *uniq_temp, char *na
     else {
         create_unic_variable(variable, uniq_temp, "var");
     }
+
     string_append(output_string, "DEFVAR ");
     printing_frame_to_variable(output_string);
     string_append(output_string, variable->array);
@@ -328,16 +334,23 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     } else {
         switching_output = output_code;
     }
-    string_t *result = define_uniq_variable(switching_output, &uniq, "result");
+    
+    string_t *switching_output_definitions;
+    if (while_label_cnt > 0)
+        switching_output_definitions = defvars;
+    else
+        switching_output_definitions = switching_output;
+
+    string_t *result = define_uniq_variable(switching_output_definitions, &uniq, "result");
     //string which will store result of current operation (DEFVAR result)
     //string which will store first operand (DEFVAR operand1)
-    string_t *variable1 = define_uniq_variable(switching_output, &uniq, "var");
+    string_t *variable1 = define_uniq_variable(switching_output_definitions, &uniq, "var");
     //string which will store second operand (DEFVAR operand1)
-    string_t *variable2 = define_uniq_variable(switching_output, &uniq, "var");
+    string_t *variable2 = define_uniq_variable(switching_output_definitions, &uniq, "var");
     //string used as temporary storing place in operator >= or <=
-    string_t *result_eq_1 = define_uniq_variable(switching_output, &uniq,"tmp_result");
+    string_t *result_eq_1 = define_uniq_variable(switching_output_definitions, &uniq,"tmp_result");
     //string used as temporary storing place in operator >= or <=
-    string_t *result_eq_2 = define_uniq_variable(switching_output, &uniq, "tmp_result");
+    string_t *result_eq_2 = define_uniq_variable(switching_output_definitions, &uniq, "tmp_result");
     //string used as label for the end of expression evaluation
     string_t *end_of_expression = string_create_init();
     create_unic_label(end_of_expression, &uniq, "%end_expression_label");
@@ -437,6 +450,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
         case TTYPE_DIV:
             check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
             check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
+            string_append(label_int_dodge, " ");
             check_if_op_type_eq(switching_output, variable1->array, "string@float", label_int_dodge->array);
 
             string_append(switching_output, "JUMPIFEQ ");
@@ -461,7 +475,15 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output, "IDIV ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
-        default:
+       case TTYPE_ISNEQ:
+            string_append(switching_output, "EQ ");
+            adding_operands(switching_output, result_eq_1, operand1, operand2);
+            string_append(switching_output, "EQ ");
+            print_variable_from_string(switching_output,result->array);
+            print_variable_from_string(switching_output,result_eq_1->array);
+            print_variable_from_string(switching_output," bool@false");
+            break;
+       default:
             printf("%s THERE IS A PROBLEM\n", output_code->array);
 
     }
@@ -651,14 +673,23 @@ void generate_function_end() {
 
 void generate_while_lable() {
     string_t *switching_output;
+
+    while_label_cnt++;
+
     if (in_function) {
         switching_output = function_definitions;
     } else {
         switching_output = output_code;
     }
+
     string_t *while_beginning_label = string_create_init();
     create_unic_label(while_beginning_label, &uniq_while_label, "%while_beginning_label");
     string_append(switching_output, "\n#while cycle\n");
+
+    if (while_label_cnt == 1) {
+        while_label_pos = switching_output->index;
+    }
+
     string_append(switching_output, "LABEL ");
     string_append(switching_output, while_beginning_label->array);
     string_append(switching_output, "\n");
@@ -676,7 +707,13 @@ void generate_while(token_t *expression) {
         switching_output = output_code;
     }
 
-    string_t *while_expression = define_uniq_variable(switching_output, &uniq_expression, "%while_expression");
+    string_t *switching_output_definitions;
+    if (while_label_cnt > 0)
+        switching_output_definitions = defvars;
+    else
+        switching_output_definitions = switching_output;
+
+    string_t *while_expression = define_uniq_variable(switching_output_definitions, &uniq_expression, "%while_expression");
 
     string_append(switching_output, "MOVE ");
     print_variable_from_string(switching_output, while_expression->array);
@@ -702,7 +739,7 @@ void generate_while(token_t *expression) {
     create_unic_label(while_end_label, &uniq_while_label, "%while_end_label");
 
     //variable which will store type of passed expression
-    string_t *id_type = define_uniq_variable(switching_output, &uniq_expression, "%while_check_type");
+    string_t *id_type = define_uniq_variable(switching_output_definitions, &uniq_expression, "%while_check_type");
 
     //get type of passed expression and store the type in string id_type
     get_type_variable(id_type, switching_output, expression);
@@ -821,6 +858,16 @@ void generate_while_end() {
     //increase the label uniq variable, so that in next while are going to be different labels
     uniq_while_label += 1;
 
+    if (while_label_cnt == 1) {
+        if (insert_definitions(switching_output, defvars)) {
+            //return 99;
+            exit(99);
+        }
+        string_clear(defvars);
+        while_label_pos = 0;
+    }
+    while_label_cnt--;
+
     string_free(while_end_label);
     string_free(while_beginning_label);
 }
@@ -832,8 +879,15 @@ void generate_if(token_t *expression) {
     } else {
         switching_output = output_code;
     }
+
+    string_t *switching_output_definitions;
+    if (while_label_cnt > 0)
+        switching_output_definitions = defvars;
+    else
+        switching_output_definitions = switching_output;
+
     //DEFVAR if_expression
-    string_t *if_expression = define_uniq_variable( switching_output, &uniq_expression, "%if_expression");
+    string_t *if_expression = define_uniq_variable( switching_output_definitions, &uniq_expression, "%if_expression");
 
     //uniq label for int comparison
     string_t *if_int_label = string_create_init();
@@ -864,7 +918,7 @@ void generate_if(token_t *expression) {
     printing_token_to_frame(switching_output, expression);
     string_append(switching_output, "\n");
 
-    string_t *id_type = define_uniq_variable(switching_output, &uniq_expression, "%if_check_type");
+    string_t *id_type = define_uniq_variable(switching_output_definitions, &uniq_expression, "%if_check_type");
     //get type of passed parameter
     get_type_variable(id_type, switching_output, expression);
 
@@ -1031,15 +1085,6 @@ void generate_assign_retvalue(const char *dest) {
     string_append(switching_output, "\n");
 }
 
-
-
-
-
-
-
-
-
-
 void generate_assign(const char *destination, token_t *content) {
     string_t *switching_output;
     if (in_function) {
@@ -1056,10 +1101,14 @@ void generate_assign(const char *destination, token_t *content) {
 
 void declaration_variable(token_t *variable) {
     string_t *switching_output;
-    if (in_function) {
-        switching_output = function_definitions;
+    if (while_label_cnt > 0) {
+        switching_output = defvars;
     } else {
-        switching_output = output_code;
+        if (in_function) {
+            switching_output = function_definitions;
+        } else {
+            switching_output = output_code;
+        }
     }
 
     string_append(switching_output, "DEFVAR ");
@@ -1071,7 +1120,7 @@ void free_finals_string() {
     string_free(output_code);
     string_free(errors);
     string_free(function_definitions);
-
+    string_free(defvars);
 }
 
 
@@ -1079,8 +1128,35 @@ void end_program() {
     string_append(function_definitions, output_code->array);
     string_append(function_definitions, errors->array);
     printf("%s", function_definitions->array);
-
 }
 
+int insert_definitions(string_t *destination, string_t *definitions) {
+    int l1 = while_label_pos;
+    int l2 = definitions->index;
+
+    if (destination->index + 2 + l2 >= destination->real) {
+        destination->real = (destination->real + 2 + l2) * 2;
+        char *tmp = realloc(destination->array, destination->real);
+        if (!tmp) {
+            fprintf(stderr, "String ERROR: Could not append char to string.\n");
+            return 99;
+        }
+        destination->array = tmp;
+    }
+
+    for (unsigned i = destination->index; i >= while_label_pos; i--) {
+        destination->array[i + l2] = destination->array[i];
+    }
+    //string_append(destination, definitions->array);
+
+    for (int i = while_label_pos; i < while_label_pos + l2; i++) {
+        destination->array[i] = definitions->array[i - while_label_pos];
+    }
+    destination->index = strlen(destination->array);
+
+    //strcpy(destination->array + while_label_pos, definitions->array);
+
+    return 0;
+}
 
 //symtable search -> attributs function attributy param count
