@@ -260,7 +260,7 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
             string_append(frame, "string@nil");
             break;
         default:
-            printf("There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR/NONE\n");
+            fprintf(stderr, "There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR/NONE\n");
     }
 }
 
@@ -485,7 +485,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output,"bool@false\n");
             break;
        default:
-            printf("%s THERE IS A PROBLEM\n", output_code->array);
+            fprintf(stderr, "%s THERE IS A PROBLEM\n", output_code->array);
 
     }
     string_append(switching_output, "LABEL ");
@@ -587,7 +587,10 @@ void generate_print(const char* label){
         string_append(function_definitions, "LABEL ");
         string_append(function_definitions, process_next_param->array);
         string_append(function_definitions, "\n");
-        string_append(function_definitions, "WRITE string@\\032\n");
+
+        /* Ensures there is no space after the last param*/
+        if (i < uniq_param_call - 1)
+            string_append(function_definitions, "WRITE string@\\032\n");
     }
     //printing \n after printing all parameters
     string_append(function_definitions, "WRITE string@\\010\n");
@@ -1153,7 +1156,6 @@ int insert_definitions(string_t *destination, string_t *definitions) {
     }
 
     destination->index = strlen(destination->array);
-
     return 0;
 }
 
