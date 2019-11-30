@@ -257,7 +257,7 @@ void printing_token_to_frame(string_t *frame, token_t *operand) {
             string_append(frame, operand->attribute.string);
             break;
         case TTYPE_NONE:
-            string_append(frame, "string@nil");
+            string_append(frame, "nil@nil");
             break;
         default:
             fprintf(stderr, "There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR/NONE\n");
