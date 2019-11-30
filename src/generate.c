@@ -481,7 +481,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output, "EQ ");
             print_variable_from_string(switching_output,result->array);
             print_variable_from_string(switching_output,result_eq_1->array);
-            print_variable_from_string(switching_output," bool@false");
+            string_append(switching_output,"bool@false\n");
             break;
        default:
             printf("%s THERE IS A PROBLEM\n", output_code->array);
