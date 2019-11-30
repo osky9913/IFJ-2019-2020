@@ -319,6 +319,7 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
     // @todo error label
     string_append(frame, "JUMPIFEQ ");
     string_append(frame, label);
+    string_append(frame, " ");
     print_variable_from_string(frame, variable_type);
     string_append(frame, type);
     string_append(frame, "\n");
@@ -356,8 +357,8 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     create_unic_label(end_of_expression, &uniq, "%end_expression_label");
     string_t *concatenation_label = string_create_init();
     create_unic_label(concatenation_label, &uniq_concat_label, "%concatenation");
-    string_t *label_int_dodge= string_create_init();
-    create_unic_label(label_int_dodge, &uniq_concat_label, "%label_float_dodge");
+    string_t *label_int_dodge = string_create_init();
+    create_unic_label(label_int_dodge, &uniq, "%label_float_dodge");
 
     string_append(switching_output, "\n#evaluating expression\n");
 
@@ -419,7 +420,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_ADD:
-            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic");
             string_append(switching_output, "JUMPIFEQ ");
             string_append(switching_output, concatenation_label->array);
             string_append(switching_output, " ");
@@ -433,24 +434,23 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output, concatenation_label->array);
             string_append(switching_output, "\nCONCAT ");
             adding_operands(switching_output, result, operand1, operand2);
-            uniq_expression +=1;
+            uniq_concat_label +=1;
             break;
         case TTYPE_SUB:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
-            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic");
             string_append(switching_output, "SUB ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_MUL:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
-            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic");
             string_append(switching_output, "MUL ");
             adding_operands(switching_output, result, operand1, operand2);
             break;
         case TTYPE_DIV:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
-            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
-            string_append(label_int_dodge, " ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic");
             check_if_op_type_eq(switching_output, variable1->array, "string@float", label_int_dodge->array);
 
             string_append(switching_output, "JUMPIFEQ ");
@@ -468,9 +468,9 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output," float@0x0.0p+0\n");
             break;
         case TTYPE_IDIV:
-            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic ");
-            check_if_op_type_eq(switching_output, variable1->array, "string@float", "%error_label_semantic ");
-            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic ");
+            check_if_op_type_eq(switching_output, variable1->array, "string@string", "%error_label_semantic");
+            check_if_op_type_eq(switching_output, variable1->array, "string@float", "%error_label_semantic");
+            check_if_op_type_eq(switching_output, variable1->array, "string@bool", "%error_label_semantic");
 
             string_append(switching_output, "IDIV ");
             adding_operands(switching_output, result, operand1, operand2);
