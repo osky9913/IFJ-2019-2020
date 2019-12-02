@@ -53,7 +53,7 @@ void free_resources() {
 }
 
 int r_program() {
-    int retvalue = 0;
+    int retvalue = ERROR_SYNTAX;
     next_token(false);
 
     switch (curr_token.type) {
@@ -76,12 +76,15 @@ int r_program() {
                     break;
 
                 case KEY_RETURN:
-                    fprintf(stderr, "Line %d - ERROR_SYNTAX 'return' in r_program.\n",
+                    fprintf(stderr, "Line %d - Syntax error: 'return' in r_program.\n",
                             line_counter);
                     retvalue = ERROR_SYNTAX;
                     break;
 
                 default:
+                    fprintf(stderr, "Line %d - Syntax error: unexpected keyword.\n",
+                            line_counter);
+                    retvalue = ERROR_SYNTAX;
                     break;
             }
             break;
