@@ -11,7 +11,6 @@ int main(void) {
     int retvalue;
     switch(retvalue = r_program()) {
         case SUCCESS:
-            //printf("program is correct\n");
             end_program();
             break;
 
@@ -45,5 +44,5 @@ int main(void) {
 
     }
     free_resources();
-    return 0;
+    return retvalue;
 }
