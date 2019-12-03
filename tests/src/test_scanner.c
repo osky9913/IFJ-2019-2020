@@ -96,10 +96,10 @@ int main() {
             printf("<EOF> ");
         }
         if (token.type == TTYPE_DOUBLE) {
-            printf("<NUM |%f|> ", token.attribute.decimal);
+            printf("<NUM |%s|> ", token.attribute.string);
         }
         if (token.type == TTYPE_INT) {
-            printf("<NUM |%ld| >", token.attribute.integer);
+            printf("<NUM |%s| >", token.attribute.string);
         }
         result = get_token(&token);
 

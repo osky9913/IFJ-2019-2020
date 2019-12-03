@@ -70,8 +70,6 @@ typedef enum {
  * @brief This union represents token's attributes.
  */
 typedef union {
-    long integer;
-    double decimal;
     char* string;
     keyword_t keyword;
 } attribute_t;
@@ -96,12 +94,15 @@ int calculate_dent(int* c);
  */
 int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t* token_string);
 
+
 /**
  * @brief converts hexadecimal number from escape sequence to decimal number
  * @param f       [source file]
  * @param token_string [token's string attribute]
  */
+/*
 void hexa_escape(string_t* Tstring);
+*/
 
 /**
  * @brief Generates DEDENT tokens until dedent is equal to indent on top of stack
