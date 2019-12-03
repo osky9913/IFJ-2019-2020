@@ -96,10 +96,10 @@ int main() {
             printf("<EOF> ");
         }
         if (token.type == TTYPE_DOUBLE) {
-            printf("<FLOAT |%s|> ", token.attribute.string);
+            printf("<NUM |%s|> ", token.attribute.string);
         }
         if (token.type == TTYPE_INT) {
-            printf("<INT |%s| >", token.attribute.string);
+            printf("<NUM |%s| >", token.attribute.string);
         }
         result = get_token(&token);
 
