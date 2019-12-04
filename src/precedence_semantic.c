@@ -49,9 +49,7 @@ int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
     token_t* tmpToken = &arrayToCopy->arr[arrayToCopy->currLen];
     tmpToken->type = originalToken->type;
 
-    //if string allocation is need - based on token type
-    if (originalToken->type == TTYPE_STR || originalToken->type == TTYPE_ID){
-        
+
         //get length of string which will be copied
         unsigned long length = strlen(originalToken->attribute.string);
         //make room for zero at the end
@@ -65,15 +63,7 @@ int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
         
         //copy string from given token to the new one
         strcpy(tmpToken->attribute.string, originalToken->attribute.string);
-    }
-    //integer
-    else if (originalToken->type == TTYPE_INT){
-        tmpToken->attribute.integer = originalToken->attribute.integer;
-    }
-    //float
-    else if(originalToken->type == TTYPE_DOUBLE) {
-        tmpToken->attribute.decimal = originalToken->attribute.decimal;
-    }
+
     //increment current number of tokens in array as current length
     arrayToCopy->currLen++;
     return SUCCESS;
@@ -122,10 +112,10 @@ void printArray(t_array* toPrint){
                 printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_INT:
-                printf("%ld", toPrint->arr[i].attribute.integer);
+                printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_DOUBLE:
-                printf("%f", toPrint->arr[i].attribute.decimal);
+                printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_ADD:
                 printf("+");
@@ -450,6 +440,10 @@ int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
 }
 
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
+    int checkInt = 1;
+    if(operand1->type == TTYPE_INT){
+        sscanf( operand1->attribute.string, "%d", &checkInt );
+    }
     if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE)){
         if(isOperator(operator)){
             if(operator->type == TTYPE_IDIV){
@@ -457,12 +451,13 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
                     fprintf(stderr, "Line %d - IDIV with floating points\n", line_counter);
                     return ERROR_SEM_TYPE;
                 }
-                else if(operand1->attribute.integer == 0){
+                else if(checkInt == 0){
                     fprintf(stderr, "Line %d - Division by zero.\n", line_counter);
                     return ERROR_DIV_ZERO;
                 }
                 return SUCCESS;
             }
+            /*
             if(operator->type == TTYPE_DIV) {
                 if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
                     fprintf(stderr, "Line %d - Division by zero\n", line_counter);
@@ -470,6 +465,7 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
                 }
                 return SUCCESS;
             }
+             */
         }
         else{
             fprintf(stderr, "Line %d - Expected operator is not a valid operator.\n",
