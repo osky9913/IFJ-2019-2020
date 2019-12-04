@@ -18,17 +18,17 @@ typedef struct generate_strings_output{
 
 // structure for iterating/generating uniq variables/labels id 
 typedef struct uniq_id{
-    size_t general ;
-    size_t param_call ;
-    size_t param_def ;
-    size_t expression ;
-    size_t general_label ;
-    size_t while_label ;
-    size_t if_label ;
-    size_t concat_label ;
-    size_t while_label_cnt ;
-    size_t while_label_pos ;
-    size_t label;
+    int general ;
+    int param_call ;
+    int param_def ;
+    int expression ;
+    int general_label ;
+    int  while_label ;
+    int  if_label ;
+    int  concat_label ;
+    int  while_label_cnt ;
+    int  while_label_pos ;
+    int  label;
 } uniq_id_t;
 
 // for every string in generate strings output call string_init
@@ -40,6 +40,7 @@ int generate_strings_input_init();
 */
 int start_program();
 
+string_t * switch_definitions_frame();
 
 // function for  ending generating program ,it will print assembly code 
 void end_program();
@@ -70,6 +71,7 @@ string_t * switch_definitions_frame();
 char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2);
 
 
+
 // is adding CREATEFRAME to the code
 void generate_create_frame();
 
@@ -97,7 +99,7 @@ void generate_call_param(token_t *id);
 
 void generate_while(token_t * expression);
 
-void generate_while_label(token_t *expression);
+void generate_while_label();
 
 void generate_while_end();
 
