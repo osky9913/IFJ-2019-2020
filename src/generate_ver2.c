@@ -265,8 +265,18 @@ void append_string_operands_to_assembly(string_t *frame, string_t *result, strin
 }
 
 
-
-
+void generate_jump(string_t * frame,const char * jump_instruction , const char * destination_label ){
+    string_append(frame,jump_instruction);
+    string_append(frame," ");
+    string_append(frame,destination_label);
+    string_append(frame,"\n");
+}
+void generate_label(string_t * frame,const char * label){
+    string_append(frame,"LABEL");
+    string_append(frame," ");
+    string_append(frame,label);
+    string_append(frame,"\n");
+}
 
 string_t* define_uniq_variable(string_t *frame, size_t *uniq, char *name){
     
@@ -438,8 +448,8 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             // + float or int
             string_append(switching_output, "ADD");
             append_token_operands_to_assembly(switching_output, result, operand1, operand2);
-            string_append(switching_output, "JUMP ");
-            string_append(switching_output, end_of_expression->array);
+            generate_jump(switching_output,"JUMP",end_of_expression->array);
+
 
             // Label Concat
             string_append(switching_output, "\nLABEL ");
@@ -511,8 +521,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
 
             //float label
-            string_append(switching_output, "LABEL ");
-            string_append(switching_output, label_int_dodge->array);
+            generate_label(switching_output,label_int_dodge->array);
 
             //delenie nulou pre float
             string_append(switching_output, "\nJUMPIFEQ ");
@@ -549,9 +558,8 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     //--------------------------------------------------------vykonavanie expression-------------------------------------------------------------
 
 
-    string_append(switching_output, "LABEL ");
-    string_append(switching_output, end_of_expression->array);
-    string_append(switching_output, "\n");
+    generate_label(switching_output,end_of_expression->array);
+
     char *final_result = string_copy_data(result);
     string_free(label_int_dodge);
     string_free(end_of_expression);
@@ -578,9 +586,11 @@ void generate_create_frame(){
 void generate_function(token_t *id){
 
     //------------------------ generovanie definicie-----------------------------
-    string_append(assembly_code.function_definitions, "\n\nLABEL !");
+    string_append(assembly_code.function_definitions, "\n\nLABEL !"); // can't use generate label because !
     string_append(assembly_code.function_definitions, id->attribute.string);
     string_append(assembly_code.function_definitions, "\n");
+
+
     string_append(assembly_code.function_definitions, "PUSHFRAME\n");
     string_append(assembly_code.function_definitions, "DEFVAR LF@%%return_value\n");
 
@@ -589,6 +599,7 @@ void generate_function(token_t *id){
 void generate_print(const char* label){
 
     //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token ? WHAT?
+    //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token
     string_append(assembly_code.function_definitions, "\nLABEL !");
     string_append(assembly_code.function_definitions, label);
     string_append(assembly_code.function_definitions, "\n");
@@ -703,7 +714,16 @@ void generate_call_function(const char *id){
 };
 
 
-void generate_jump_string_char(string_t * frame , const char * jump , string_t * label , string_t * variable, const char * type )
+void generate_jumpeq_string_char(string_t * frame , const char * jump , string_t * label , string_t * variable, const char * type ){
+    string_append(frame, jump);
+    string_append(frame, " ");
+    string_append(frame, label->array);
+    append_string_variable_to_assembly(frame,variable->array);
+    string_append(frame, " ");
+    string_append(frame, type);
+    string_append(frame, "\n");
+
+}
 
 
 
@@ -758,7 +778,7 @@ void generate_call_param(token_t *id){
 
 
 
-void generate_while_lable(token_t * expression){
+void generate_while(token_t * expression){
 // ?
     string_t * switching_output = switch_frame();
 
@@ -799,51 +819,32 @@ void generate_while_lable(token_t * expression){
 
     string_append(switching_output, "\n#comparing if while expression is false/zero\n");
     //if its int jump to int comparison
-    string_append(switching_output, "JUMPIFEQ ");
-    string_append(switching_output, while_int_label->array);
-    append_string_variable_to_assembly(switching_output,id_type->array);
-    string_append(switching_output, " string@int\n");
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",while_int_label,id_type,"string@int");
 
     //if its float jump to float comparison
-    string_append(switching_output, "JUMPIFEQ ");
-    string_append(switching_output, while_float_label->array);
-
-    append_string_variable_to_assembly(switching_output,id_type->array);
-    string_append(switching_output, " string@float\n");
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",while_float_label,id_type,"string@float");
 
     //JUMPIFEQ bool_label id_type string@bool
-    string_append(switching_output, "JUMPIFEQ ");
-    string_append(switching_output, while_bool_label->array);
-
-    append_string_variable_to_assembly(switching_output,id_type->array);
-    string_append(switching_output, " string@bool\n");
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",while_bool_label,id_type,"string@bool");
 
     //while (string) or while (None) -> while end
-    string_append(switching_output, "JUMP ");
-    string_append(switching_output, while_end_label->array);
-    string_append(switching_output, "\n");
 
-    //id_type was bool, now we compare if expression is false
-    string_append(switching_output, "LABEL ");
-    string_append(switching_output, while_bool_label->array);
-    string_append(switching_output, "\n");
+    generate_jump(switching_output,"JUMP",while_end_label->array);
+
+
+    //id_type was bool, now we compare if expression is false, first we generate bool label
+
+    generate_label(switching_output,while_bool_label->array);
 
     //JUMPIFEQ @todo_while_end_label expression bool@false
-    string_append(switching_output, "JUMPIFEQ ");
-    string_append(switching_output, while_end_label->array);
-    append_string_variable_to_assembly(switching_output,while_expression->array);
-    string_append(switching_output, " bool@false\n");
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",while_end_label,while_expression,"bool@false");
 
 
-
-    string_append(switching_output, "JUMP ");
-    string_append(switching_output, while_body_label->array);
-    string_append(switching_output, "\n");
+    generate_jump(switching_output,"JUMP",while_body_label->array);
 
     //id_type was int, now we compare if expression is zero
-    string_append(switching_output, "LABEL ");
-    string_append(switching_output, while_int_label->array);
-    string_append(switching_output, "\n");
+
+    generate_label(switching_output,while_int_label->array);
 
     //JUMPIFEQ @todo_while_end_label expression int@0
     string_append(switching_output, "JUMPIFEQ ");
@@ -852,27 +853,17 @@ void generate_while_lable(token_t * expression){
     string_append(switching_output, " int@0\n");
 
 
-    string_append(switching_output, "JUMP ");
-    string_append(switching_output, while_body_label->array);
-    string_append(switching_output, "\n");
+    generate_jump(switching_output,"JUMP",while_body_label->array);
 
     //id_type was float, now we compare if expression is zero
-    string_append(switching_output, "LABEL ");
-    string_append(switching_output, while_float_label->array);
-    string_append(switching_output, "\n");
+    generate_label(switching_output,while_float_label->array);
 
     //JUMPIFEQ @todo_while_end_label expression float@0x0.0p+0
-    string_append(switching_output, "JUMPIFEQ ");
-    string_append(switching_output, while_end_label->array);
-    append_string_variable_to_assembly(switching_output,while_expression->array);
-    string_append(switching_output, " float@0x0.0p+0\n");
 
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",while_end_label,while_expression,"float@0x0.0p+0");
     string_append(switching_output, "\n#body of while\n");
 
-
-    string_append(switching_output, "LABEL ");
-    string_append(switching_output, while_body_label->array);
-    string_append(switching_output, "\n");
+    generate_label(switching_output,while_body_label->array);
 
     string_free(id_type);
     string_free(while_expression);
@@ -881,41 +872,257 @@ void generate_while_lable(token_t * expression){
     string_free(while_bool_label);
     string_free(while_body_label);
     string_free(while_end_label);
+};// check labels
+
+void generate_while_label(token_t *expression){
+    string_t *switching_output = switch_frame();
+
+    identificator.while_label_cnt++;
+
+
+    string_t *while_beginning_label = string_create_init();
+    create_unic_label(while_beginning_label, &identificator.while_label, "%while_beginning_label");
+    string_append(switching_output, "\n#while cycle\n");
+
+    if (identificator.while_label_cnt == 1) {
+        identificator.while_label_pos = switching_output->index;
+    }
+
+
+    generate_label(switching_output,while_beginning_label->array);
+    //free string
+    string_free(while_beginning_label);
+}
+
+void generate_while_end(){
+    string_t *switching_output = switch_frame();
+    string_t *while_end_label = string_create_init();
+    string_t *while_beginning_label = string_create_init();
+
+    //while end label and beginning label has to be the same as in generate_while
+    create_unic_label(while_end_label, &identificator.while_label, "%while_end_label");
+    create_unic_label(while_beginning_label, &identificator.while_label, "%while_beginning_label");
+
+
+    generate_jump(switching_output,"JUMP",while_beginning_label->array);
+
+    string_append(switching_output, "\n#end of while cycle\n");
+
+    // generating label for while end label
+    generate_label(switching_output,while_end_label->array);
+
+    //increase the label uniq variable, so that in next while are going to be different labels
+    identificator.while_label += 1;
+
+
+
+    /* mystery
+    if (identificator.while_label_cnt == 1) {
+        if (insert_definitions(switching_output, defvars)) {
+            //return 99;
+            exit(99);
+        }
+        string_clear(defvars);
+        while_label_pos = 0;
+    }
+    while_label_cnt--;
+    */
+    string_free(while_end_label);
+    string_free(while_beginning_label);
+
+
 };
 
-void generate_while(token_t *expression){
+void generate_if(token_t *expression){
+    string_t *switching_output = switch_frame();
 
-    return;
-}
+    string_t *switching_output_definitions = switch_definitions_frame();
 
-void generate_while_end(){return;};
+    //DEFVAR if_expression
+    string_t *if_expression = define_uniq_variable( switching_output_definitions, &identificator.expression, "%if_expression");
 
-void generate_if(token_t *expression){return;};
+    //uniq label for int comparison
+    string_t *if_int_label = string_create_init();
+    //uniq label for float comparison
+    string_t *if_float_label = string_create_init();
+    //uniq label for bool comparison
+    string_t *if_bool_label = string_create_init();
+    //uniq label used to jump to else body
+    string_t *else_body_label = string_create_init();
+    //uniq label used to jump to if body
+    string_t *if_body_label = string_create_init();
 
-void generate_else(){return;};
+    string_append(switching_output, "\n#if else statement\n");
+    //uniq label for int comparison
+    create_unic_label(if_int_label, &identificator.if_label, "%if_int_label");
+    //uniq label for float comparison
+    create_unic_label(if_float_label, &identificator.if_label, "%if_float_label");
+    //uniq label for bool comparison
+    create_unic_label(if_bool_label, &identificator.if_label, "%if_bool_label");
+    //uniq label for jumping to the body of while cycle
+    create_unic_label(else_body_label, &identificator.if_label, "%else_body_label");
+    //uniq label for jumping at the end of the cycle
+    create_unic_label(if_body_label, &identificator.if_label, "%if_body_label");
+
+    string_append(switching_output, "MOVE");
+    append_string_variable_to_assembly(switching_output, if_expression->array);
+    append_token_variable_to_assembly(switching_output, expression);
+    string_append(switching_output, "\n");
+
+    string_t *id_type = define_uniq_variable(switching_output_definitions, &identificator.expression, "%if_check_type");
+    //get type of passed parameter
+    get_type_variable(id_type, switching_output, expression);
+
+
+    string_append(switching_output, "\n#checking if expression in if statement is false\n");
+    //JUMPIFEQ int_label id_type string@int
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ", if_int_label,id_type, "string@int");
+
+    //JUMPIFEQ float_label id_type string@float
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ", if_float_label,id_type, "string@float");
+
+    //JUMPIFEQ bool_label id_type string@bool
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ", if_bool_label,id_type, "string@bool");
+
+    //if (string) or if (None) -> jump to else
+    generate_jump(switching_output,"JUMP",else_body_label->array);
+
+
+    //id_type was bool, now we compare if expression is false
+    generate_label(switching_output,if_bool_label->array);
+
+    //JUMPIFEQ @else_label if expression == bool@false
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ", else_body_label, if_expression , "bool@false");
+
+    generate_jump(switching_output,"JUMP",if_body_label->array);
+
+    //id_type was int, now we compare if expression is zero
+    generate_label(switching_output,if_int_label->array);
+
+    //if expression is equal to zero jump to else body
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",else_body_label,if_expression,"int@0");
+
+
+    //expression wasnt zero jump to if body
+    generate_jump(switching_output,"JUMP",if_body_label->array );
+
+    //id_type was float, now we compare if expression is zero
+    generate_label(switching_output,if_float_label->array);
+
+    //if expression is equal to zero jump to else body
+    generate_jumpeq_string_char(switching_output,"JUMPIFEQ",else_body_label,if_expression,"float@0x0.0p+0");
+
+    //expression was evaluated as true, continue in if
+    generate_label(switching_output,if_body_label->array);
+
+    string_append(switching_output, "\n#in if statement\n");
+
+    string_free(id_type);
+    string_free(if_expression);
+    string_free(if_int_label);
+    string_free(if_float_label);
+    string_free(if_bool_label);
+    string_free(else_body_label);
+    string_free(if_body_label);
+
+
+
+};
+
+void generate_else(){
+    string_t *switching_output = switch_frame();
+
+    string_t *else_body_label = string_create_init();
+    //uniq label for else if
+    string_t *else_if_end_label = string_create_init();
+    create_unic_label(else_if_end_label, &identificator.if_label, "%else_if_end_label");
+    //uniq label for jumping to the body of else
+    create_unic_label(else_body_label, &identificator.if_label, "%else_body_label");
+
+    generate_jump(switching_output,"JUMP",else_if_end_label->array);
+
+
+    string_append(switching_output, "\n#in else body\n");
+    generate_label(switching_output,else_body_label->array);
+
+    //uniq for if labels will be set to one
+    string_free(else_body_label);
+    string_free(else_if_end_label);
+
+
+
+};
 
 void generate_elseif_end(){
-    return;
+    string_t *switching_output =switch_frame();
+
+    //else if end label
+    string_t *else_if_end_label = string_create_init();
+    create_unic_label(else_if_end_label, &identificator.if_label, "%else_if_end_label");
+
+    generate_label(switching_output,else_if_end_label->array);
+
+    identificator.if_label+=1;
+    string_free(else_if_end_label);
+
+
+
 }
 
-void generate_assign_to_retvalue(const char *dest){return;};
-void generate_assign_retvalue(const char *dest){return;};
+void generate_assign_to_retvalue(const char *return_result){
+    string_t *switching_output =switch_frame();
+    // move tf@x
+    string_append(switching_output, "MOVE TF@%%return_value ");
+
+    //move tf@x from
+    append_frame_to_variable(switching_output);
+    string_append(switching_output, return_result);
+    string_append(switching_output, "\n");
+
+
+};
+
+
+void generate_assign_retvalue(const char *dest){
+    string_t *switching_output = switch_frame();
+    string_append(switching_output, "MOVE");
+
+    append_string_variable_to_assembly(switching_output,dest);
+    string_append(switching_output, " TF@%%return_value");
+    string_append(switching_output, "\n");
+};
 
 
 void generate_assign(const char *destination, token_t *content){
-    return;
+    string_t *switching_output = switch_frame();
+
+    string_append(switching_output, "MOVE");
+
+    append_string_variable_to_assembly(switching_output, destination);
+    append_token_variable_to_assembly(switching_output, content);
+    string_append(switching_output, "\n");
+
+
 };
 
 void declaration_variable(token_t *variable){
-    return;
+
+    string_t *switching_output = switch_frame();
+
+    /*
+    if (while_label_cnt > 0) {
+        switching_output = defvars;
+    } else {
+        if (in_function) {
+            switching_output = function_definitions;
+        } else {
+            switching_output = output_code;
+        }
+    }
+    */
+    string_append(switching_output, "DEFVAR");
+    append_token_variable_to_assembly(switching_output, variable);
+    string_append(switching_output, "\n");
+
 }
-
-void free_finals_string(){
-    return;
-};
-
-int insert_definitions(string_t *destination, string_t *definitions){
-    return 0;
-};
-
 

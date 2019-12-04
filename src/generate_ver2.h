@@ -62,7 +62,7 @@ void append_string_operands_to_assembly(string_t *frame, string_t *result, strin
 // is returning string from assembly_code
 string_t * switch_frame();
 
-// @todo ask simon or Marek for this magic function
+// @todo ask Simon or Marek for this magic function
 string_t * switch_definitions_frame();
 
 
@@ -89,6 +89,35 @@ void generate_call_function(const char *id);
 
 // generating DEFVAR to new paramter and calling move
 void generate_def_param(token_t *id);
+
+//
+void generate_call_param(token_t *id);
+
+
+
+void generate_while(token_t * expression);
+
+void generate_while_label(token_t *expression);
+
+void generate_while_end();
+
+void generate_if(token_t *expression);
+void generate_else();
+
+void generate_elseif_end();
+
+void generate_assign_to_retvalue(const char *return_result);
+
+
+void generate_assign_retvalue(const char *dest);
+
+
+void generate_assign(const char *destination, token_t *content);
+
+void declaration_variable(token_t *variable);
+
+
+
 
 
 

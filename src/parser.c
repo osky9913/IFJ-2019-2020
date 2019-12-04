@@ -49,7 +49,7 @@ void free_resources() {
     symtable_clear_all(&table_global);
     symtable_clear_all(&table_local);
 
-    free_finals_string();
+    free_assembly_code();
 }
 
 int r_program() {
@@ -412,7 +412,7 @@ int r_cycle() {
     int retvalue = SUCCESS;
     psa_state = WHILE;
     
-    generate_while_lable();
+    generate_while_label();
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
 
