@@ -8,7 +8,8 @@
 #define DYNAMIC_STRING_H
 
 #include "errors.h"
-
+#include <stdlib.h>
+#include <stdio.h>
 /* Default string length for initialization */
 #define STR_DEFAULT_LEN 20
 
@@ -78,9 +79,10 @@ char *string_copy_data(string_t *s);
  */
 int str_find_char(string_t* s, char c);
 
-void create_unic_variable(string_t *result, int *unic, char* base_name);
 
-void create_unic_label(string_t *result, int *unic, char *base_name);
+void create_unic_variable(string_t *result, size_t *unic, char* base_name);
+
+void create_unic_label(string_t *result, const size_t *unic, char *base_name);
 
 
 void string_append(string_t *s1, const char *s2);
