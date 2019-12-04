@@ -324,7 +324,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     string_t *switching_output = switch_frame();
     string_t *switching_output_definitions = switch_definitions_frame();
 
-
+    // -----------------------------------------------------------definice DEFVAR--------------------------------------------------------------
     string_t  * temporary_div1 = define_uniq_variable(switching_output_definitions, &identificator.general, "temporary_div");
     string_t  * temporary_div2 = define_uniq_variable(switching_output_definitions, &identificator.general, "temporary_div");
 
@@ -339,6 +339,9 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     //string used as temporary storing place in operator >= or <=
     string_t *result_eq_2 = define_uniq_variable(switching_output_definitions, &identificator.general, "tmp_result");
     //string used as label for the end of expression evaluation
+    // -----------------------------------------------------------definice DEFVAR--------------------------------------------------------------
+
+    //------------------------------------------------------------ Labels for expression -----------------------------------------------------
     string_t *end_of_expression = string_create_init();
     create_unic_label(end_of_expression, &identificator.label, "%end_expression_label");
     string_t *concatenation_label = string_create_init();
@@ -346,9 +349,15 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     string_t *label_int_dodge = string_create_init();
     create_unic_label(label_int_dodge, &identificator.label, "%label_float_dodge");
 
+    //------------------------------------------------------------ Labels for expression -----------------------------------------------------
+
+
+
+    //-------------------------------------------------------komparacia typov--------------------------------------------------------------------
+
     string_append(switching_output, "\n#evaluating expression\n");
 
-    // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
+
 
     // type of first operand
     get_type_variable(variable1, switching_output, operand1);
@@ -377,7 +386,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
-    // vykonavanie expression
+    //--------------------------------------------------------vykonavanie expression-------------------------------------------------------------
     switch (operator->type) {
 
         case TTYPE_LSOREQ:
@@ -534,8 +543,12 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             break;
        default:
             fprintf(stderr, "THERE IS A PROBLEM\n");
+            exit(1); // check error code
 
     }
+    //--------------------------------------------------------vykonavanie expression-------------------------------------------------------------
+
+
     string_append(switching_output, "LABEL ");
     string_append(switching_output, end_of_expression->array);
     string_append(switching_output, "\n");
@@ -554,12 +567,17 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 }
 
 void generate_create_frame(){
-    string_t * switchting_output = switch_frame();
+
+
+    string_t * switchting_output = switch_definitions_frame(); // todo check
     string_append(switchting_output,"CREATEFRAME\n");
     identificator.param_call = 1 ;
+
 }
 
 void generate_function(token_t *id){
+
+    //------------------------ generovanie definicie-----------------------------
     string_append(assembly_code.function_definitions, "\n\nLABEL !");
     string_append(assembly_code.function_definitions, id->attribute.string);
     string_append(assembly_code.function_definitions, "\n");
@@ -569,7 +587,8 @@ void generate_function(token_t *id){
 };
 
 void generate_print(const char* label){
-    //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token
+
+    //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token ? WHAT?
     string_append(assembly_code.function_definitions, "\nLABEL !");
     string_append(assembly_code.function_definitions, label);
     string_append(assembly_code.function_definitions, "\n");
@@ -650,6 +669,8 @@ void generate_print(const char* label){
 }
 
 void generate_function_end() {
+
+    //--------------------- koniec definicie funkcie
     string_append(assembly_code.function_definitions, "POPFRAME \n");
     string_append(assembly_code.function_definitions, "RETURN \n");
     identificator.param_def = 1;
@@ -657,7 +678,10 @@ void generate_function_end() {
 
 
 void generate_call_function(const char *id){
-    string_t *switching_output = switch_frame();
+
+
+    // call
+    string_t *switching_output = switch_definitions_frame();
     // if function is print
     if((strcmp(id, "print")) == 0){
 
@@ -677,6 +701,11 @@ void generate_call_function(const char *id){
     }
 
 };
+
+
+void generate_jump_string_char(string_t * frame , const char * jump , string_t * label , string_t * variable, const char * type )
+
+
 
 void generate_def_param(token_t *id){
 
@@ -729,20 +758,20 @@ void generate_call_param(token_t *id){
 
 
 
-void generate_while_lable(){
-
+void generate_while_lable(token_t * expression){
+// ?
     string_t * switching_output = switch_frame();
-
 
 
     string_t *switching_output_definitions = switch_definitions_frame();
 
-    string_t *while_expression = define_uniq_variable(switching_output_definitions, &uniq_expression, "%while_expression");
+    string_t *while_expression = define_uniq_variable(switching_output_definitions, &identificator.expression, "%while_expression");
+
 
     string_append(switching_output, "MOVE ");
-    print_variable_from_string(switching_output, while_expression->array);
+    append_string_variable_to_assembly(switching_output, while_expression->array);
     string_append(switching_output, " ");
-    printing_token_to_frame(switching_output, expression);
+    append_token_variable_to_assembly(switching_output, expression);
     string_append(switching_output, "\n");
 
     string_t *while_int_label = string_create_init();
@@ -752,18 +781,18 @@ void generate_while_lable(){
     string_t *while_end_label = string_create_init();
 
     //uniq label for int comparison
-    create_unic_label(while_int_label, &uniq_while_label, "%while_int_label");
+    create_unic_label(while_int_label, &identificator.while_label, "%while_int_label");
     //uniq label for float comparison
-    create_unic_label(while_float_label, &uniq_while_label, "%while_float_label");
+    create_unic_label(while_float_label, &identificator.while_label, "%while_float_label");
     //uniq label for bool comparison
-    create_unic_label(while_bool_label, &uniq_while_label, "%while_bool_label");
+    create_unic_label(while_bool_label, &identificator.while_label, "%while_bool_label");
     //uniq label for jumping to the body of while cycle
-    create_unic_label(while_body_label, &uniq_while_label, "%while_body_label");
+    create_unic_label(while_body_label, &identificator.while_label, "%while_body_label");
     //uniq label for jumping at the end of the cycle
-    create_unic_label(while_end_label, &uniq_while_label, "%while_end_label");
+    create_unic_label(while_end_label, &identificator.while_label, "%while_end_label");
 
     //variable which will store type of passed expression
-    string_t *id_type = define_uniq_variable(switching_output_definitions, &uniq_expression, "%while_check_type");
+    string_t *id_type = define_uniq_variable(switching_output_definitions, &identificator.expression, "%while_check_type");
 
     //get type of passed expression and store the type in string id_type
     get_type_variable(id_type, switching_output, expression);
@@ -772,25 +801,21 @@ void generate_while_lable(){
     //if its int jump to int comparison
     string_append(switching_output, "JUMPIFEQ ");
     string_append(switching_output, while_int_label->array);
-    string_append(switching_output, " ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, id_type->array);
+    append_string_variable_to_assembly(switching_output,id_type->array);
     string_append(switching_output, " string@int\n");
 
     //if its float jump to float comparison
     string_append(switching_output, "JUMPIFEQ ");
     string_append(switching_output, while_float_label->array);
-    string_append(switching_output, " ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, id_type->array);
+
+    append_string_variable_to_assembly(switching_output,id_type->array);
     string_append(switching_output, " string@float\n");
 
     //JUMPIFEQ bool_label id_type string@bool
     string_append(switching_output, "JUMPIFEQ ");
     string_append(switching_output, while_bool_label->array);
-    string_append(switching_output, " ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, id_type->array);
+
+    append_string_variable_to_assembly(switching_output,id_type->array);
     string_append(switching_output, " string@bool\n");
 
     //while (string) or while (None) -> while end
@@ -806,10 +831,11 @@ void generate_while_lable(){
     //JUMPIFEQ @todo_while_end_label expression bool@false
     string_append(switching_output, "JUMPIFEQ ");
     string_append(switching_output, while_end_label->array);
-    string_append(switching_output, " ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, while_expression->array);
+    append_string_variable_to_assembly(switching_output,while_expression->array);
     string_append(switching_output, " bool@false\n");
+
+
+
     string_append(switching_output, "JUMP ");
     string_append(switching_output, while_body_label->array);
     string_append(switching_output, "\n");
@@ -822,10 +848,10 @@ void generate_while_lable(){
     //JUMPIFEQ @todo_while_end_label expression int@0
     string_append(switching_output, "JUMPIFEQ ");
     string_append(switching_output, while_end_label->array);
-    string_append(switching_output, " ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, while_expression->array);
+    append_string_variable_to_assembly(switching_output,while_expression->array);
     string_append(switching_output, " int@0\n");
+
+
     string_append(switching_output, "JUMP ");
     string_append(switching_output, while_body_label->array);
     string_append(switching_output, "\n");
@@ -838,13 +864,12 @@ void generate_while_lable(){
     //JUMPIFEQ @todo_while_end_label expression float@0x0.0p+0
     string_append(switching_output, "JUMPIFEQ ");
     string_append(switching_output, while_end_label->array);
-    string_append(switching_output, " ");
-    printing_frame_to_variable(switching_output);
-    string_append(switching_output, while_expression->array);
-    string_append(switching_output, " float@0x0.0p+0");
-    string_append(switching_output, "\n");
+    append_string_variable_to_assembly(switching_output,while_expression->array);
+    string_append(switching_output, " float@0x0.0p+0\n");
 
     string_append(switching_output, "\n#body of while\n");
+
+
     string_append(switching_output, "LABEL ");
     string_append(switching_output, while_body_label->array);
     string_append(switching_output, "\n");
@@ -856,13 +881,12 @@ void generate_while_lable(){
     string_free(while_bool_label);
     string_free(while_body_label);
     string_free(while_end_label);
-
-
-
-
 };
 
-void generate_while(token_t *expression){return;};
+void generate_while(token_t *expression){
+
+    return;
+}
 
 void generate_while_end(){return;};
 

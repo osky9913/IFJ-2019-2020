@@ -160,7 +160,7 @@ void string_append(string_t *s1, const char *s2) {
 
     for (unsigned i = 0; i < len; i++) {
         if (string_append_char(s1, s2[i]) == STR_ALLOC_ERROR)
-            return;
+            exit(STR_ALLOC_ERROR);// todo check
     }
 }
 
