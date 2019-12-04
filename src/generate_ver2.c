@@ -231,10 +231,10 @@ void free_assembly_code() {
 
 
 void end_program() {
-    //string_append(assembly_code.function_definitions, assembly_code.main->array);
-    //string_append(assembly_code.function_definitions, assembly_code.errors->array);
-//    printf("%s\n", assembly_code.function_definitions->array);
-    printf("FUCK 1\n %s\n FUCK 2\n", assembly_code.main->array);
+    string_append(assembly_code.function_definitions, assembly_code.main->array);
+    string_append(assembly_code.function_definitions, assembly_code.errors->array);
+    printf("%s\n", assembly_code.function_definitions->array);
+
 
 
 }
@@ -249,8 +249,32 @@ void append_frame_to_variable(string_t *frame) {
 
 void append_token_variable_to_assembly(string_t * frame , token_t * variable){
     string_append(frame," ");
-    append_frame_to_variable(frame);
-    string_append(frame,variable->attribute.string);
+    switch (variable->type) {
+        case TTYPE_ID:
+            append_frame_to_variable(frame);
+            string_append(frame, variable->attribute.string);
+            break;
+        case TTYPE_INT:
+            string_append(frame,"int@%");
+            string_append(frame, variable->attribute.string);
+
+            break;
+        case TTYPE_DOUBLE:
+            string_append(frame,"float@0x");
+            string_append(frame, variable->attribute.string);
+            string_append(frame,"p+0");
+            break;
+        case TTYPE_STR:
+            string_append(frame, "string@");
+            string_append(frame, variable->attribute.string);
+            break;
+        case TTYPE_NONE:
+            string_append(frame, "nil@nil");
+            break;
+        default:
+            fprintf(stderr, "There is a problem here, token passed to generator was neither of ID/INT/DOUBLE/STR/NONE\n");
+    }
+
 }
 
 void append_string_variable_to_assembly(string_t *frame, const char *variable){
@@ -381,15 +405,15 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
 
     // type of first operand
-    get_type_variable(variable1, switching_output, operand1);
+    get_type_variable( switching_output, variable1, operand1);
 
     // type of second operand
-    get_type_variable(variable2, switching_output, operand2);
+    get_type_variable(switching_output,variable2, operand2);
 
     // types of operands are not equal -> error
     string_append(switching_output, "JUMPIFNEQ %error_label_semantic");
+    printf("\n-----------------------------\n%s\n-------------------\n",variable1->array);
     append_string_variable_to_assembly(switching_output, variable1->array);
-    append_string_variable_to_assembly(switching_output, "FUUUUUCK");
 
     append_string_variable_to_assembly(switching_output, variable2->array);
     string_append(switching_output, "\n");

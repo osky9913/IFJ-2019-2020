@@ -44,7 +44,7 @@ token_t* tokenGen(char* name){
 int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
     //checks if array is not full, if so, resizes it's length
     resizeArrayIfNeeded(arrayToCopy);
-
+    printf("fuck my life[%d]\n", originalToken->type);
     //create new token which will be add to the
     token_t* tmpToken = &arrayToCopy->arr[arrayToCopy->currLen];
     tmpToken->type = originalToken->type;
