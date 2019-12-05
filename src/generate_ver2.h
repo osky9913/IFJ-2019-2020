@@ -72,7 +72,7 @@ string_t * switch_definitions_frame();
 
 
 //  it generates the expression for every operation
-char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2);
+char *generate_expression(token_t *operand2, token_t *operator, token_t *operand1);
 
 
 
