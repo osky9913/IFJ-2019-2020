@@ -670,10 +670,15 @@ void stash_clear() {
 }
 
 void token_free(token_t *token) {
-    if (token->type == TTYPE_STR || token->type == TTYPE_ID) {
+    switch (token->type) {
+        case TTYPE_STR: case TTYPE_ID: case TTYPE_INT:
+        case TTYPE_DOUBLE:
+            free(token->attribute.string);
+            token->attribute.string = NULL;
+            break;
 
-        free(token->attribute.string);
-        token->attribute.string = NULL;
+        default:
+            break;
     }
 }
 
