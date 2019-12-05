@@ -255,7 +255,7 @@ void append_token_variable_to_assembly(string_t * frame , token_t * variable){
             string_append(frame, variable->attribute.string);
             break;
         case TTYPE_INT:
-            string_append(frame,"int@%");
+            string_append(frame,"int@");
             string_append(frame, variable->attribute.string);
 
             break;
@@ -634,8 +634,8 @@ void generate_function(token_t *id){
 
 void generate_print(const char* label){
 
-    //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token ? WHAT?
     //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token
+
     string_append(assembly_code.function_definitions, "\nLABEL !");
     string_append(assembly_code.function_definitions, label);
     string_append(assembly_code.function_definitions, "\n");
@@ -913,16 +913,13 @@ void generate_while(token_t * expression){
 void generate_while_label(){
     string_t *switching_output = switch_frame();
 
-    identificator.while_label_cnt++;
+
 
 
     string_t *while_beginning_label = string_create_init();
     create_unic_label(while_beginning_label, &identificator.while_label, "%while_beginning_label");
     string_append(switching_output, "\n#while cycle\n");
 
-    if (identificator.while_label_cnt == 1) {
-        identificator.while_label_pos = switching_output->index;
-    }
 
 
     generate_label(switching_output,while_beginning_label->array);
@@ -952,17 +949,6 @@ void generate_while_end(){
 
 
 
-    /* mystery
-    if (identificator.while_label_cnt == 1) {
-        if (insert_definitions(switching_output, defvars)) {
-            //return 99;
-            exit(99);
-        }
-        string_clear(defvars);
-        while_label_pos = 0;
-    }
-    while_label_cnt--;
-    */
     string_free(while_end_label);
     string_free(while_beginning_label);
 

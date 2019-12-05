@@ -26,8 +26,7 @@ typedef struct uniq_id{
     int  while_label ;
     int  if_label ;
     int  concat_label ;
-    int  while_label_cnt ;
-    int  while_label_pos ;
+
     int  label;
 } uniq_id_t;
 
