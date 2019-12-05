@@ -78,35 +78,6 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
 
     return exit_code;
 }
-/*
-void hexa_escape(string_t* token_string){
-    long hexa;
-    string_t* tmp = string_create_init();
-    int c;
-    c = getc(stdin);
-    if(isxdigit(c)){
-        string_append_char(tmp, '0');
-        string_append_char(tmp, 'x');
-        string_append_char(tmp, c);
-        c = getc(stdin);
-        if(isxdigit(c)){
-            string_append_char(tmp, c);
-            hexa = strtol(tmp->array, NULL, 16);
-            string_append_char(token_string, hexa);
-        }
-        else{
-            ungetc(c, stdin);
-            hexa = strtol(tmp->array, NULL, 16);
-            string_append_char(token_string, hexa);
-        }
-    }
-    else{
-        string_append_char(token_string, '\\');
-        ungetc(c, stdin);
-    }
-    string_free(tmp);
-}
-*/
 int process_dedents(){
     int pop_indent;     //indentation sequence that will be removed from indent_stack
     stack_general_item_t* stack_top = stack_general_top(dent_stack);
@@ -727,18 +698,37 @@ int get_token(token_t* token){
                     //checking bad number formats
                     if(isdigit(c)){
                         //after zero, nonzero number appeared -> error
+                        string_append_char(tmp, c);
                         if(c != '0'){
-                            fprintf(stderr, "line %d: Lexical analysis error : "
-                                            "Invalid number format!\n", line_counter);
-                            return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
+                            state = 10;
                         }
+                    }
+                    else if(c == '.' || c == 'e' || c == 'E'){
+                        token->type = TTYPE_DOUBLE;
+                        string_append_char(tmp, c);
+                        state = 5;
                     }
                     else{
                         ungetc(c, stdin);
                         return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                     break;
-
+                //state for checking invalid integer format 00003 -> invalid , 00003.0 -> valid
+                case 10:
+                    if(isdigit(c)){
+                        string_append_char(tmp, c);
+                    }
+                    else if(c == '.' || c == 'e' || c == 'E'){
+                        token->type = TTYPE_DOUBLE;
+                        string_append_char(tmp, c);
+                        state = 5;
+                    }
+                    else{
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Invalid number format!\n", line_counter);
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
+                    }
+                    break;
         }
     }
 }
