@@ -58,6 +58,9 @@ infoToPost: $(PREC_C) src/*
 parser: $(PARSER_C) src/*
 	gcc $(CFLAGS) -o $@ $(PARSER_C)
 
+test:
+	cd tests_new && ./test.sh
+
 
 .PHONY: clean
 clean:

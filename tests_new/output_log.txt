@@ -1,0 +1,32 @@
+Test case lex_wrong_id_1:
+Line 2 - Variable _ was undefined.
+Line 2 - Undefined variable
+3
+semantic error - undefined symbol
+Test lex_wrong_id_1 FAILED - returned 3, expected 1
+===============================================
+ 
+Test case lex_wrong_id_2:
+line 1 : Lexical analysis error: Unknown operator!
+Line 1 - Lex error 1
+Test lex_wrong_id_2 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case lex_wrong_id_3:
+line 1 : Lexical analysis error: Unknown operator!
+Line 1 - Lex error 1
+Test lex_wrong_id_3 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case lex_wrong_id_4:
+line 1 : Lexical analysis error: Unknown operator!
+Line 1 - Lex error 1
+Test lex_wrong_id_4 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case lex_wrong_id_5:
+line 1 : Lexical analysis error: Unknown operator!
+Line 1 - Lex error 1
+Test lex_wrong_id_5 PASSED - returned 1, expected 1
+===============================================
+ 
