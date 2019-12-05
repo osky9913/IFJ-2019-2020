@@ -426,13 +426,6 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     string_append(switching_output, " string@nil");
     string_append(switching_output, "\n");
 
-
-    // if type is nil@nil
-    string_append(switching_output, "JUMPIFEQ %error_label_semantic");
-    append_string_variable_to_assembly(switching_output, variable1->array);
-    string_append(switching_output, " nil@nil");
-    string_append(switching_output, "\n");
-
     // -------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
     //--------------------------------------------------------vykonavanie expression-------------------------------------------------------------
@@ -624,12 +617,12 @@ void generate_create_frame(){
 void generate_function(token_t *id){
 
     //------------------------ generovanie definicie-----------------------------
-    string_append(assembly_code.stash, "\n\nLABEL !"); // can't use generate label because !
-    string_append(assembly_code.stash, id->attribute.string);
-    string_append(assembly_code.stash, "\n");
+    string_append(assembly_code.function_definitions, "\n\nLABEL !"); // can't use generate label because !
+    string_append(assembly_code.function_definitions, id->attribute.string);
+    string_append(assembly_code.function_definitions, "\n");
 
-    string_append(assembly_code.stash, "PUSHFRAME\n");
-    string_append(assembly_code.stash, "DEFVAR LF@%%return_value\n");
+    string_append(assembly_code.function_definitions, "PUSHFRAME\n");
+    string_append(assembly_code.function_definitions, "DEFVAR LF@%%return_value\n");
 }
 
 void generate_print(const char* label){
