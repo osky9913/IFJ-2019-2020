@@ -908,9 +908,13 @@ void generate_while(token_t * expression){
 void generate_while_label(){
     string_t *switching_output = switch_frame();
 
-    identificator.while_label += 1;
+    /* First we have to push the current while label counter value */
+    int *tmp_label_count = malloc(sizeof(int)); 
+    if (!tmp_label_count) exit(ERROR_INTERNAL);
+    *tmp_label_count = ++identificator.while_label;
+
     stack_general_push(general_stacks.while_labels_stack, // Push current label count
-            (void *) &(identificator.while_label));
+            (void *)tmp_label_count);
 
     string_t *while_beginning_label = string_create_init();
 
@@ -943,7 +947,8 @@ void generate_while_end(){
 
     //increase the label uniq variable, so that in next while are going to be different labels
 
-    stack_popNoDataFree(general_stacks.while_labels_stack);
+    /* Now pop the last added value of while label counter */
+    stack_pop(general_stacks.while_labels_stack);
 
     string_free(while_end_label);
     string_free(while_beginning_label);
@@ -953,6 +958,14 @@ void generate_if(token_t *expression){
     string_t *switching_output = switch_frame();
 
     string_t *switching_output_definitions = switch_definitions_frame();
+
+    /* First we have to push the current if label counter value */
+    int *tmp_label_count = malloc(sizeof(int)); 
+    if (!tmp_label_count) exit(ERROR_INTERNAL);
+    *tmp_label_count = ++identificator.if_label;
+
+    stack_general_push(general_stacks.if_labels_stack, // Push current label count
+            (void *)tmp_label_count);
 
     //DEFVAR if_expression
     string_t *if_expression = define_uniq_variable( switching_output_definitions, &identificator.expression, "%if_expression");
@@ -970,15 +983,15 @@ void generate_if(token_t *expression){
 
     string_append(switching_output, "\n#if else statement\n");
     //uniq label for int comparison
-    create_unic_label(if_int_label, &identificator.if_label, "%if_int_label");
+    create_unic_label(if_int_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%if_int_label");
     //uniq label for float comparison
-    create_unic_label(if_float_label, &identificator.if_label, "%if_float_label");
+    create_unic_label(if_float_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%if_float_label");
     //uniq label for bool comparison
-    create_unic_label(if_bool_label, &identificator.if_label, "%if_bool_label");
+    create_unic_label(if_bool_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%if_bool_label");
     //uniq label for jumping to the body of while cycle
-    create_unic_label(else_body_label, &identificator.if_label, "%else_body_label");
+    create_unic_label(else_body_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%else_body_label");
     //uniq label for jumping at the end of the cycle
-    create_unic_label(if_body_label, &identificator.if_label, "%if_body_label");
+    create_unic_label(if_body_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%if_body_label");
 
     string_append(switching_output, "MOVE");
     append_string_variable_to_assembly(switching_output, if_expression->array);
@@ -1040,9 +1053,6 @@ void generate_if(token_t *expression){
     string_free(if_bool_label);
     string_free(else_body_label);
     string_free(if_body_label);
-
-
-
 }
 
 void generate_else(){
@@ -1051,9 +1061,9 @@ void generate_else(){
     string_t *else_body_label = string_create_init();
     //uniq label for else if
     string_t *else_if_end_label = string_create_init();
-    create_unic_label(else_if_end_label, &identificator.if_label, "%else_if_end_label");
+    create_unic_label(else_if_end_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%else_if_end_label");
     //uniq label for jumping to the body of else
-    create_unic_label(else_body_label, &identificator.if_label, "%else_body_label");
+    create_unic_label(else_body_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%else_body_label");
 
     generate_jump(switching_output,"JUMP",else_if_end_label->array);
 
@@ -1071,11 +1081,11 @@ void generate_elseif_end(){
 
     //else if end label
     string_t *else_if_end_label = string_create_init();
-    create_unic_label(else_if_end_label, &identificator.if_label, "%else_if_end_label");
+    create_unic_label(else_if_end_label, (int *)(stack_general_top(general_stacks.if_labels_stack)->data), "%else_if_end_label");
 
     generate_label(switching_output,else_if_end_label->array);
 
-    identificator.if_label+=1;
+    stack_pop(general_stacks.if_labels_stack);
     string_free(else_if_end_label);
 }
 
