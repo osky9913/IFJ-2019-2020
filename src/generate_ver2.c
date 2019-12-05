@@ -365,7 +365,7 @@ string_t * switch_frame(){
 
 
 
-char *generate_expression(token_t *operand1, token_t *operator, token_t *operand2){
+char *generate_expression(token_t *operand2, token_t *operator, token_t *operand1){
 
 
     string_t *switching_output = switch_frame();
