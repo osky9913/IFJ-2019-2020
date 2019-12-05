@@ -18,7 +18,7 @@ typedef struct generate_strings_output{
 
 // structure for iterating/generating uniq variables/labels id 
 typedef struct uniq_id{
-    int general ;
+    int general  ;
     int param_call ;
     int param_def ;
     int expression ;

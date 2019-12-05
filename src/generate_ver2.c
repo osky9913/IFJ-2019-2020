@@ -35,182 +35,181 @@ int generate_strings_input_init(){
     return SUCCESS;
 }
 void generate_assembly_start(){
-        string_append(assembly_code.errors, "EXIT int@0\n");
-        string_append(assembly_code.errors, "LABEL %error_label_semantic\n");
-        string_append(assembly_code.errors, "DPRINT string@RUNTIME_SEMANTIC_ERROR\n");
-        string_append(assembly_code.errors, "EXIT int@4\n");
+    string_append(assembly_code.errors, "EXIT int@0\n");
+    string_append(assembly_code.errors, "LABEL %error_label_semantic\n");
+    string_append(assembly_code.errors, "DPRINT string@RUNTIME_SEMANTIC_ERROR\n");
+    string_append(assembly_code.errors, "EXIT int@4\n");
 
-        string_append(assembly_code.errors, "LABEL %error_label_0\n");
-        string_append(assembly_code.errors, "DPRINT string@DIVISION_BY_ZERO\n");
-        string_append(assembly_code.errors, "EXIT int@4\n");
+    string_append(assembly_code.errors, "LABEL %error_label_0\n");
+    string_append(assembly_code.errors, "DPRINT string@DIVISION_BY_ZERO\n");
+    string_append(assembly_code.errors, "EXIT int@4\n");
 
 
 
-        string_append(assembly_code.function_definitions, ".IFJcode19\n");
-        string_append(assembly_code.function_definitions, "JUMP %MAIN\n");
-        string_append(assembly_code.function_definitions, "\n#>---------------------------FUNCTIONS---------------------------<\n");
+    string_append(assembly_code.function_definitions, ".IFJcode19\n");
+    string_append(assembly_code.function_definitions, "JUMP %MAIN\n");
+    string_append(assembly_code.function_definitions, "\n#>---------------------------FUNCTIONS---------------------------<\n");
 
-        //inputi
-        string_append(assembly_code.function_definitions, "LABEL !inputi\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "READ LF@%%return_value int\n"
-        "POPFRAME\n"
-        "RETURN\n");
-        //inputf
-        string_append(assembly_code.function_definitions, "LABEL !inputf\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "READ LF@%%return_value float\n"
-        "POPFRAME\n"
-        "RETURN\n");
-        //inputs
-        string_append(assembly_code.function_definitions, "LABEL !inputs\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "MOVE LF@%%return_value string@\n"
-        "DEFVAR LF@actual_string\n"
-        "DEFVAR LF@actual_char\n"
-        "DEFVAR LF@str_len\n"
-        "DEFVAR LF@increment\n"
-        "MOVE LF@increment int@0\n"
-        "READ LF@actual_string string\n"
-        "STRLEN LF@str_len LF@actual_string\n"
-        "SUB LF@str_len LF@str_len int@1\n"
-        "LABEL &len&cycle\n"
-        "GETCHAR LF@actual_char LF@actual_string LF@increment\n"
-        "JUMPIFEQ &len&end LF@increment LF@str_len\n"
-        "CONCAT LF@%%return_value LF@%%return_value LF@actual_char\n"
-        "ADD LF@increment LF@increment int@1\n"
-        "JUMP &len&cycle\n"
-        "LABEL &len&end\n"
-        "POPFRAME\n"
-        "RETURN\n");
-        //len
-        string_append(assembly_code.function_definitions, "LABEL !len\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "DEFVAR LF@type\n"
-        "TYPE LF@type LF@%param1\n"
-        "JUMPIFNEQ %len_wrong_type LF@type string@string\n"
-        "STRLEN LF@%%return_value LF@%param1	#dlzka stringu v prvom argumente, len(s)\n"
-        "POPFRAME\n"
-        "RETURN\n"
-        "LABEL %len_wrong_type\n"
-        "EXIT int@4\n");
-        //chr
-        string_append(assembly_code.function_definitions, "LABEL !chr\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "DEFVAR LF@type\n"
-        "TYPE LF@type LF@%param1\n"
-        "JUMPIFNEQ %chr_wrong_type LF@type string@int\n"
-        "INT2CHAR LF@%%return_value LF@%param1\n"
-        "POPFRAME\n"
-        "RETURN\n"
-        "LABEL %chr_wrong_type\n"
-        "EXIT int@4\n");
-        //substr
-        string_append(assembly_code.function_definitions, "#substr(s, i, n)\n"
-        "LABEL !substr\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "MOVE LF@%%return_value string@\n"
-        "DEFVAR LF@str_len\n"
-        "DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente\n"
-        "TYPE LF@passed_type LF@%param1\n"
-        "JUMPIFNEQ %substr_wrong_type LF@passed_type string@string	#arg1 je to typ string?\n"
-        "TYPE LF@passed_type LF@%param2\n"
-        "JUMPIFNEQ %substr_wrong_type LF@passed_type string@int	#arg1 je to typ string?\n"
-        "TYPE LF@passed_type LF@%param3\n"
-        "JUMPIFNEQ %substr_wrong_type LF@passed_type string@int	#arg1 je to typ string?\n"
-        "LABEL &substr&continue3\n"
-        "DEFVAR LF@arg3_test\n"
-        "LT LF@arg3_test LF@%param3 int@0\n"
-        "JUMPIFEQ &substr&continue4 LF@arg3_test bool@false 	#arg3 >= 0?\n"
-        "MOVE LF@%%return_value string@None		#nieje int -> koniec\n"
-        "JUMP &substr&end\n"
-        "LABEL &substr&continue4\n"
-        "DEFVAR LF@final_str_len\n"
-        "STRLEN LF@str_len LF@%param1\n"
-        "SUB LF@final_str_len LF@str_len LF@%param2					#len(s)−𝑖\n"
-        "SUB LF@str_len LF@str_len int@1\n"
-        "DEFVAR LF@cond_up_length\n"
-        "DEFVAR LF@cond_down_length\n"
-        "DEFVAR LF@cond_final\n"
-        "LT LF@cond_up_length LF@%param2 LF@str_len 					# i < strlen-1\n"
-        "GT LF@cond_down_length LF@%param2 int@-1						# i > -1\n"
-        "AND LF@cond_final LF@cond_up_length LF@cond_down_length		#(i < strlen-1 && i > -1)\n"
-        "JUMPIFEQ &substr&continue5 LF@cond_final bool@true \n"
-        "MOVE LF@%%return_value string@None\n"
-        "JUMP &substr&end\n"
-        "LABEL &substr&continue5\n"
-        "DEFVAR LF@actual_char\n"
-        "DEFVAR LF@cond_str_len\n"
-        "DEFVAR LF@last_index\n"
-        "LT LF@cond_str_len LF@final_str_len LF@%param3\n"
-        "JUMPIFEQ &substr&continue6 LF@cond_str_len bool@true		# len(s)−𝑖 < n\n"
-        "#velkost pozadovaneho stringu je mensia ako pocet zostavajucich charakterov, len(s)−𝑖 > n\n"
-        "ADD LF@last_index LF@%param2 LF@%param3								#cyklim po index [i + n]\n"
-        "JUMP &substr&cycle1\n"
-        "LABEL &substr&continue6\n"
-        "ADD LF@str_len LF@str_len int@1\n"
-        "MOVE LF@last_index LF@str_len\n"
-        "LABEL &substr&cycle1\n"
-        "JUMPIFEQ &substr&end LF@last_index LF@%param2\n"
-        "GETCHAR LF@actual_char LF@%param1 LF@%param2							#chcem char z LF@%param1[i]\n"
-        "CONCAT LF@%%return_value LF@%%return_value LF@actual_char\n"
-        "ADD LF@%param2 LF@%param2 int@1											#inkrementujem i++(LF@%param2++)\n"
-        "JUMP &substr&cycle1\n"
-        "#velkost pozadovaneho stringu je vacsie ako pocet zostavajucich charakterov, len(s)−𝑖 > n\n"
-        "LABEL &substr&end\n"
-        "POPFRAME\n"
-        "RETURN\n"
-        "LABEL %substr_wrong_type\n"
-        "EXIT int@4\n");
-        //ord
-        string_append(assembly_code.function_definitions,
-        "LABEL !ord\n"
-        "PUSHFRAME\n"
-        "DEFVAR LF@%%return_value\n"
-        "DEFVAR LF@y\n"
-        "DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente\n"
-        "DEFVAR LF@compare_type 	#string na porovnanie typu s argumentom funkcie\n"
-        "DEFVAR LF@param1		#prvy argument	\n"
-        "MOVE LF@param1 LF@%param1\n"
-        "TYPE LF@passed_type LF@param1\n"
-        "JUMPIFEQ &ord&continue1 LF@passed_type string@string	#je to typ string?\n"
-        "EXIT int@4\n"
-        "MOVE LF@%%return_value string@None\n"
-        "JUMP &ord&end\n"
-        "LABEL &ord&continue1\n"
-        "DEFVAR LF@param2 					#druhy argument		\n"
-        "MOVE LF@param2 LF@%param2\n"
-        "TYPE LF@passed_type LF@param2\n"
-        "JUMPIFEQ &ord&continue2 LF@passed_type string@int 	#je to typ int?\n"
-        "EXIT int@4\n"
-        "LABEL &ord&continue2\n"
-        "DEFVAR LF@str_len\n"
-        "DEFVAR LF@cond_up_length\n"
-        "DEFVAR LF@cond_down_length\n"
-        "DEFVAR LF@cond_final\n"
-        "STRLEN LF@str_len LF@param1\n"
-        "LT LF@cond_up_length LF@param2 LF@str_len 					#param2 < strlen-1\n"
-        "GT LF@cond_down_length LF@param2 int@-1						#param2 > -1\n"
-        "AND LF@cond_final LF@cond_up_length LF@cond_down_length		#(param2 < strlen-1 && param2 > -1)\n"
-        "JUMPIFEQ &ord&succes LF@cond_final bool@true \n"
-        "MOVE LF@%%return_value string@None\n"
-        "JUMP &ord&end\n"
-        "LABEL &ord&succes\n"
-        "STRI2INT LF@%%return_value LF@param1 LF@param2\n"
-        "LABEL &ord&end\n"
-        "POPFRAME\n"
-        "RETURN\n");
-
-        string_append(assembly_code.main, "\n#>---------------------------FUNCTIONS---------------------------<\n");
-        string_append(assembly_code.main, "\n#>---------------------------MAIN---------------------------<\n");
-        string_append(assembly_code.main, "\nLABEL %MAIN\n");
-        string_append(assembly_code.errors, "\n#>---------------------------MAIN---------------------------<\n");
+    //inputi
+    string_append(assembly_code.function_definitions, "LABEL !inputi\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "READ LF@%%return_value int\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //inputf
+    string_append(assembly_code.function_definitions, "LABEL !inputf\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "READ LF@%%return_value float\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //inputs
+    string_append(assembly_code.function_definitions, "LABEL !inputs\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "MOVE LF@%%return_value string@\n"
+                                        "DEFVAR LF@actual_string\n"
+                                        "DEFVAR LF@actual_char\n"
+                                        "DEFVAR LF@str_len\n"
+                                        "DEFVAR LF@increment\n"
+                                        "MOVE LF@increment int@0\n"
+                                        "READ LF@actual_string string\n"
+                                        "STRLEN LF@str_len LF@actual_string\n"
+                                        "SUB LF@str_len LF@str_len int@1\n"
+                                        "LABEL &len&cycle\n"
+                                        "GETCHAR LF@actual_char LF@actual_string LF@increment\n"
+                                        "JUMPIFEQ &len&end LF@increment LF@str_len\n"
+                                        "CONCAT LF@%%return_value LF@%%return_value LF@actual_char\n"
+                                        "ADD LF@increment LF@increment int@1\n"
+                                        "JUMP &len&cycle\n"
+                                        "LABEL &len&end\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n");
+    //len
+    string_append(assembly_code.function_definitions, "LABEL !len\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "DEFVAR LF@type\n"
+                                        "TYPE LF@type LF@%param1\n"
+                                        "JUMPIFNEQ %len_wrong_type LF@type string@string\n"
+                                        "STRLEN LF@%%return_value LF@%param1	#dlzka stringu v prvom argumente, len(s)\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n"
+                                        "LABEL %len_wrong_type\n"
+                                        "EXIT int@4\n");
+    //chr
+    string_append(assembly_code.function_definitions, "LABEL !chr\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "DEFVAR LF@type\n"
+                                        "TYPE LF@type LF@%param1\n"
+                                        "JUMPIFNEQ %chr_wrong_type LF@type string@int\n"
+                                        "INT2CHAR LF@%%return_value LF@%param1\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n"
+                                        "LABEL %chr_wrong_type\n"
+                                        "EXIT int@4\n");
+    //substr
+    string_append(assembly_code.function_definitions, "#substr(s, i, n)\n"
+                                        "LABEL !substr\n"
+                                        "PUSHFRAME\n"
+                                        "DEFVAR LF@%%return_value\n"
+                                        "MOVE LF@%%return_value string@\n"
+                                        "DEFVAR LF@str_len\n"
+                                        "DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente\n"
+                                        "TYPE LF@passed_type LF@%param1\n"
+                                        "JUMPIFNEQ %substr_wrong_type LF@passed_type string@string	#arg1 je to typ string?\n"
+                                        "TYPE LF@passed_type LF@%param2\n"
+                                        "JUMPIFNEQ %substr_wrong_type LF@passed_type string@int	#arg1 je to typ string?\n"
+                                        "TYPE LF@passed_type LF@%param3\n"
+                                        "JUMPIFNEQ %substr_wrong_type LF@passed_type string@int	#arg1 je to typ string?\n"
+                                        "LABEL &substr&continue3\n"
+                                        "DEFVAR LF@arg3_test\n"
+                                        "LT LF@arg3_test LF@%param3 int@0\n"
+                                        "JUMPIFEQ &substr&continue4 LF@arg3_test bool@false 	#arg3 >= 0?\n"
+                                        "MOVE LF@%%return_value string@None		#nieje int -> koniec\n"
+                                        "JUMP &substr&end\n"
+                                        "LABEL &substr&continue4\n"
+                                        "DEFVAR LF@final_str_len\n"
+                                        "STRLEN LF@str_len LF@%param1\n"
+                                        "SUB LF@final_str_len LF@str_len LF@%param2					#len(s)−𝑖\n"
+                                        "SUB LF@str_len LF@str_len int@1\n"
+                                        "DEFVAR LF@cond_up_length\n"
+                                        "DEFVAR LF@cond_down_length\n"
+                                        "DEFVAR LF@cond_final\n"
+                                        "LT LF@cond_up_length LF@%param2 LF@str_len 					# i < strlen-1\n"
+                                        "GT LF@cond_down_length LF@%param2 int@-1						# i > -1\n"
+                                        "AND LF@cond_final LF@cond_up_length LF@cond_down_length		#(i < strlen-1 && i > -1)\n"
+                                        "JUMPIFEQ &substr&continue5 LF@cond_final bool@true \n"
+                                        "MOVE LF@%%return_value string@None\n"
+                                        "JUMP &substr&end\n"
+                                        "LABEL &substr&continue5\n"
+                                        "DEFVAR LF@actual_char\n"
+                                        "DEFVAR LF@cond_str_len\n"
+                                        "DEFVAR LF@last_index\n"
+                                        "LT LF@cond_str_len LF@final_str_len LF@%param3\n"
+                                        "JUMPIFEQ &substr&continue6 LF@cond_str_len bool@true		# len(s)−𝑖 < n\n"
+                                        "#velkost pozadovaneho stringu je mensia ako pocet zostavajucich charakterov, len(s)−𝑖 > n\n"
+                                        "ADD LF@last_index LF@%param2 LF@%param3								#cyklim po index [i + n]\n"
+                                        "JUMP &substr&cycle1\n"
+                                        "LABEL &substr&continue6\n"
+                                        "ADD LF@str_len LF@str_len int@1\n"
+                                        "MOVE LF@last_index LF@str_len\n"
+                                        "LABEL &substr&cycle1\n"
+                                        "JUMPIFEQ &substr&end LF@last_index LF@%param2\n"
+                                        "GETCHAR LF@actual_char LF@%param1 LF@%param2							#chcem char z LF@%param1[i]\n"
+                                        "CONCAT LF@%%return_value LF@%%return_value LF@actual_char\n"
+                                        "ADD LF@%param2 LF@%param2 int@1											#inkrementujem i++(LF@%param2++)\n"
+                                        "JUMP &substr&cycle1\n"
+                                        "#velkost pozadovaneho stringu je vacsie ako pocet zostavajucich charakterov, len(s)−𝑖 > n\n"
+                                        "LABEL &substr&end\n"
+                                        "POPFRAME\n"
+                                        "RETURN\n"
+                                        "LABEL %substr_wrong_type\n"
+                                        "EXIT int@4\n");
+    //ord
+    string_append(assembly_code.function_definitions,
+                  "LABEL !ord\n"
+                  "PUSHFRAME\n"
+                  "DEFVAR LF@%%return_value\n"
+                  "DEFVAR LF@y\n"
+                  "DEFVAR LF@passed_type 	#premenna na ulozenie typu hodnoty v prvom argumente\n"
+                  "DEFVAR LF@compare_type 	#string na porovnanie typu s argumentom funkcie\n"
+                  "DEFVAR LF@param1		#prvy argument	\n"
+                  "MOVE LF@param1 LF@%param1\n"
+                  "TYPE LF@passed_type LF@param1\n"
+                  "JUMPIFEQ &ord&continue1 LF@passed_type string@string	#je to typ string?\n"
+                  "EXIT int@4\n"
+                  "MOVE LF@%%return_value string@None\n"
+                  "JUMP &ord&end\n"
+                  "LABEL &ord&continue1\n"
+                  "DEFVAR LF@param2 					#druhy argument		\n"
+                  "MOVE LF@param2 LF@%param2\n"
+                  "TYPE LF@passed_type LF@param2\n"
+                  "JUMPIFEQ &ord&continue2 LF@passed_type string@int 	#je to typ int?\n"
+                  "EXIT int@4\n"
+                  "LABEL &ord&continue2\n"
+                  "DEFVAR LF@str_len\n"
+                  "DEFVAR LF@cond_up_length\n"
+                  "DEFVAR LF@cond_down_length\n"
+                  "DEFVAR LF@cond_final\n"
+                  "STRLEN LF@str_len LF@param1\n"
+                  "LT LF@cond_up_length LF@param2 LF@str_len 					#param2 < strlen-1\n"
+                  "GT LF@cond_down_length LF@param2 int@-1						#param2 > -1\n"
+                  "AND LF@cond_final LF@cond_up_length LF@cond_down_length		#(param2 < strlen-1 && param2 > -1)\n"
+                  "JUMPIFEQ &ord&succes LF@cond_final bool@true \n"
+                  "MOVE LF@%%return_value string@None\n"
+                  "JUMP &ord&end\n"
+                  "LABEL &ord&succes\n"
+                  "STRI2INT LF@%%return_value LF@param1 LF@param2\n"
+                  "LABEL &ord&end\n"
+                  "POPFRAME\n"
+                  "RETURN\n");
+    string_append(assembly_code.main, "\n#>---------------------------FUNCTIONS---------------------------<\n");
+    string_append(assembly_code.main, "\n#>---------------------------MAIN---------------------------<\n");
+    string_append(assembly_code.main, "\nLABEL %MAIN\n");
+    string_append(assembly_code.errors, "\n#>---------------------------MAIN---------------------------<\n");
 }
 
 int start_program(){
@@ -344,7 +343,8 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
     string_append(frame, "JUMPIFEQ ");
     string_append(frame, label);
     append_string_variable_to_assembly(frame, variable_type);
-    append_string_variable_to_assembly(frame, type);
+    string_append(frame, " ");
+    string_append(frame, type);
     string_append(frame, "\n");
 }
 
@@ -587,6 +587,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
 
     generate_label(switching_output,end_of_expression->array);
+    identificator.label++;
 
     char *final_result = string_copy_data(result);
     string_free(label_int_dodge);
@@ -639,6 +640,7 @@ void generate_print(const char* label){
     string_t *none_label = string_create_init();
 
     //cycle that prints parametres all parametres of print function
+
     for(int i = identificator.param_def; i < identificator.param_call; i++){
         //we declare variable which we will use for storing type of passed variable
         create_unic_variable(check_variable, &identificator.general, "%check_type");
