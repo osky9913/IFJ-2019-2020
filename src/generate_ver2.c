@@ -9,6 +9,7 @@
 
 generate_strings_output_t assembly_code;
 uniq_id_t identificator;
+labels_stacks_t general_stacks;
 
 string_t * switch_definitions_frame(){
     if (in_function ){
@@ -214,8 +215,15 @@ void generate_assembly_start(){
 
 int start_program(){
     if (generate_strings_input_init() == ALLOC_ERROR){
-        return ALLOC_ERROR;
+        return ERROR_INTERNAL;
     }
+
+    general_stacks.if_labels_stack = stack_general_init();
+    general_stacks.while_labels_stack = stack_general_init();
+    if( !general_stacks.if_labels_stack || !general_stacks.while_labels_stack ){
+        return ERROR_INTERNAL; // check
+    }
+
     generate_assembly_start();
     identificator.param_def = 1;
     return SUCCESS;
@@ -577,7 +585,7 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
             string_append(switching_output, "EQ");
             append_string_variable_to_assembly(switching_output,result->array);
             append_string_variable_to_assembly(switching_output,result_eq_1->array);
-            string_append(switching_output,"bool@false\n");
+            string_append(switching_output," bool@false\n");
             break;
        default:
             fprintf(stderr, "THERE IS A PROBLEM\n");

@@ -34,7 +34,7 @@ int init_resources() {
 
     if (add_built_in_functions()) return ERROR_INTERNAL;
 
-    start_program();
+    if (start_program()) return ERROR_INTERNAL;
     return SUCCESS;
 }
 

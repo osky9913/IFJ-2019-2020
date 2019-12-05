@@ -30,6 +30,11 @@ typedef struct uniq_id{
     int  label;
 } uniq_id_t;
 
+typedef struct labels_stacks {
+    stack_general_t * while_labels_stack;
+    stack_general_t * if_labels_stack;
+}  labels_stacks_t;
+
 // for every string in generate strings output call string_init
 int generate_strings_input_init();
 
