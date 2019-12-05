@@ -217,6 +217,7 @@ int start_program(){
         return ALLOC_ERROR;
     }
     generate_assembly_start();
+    identificator.param_def = 1;
     return SUCCESS;
 }
 
@@ -697,7 +698,9 @@ void generate_print(const char* label){
     string_append(assembly_code.function_definitions, "WRITE string@\\010\n");
     //print always returns nil
     string_append(assembly_code.function_definitions,"MOVE LF@%%return_value nil@nil\n");
-    generate_function_end();
+    string_append(assembly_code.function_definitions, "POPFRAME \n");
+    string_append(assembly_code.function_definitions, "RETURN \n");
+    identificator.param_def = 1;
 
     string_free(process_next_param);
     string_free(check_variable);
