@@ -5,6 +5,7 @@
 #include <string.h>
 #include "dynamic_string.h"
 #include "scanner.h"
+#include "general_stack.h"
 
 
 // structure for implementing generator for output
@@ -23,11 +24,10 @@ typedef struct uniq_id{
     int param_def ;
     int expression ;
     int general_label ;
-    int  while_label ;
-    int  if_label ;
-    int  concat_label ;
-
-    int  label;
+    int while_label ;
+    int if_label ;
+    int concat_label ;
+    int label;
 } uniq_id_t;
 
 typedef struct labels_stacks {

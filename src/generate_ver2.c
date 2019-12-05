@@ -234,6 +234,8 @@ void free_assembly_code() {
     string_free(assembly_code.stash);
     string_free(assembly_code.function_definitions);
     string_free(assembly_code.errors);
+    free(general_stacks.if_labels_stack);
+    free(general_stacks.while_labels_stack);
 }
 
 
@@ -241,9 +243,6 @@ void end_program() {
     string_append(assembly_code.function_definitions, assembly_code.main->array);
     string_append(assembly_code.function_definitions, assembly_code.errors->array);
     printf("%s\n", assembly_code.function_definitions->array);
-
-
-
 }
 
 void append_frame_to_variable(string_t *frame) {
@@ -833,15 +832,15 @@ void generate_while(token_t * expression){
     string_t *while_end_label = string_create_init();
 
     //uniq label for int comparison
-    create_unic_label(while_int_label, &identificator.while_label, "%while_int_label");
+    create_unic_label(while_int_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_int_label");
     //uniq label for float comparison
-    create_unic_label(while_float_label, &identificator.while_label, "%while_float_label");
+    create_unic_label(while_float_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_float_label");
     //uniq label for bool comparison
-    create_unic_label(while_bool_label, &identificator.while_label, "%while_bool_label");
+    create_unic_label(while_bool_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_bool_label");
     //uniq label for jumping to the body of while cycle
-    create_unic_label(while_body_label, &identificator.while_label, "%while_body_label");
+    create_unic_label(while_body_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_body_label");
     //uniq label for jumping at the end of the cycle
-    create_unic_label(while_end_label, &identificator.while_label, "%while_end_label");
+    create_unic_label(while_end_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_end_label");
 
     //variable which will store type of passed expression
     string_t *id_type = define_uniq_variable(switching_output_definitions, &identificator.expression, "%while_check_type");
@@ -909,8 +908,15 @@ void generate_while(token_t * expression){
 void generate_while_label(){
     string_t *switching_output = switch_frame();
 
+    identificator.while_label += 1;
+    stack_general_push(general_stacks.while_labels_stack, // Push current label count
+            (void *) &(identificator.while_label));
+
     string_t *while_beginning_label = string_create_init();
-    create_unic_label(while_beginning_label, &identificator.while_label, "%while_beginning_label");
+
+    create_unic_label(while_beginning_label, 
+        (int *)(stack_general_top(general_stacks.while_labels_stack)->data),
+        "%while_beginning_label");
     string_append(switching_output, "\n#while cycle\n");
 
     generate_label(switching_output,while_beginning_label->array);
@@ -924,8 +930,8 @@ void generate_while_end(){
     string_t *while_beginning_label = string_create_init();
 
     //while end label and beginning label has to be the same as in generate_while
-    create_unic_label(while_end_label, &identificator.while_label, "%while_end_label");
-    create_unic_label(while_beginning_label, &identificator.while_label, "%while_beginning_label");
+    create_unic_label(while_end_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_end_label");
+    create_unic_label(while_beginning_label, (int *)(stack_general_top(general_stacks.while_labels_stack)->data), "%while_beginning_label");
 
 
     generate_jump(switching_output,"JUMP",while_beginning_label->array);
@@ -936,7 +942,8 @@ void generate_while_end(){
     generate_label(switching_output,while_end_label->array);
 
     //increase the label uniq variable, so that in next while are going to be different labels
-    identificator.while_label += 1;
+
+    stack_popNoDataFree(general_stacks.while_labels_stack);
 
     string_free(while_end_label);
     string_free(while_beginning_label);
