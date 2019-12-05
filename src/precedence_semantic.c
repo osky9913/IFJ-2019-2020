@@ -44,25 +44,29 @@ token_t* tokenGen(char* name){
 int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
     //checks if array is not full, if so, resizes it's length
     resizeArrayIfNeeded(arrayToCopy);
-    printf("fuck my life[%d]\n", originalToken->type);
     //create new token which will be add to the
     token_t* tmpToken = &arrayToCopy->arr[arrayToCopy->currLen];
     tmpToken->type = originalToken->type;
 
-
+    if(originalToken->type == TTYPE_ID || originalToken->type == TTYPE_STR ||
+    originalToken->type == TTYPE_INT || originalToken->type == TTYPE_DOUBLE){
         //get length of string which will be copied
+
         unsigned long length = strlen(originalToken->attribute.string);
+
         //make room for zero at the end
         length++;
-        
+
         //allocate memory for the string
         tmpToken->attribute.string = (char*)calloc(length, 1);
         if(tmpToken->attribute.string == NULL){
             return ALLOC_ERROR;
         }
-        
+
         //copy string from given token to the new one
         strcpy(tmpToken->attribute.string, originalToken->attribute.string);
+    }
+
 
     //increment current number of tokens in array as current length
     arrayToCopy->currLen++;
@@ -72,7 +76,8 @@ int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
 //free all memory allocated for given array
 void freeArray(t_array* toDelete){
     for(int i = 0; i< toDelete->currLen ; i++){
-        if(toDelete->arr[i].type == TTYPE_STR || toDelete->arr[i].type == TTYPE_ID){
+        if(toDelete->arr[i].type == TTYPE_ID || toDelete->arr[i].type == TTYPE_STR ||
+                toDelete->arr[i].type == TTYPE_INT || toDelete->arr[i].type == TTYPE_DOUBLE){
             free(toDelete->arr[i].attribute.string);
         }
     }
@@ -87,7 +92,8 @@ void freeTokenStack(stack_general_t* stackToFree){
     while(!stack_empty(stackToFree)){
         stack_general_item_t *tmpStackItem = stack_general_top(stackToFree);
         token_t *stackToken = (token_t *) tmpStackItem->data;
-        if(stackToken->type == TTYPE_STR || stackToken->type == TTYPE_ID){
+        if(stackToken->type == TTYPE_ID || stackToken->type == TTYPE_STR ||
+                stackToken->type == TTYPE_INT || stackToken->type == TTYPE_DOUBLE){
             free(stackToken->attribute.string);
         }
         stack_pop(stackToFree);

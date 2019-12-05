@@ -412,7 +412,6 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
     // types of operands are not equal -> error
     string_append(switching_output, "JUMPIFNEQ %error_label_semantic");
-    printf("\n-----------------------------\n%s\n-------------------\n",variable1->array);
     append_string_variable_to_assembly(switching_output, variable1->array);
 
     append_string_variable_to_assembly(switching_output, variable2->array);
@@ -852,7 +851,7 @@ void generate_while(token_t * expression){
     string_t *id_type = define_uniq_variable(switching_output_definitions, &identificator.expression, "%while_check_type");
 
     //get type of passed expression and store the type in string id_type
-    get_type_variable(id_type, switching_output, expression);
+    get_type_variable(switching_output,id_type ,expression);
 
     string_append(switching_output, "\n#comparing if while expression is false/zero\n");
     //if its int jump to int comparison
@@ -1008,7 +1007,7 @@ void generate_if(token_t *expression){
 
     string_t *id_type = define_uniq_variable(switching_output_definitions, &identificator.expression, "%if_check_type");
     //get type of passed parameter
-    get_type_variable(id_type, switching_output, expression);
+    get_type_variable( switching_output, id_type,expression);
 
 
     string_append(switching_output, "\n#checking if expression in if statement is false\n");
