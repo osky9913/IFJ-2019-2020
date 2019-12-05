@@ -77,6 +77,7 @@ void generate_assembly_start(){
                                         "MOVE LF@increment int@0\n"
                                         "READ LF@actual_string string\n"
                                         "STRLEN LF@str_len LF@actual_string\n"
+                                        "JUMPIFEQ &len&was&zero LF@str_len int@0\n"
                                         "SUB LF@str_len LF@str_len int@1\n"
                                         "LABEL &len&cycle\n"
                                         "GETCHAR LF@actual_char LF@actual_string LF@increment\n"
@@ -85,6 +86,8 @@ void generate_assembly_start(){
                                         "ADD LF@increment LF@increment int@1\n"
                                         "JUMP &len&cycle\n"
                                         "LABEL &len&end\n"
+                                        "CONCAT LF@%%return_value LF@%%return_value LF@actual_char\n"
+                                        "LABEL &len&was&zero\n"
                                         "POPFRAME\n"
                                         "RETURN\n");
     //len
