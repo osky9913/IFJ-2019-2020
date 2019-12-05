@@ -103,6 +103,7 @@ int r_program() {
             retvalue = ERROR_SYNTAX;
             break;
     }
+    retvalue = concat_main_stash(); // concat the code and the variable declarations
     return retvalue;
 }
 
@@ -194,6 +195,9 @@ int r_function_def() {
     int retvalue = ERROR_SYNTAX;
     in_function = true;
 
+    /* Append the main program code, we're switching output string */
+    if ((retvalue = concat_main_stash()) != SUCCESS) return retvalue;
+
     next_token(false);
     if (curr_token.type != TTYPE_ID) return ERROR_SYNTAX;
 
@@ -244,6 +248,9 @@ int r_function_def() {
     generate_function_end();
 
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* DEDENT */
+
+    /* Append the function program code, we're switching output string */
+    if ((retvalue = concat_function_stash()) != SUCCESS) return retvalue;
     
     in_function = false;
     symtable_clear_all(&table_local);

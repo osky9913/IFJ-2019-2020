@@ -12,8 +12,7 @@ uniq_id_t identificator;
 
 string_t * switch_definitions_frame(){
     if (in_function ){
-        return assembly_code.stash;
-
+        return assembly_code.function_definitions;
     }
     return  assembly_code.main;
 }
@@ -353,12 +352,7 @@ void check_if_op_type_eq(string_t *frame, char *variable_type, char *type, char 
 //void convert_float_to_int(string_t* frame, token_t* operand);
 
 string_t * switch_frame(){
-    if (in_function) {
-        return  assembly_code.function_definitions;
-    } 
-    else {
-        return assembly_code.main;
-    }
+    return assembly_code.stash;
 }
 
 
@@ -370,19 +364,19 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     string_t *switching_output_definitions = switch_definitions_frame();
 
     // -----------------------------------------------------------definice DEFVAR--------------------------------------------------------------
-    string_t  * temporary_div1 = define_uniq_variable(switching_output, &identificator.general, "temporary_div");
-    string_t  * temporary_div2 = define_uniq_variable(switching_output, &identificator.general, "temporary_div");
+    string_t  * temporary_div1 = define_uniq_variable(switching_output_definitions, &identificator.general, "temporary_div");
+    string_t  * temporary_div2 = define_uniq_variable(switching_output_definitions, &identificator.general, "temporary_div");
 
-    string_t *result = define_uniq_variable(switching_output, &identificator.general, "result");
+    string_t *result = define_uniq_variable(switching_output_definitions, &identificator.general, "result");
     //string which will store result of current operation (DEFVAR result)
     //string which will store first operand (DEFVAR operand1)
-    string_t *variable1 = define_uniq_variable(switching_output, &identificator.general, "var");
+    string_t *variable1 = define_uniq_variable(switching_output_definitions, &identificator.general, "var");
     //string which will store second operand (DEFVAR operand1)
-    string_t *variable2 = define_uniq_variable(switching_output, &identificator.general, "var");
+    string_t *variable2 = define_uniq_variable(switching_output_definitions, &identificator.general, "var");
     //string used as temporary storing place in operator >= or <=
-    string_t *result_eq_1 = define_uniq_variable(switching_output, &identificator.general,"tmp_result");
+    string_t *result_eq_1 = define_uniq_variable(switching_output_definitions, &identificator.general,"tmp_result");
     //string used as temporary storing place in operator >= or <=
-    string_t *result_eq_2 = define_uniq_variable(switching_output, &identificator.general, "tmp_result");
+    string_t *result_eq_2 = define_uniq_variable(switching_output_definitions, &identificator.general, "tmp_result");
     //string used as label for the end of expression evaluation
     // -----------------------------------------------------------definice DEFVAR--------------------------------------------------------------
 
@@ -397,11 +391,9 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
     //------------------------------------------------------------ Labels for expression -----------------------------------------------------
 
 
-
     //-------------------------------------------------------komparacia typov--------------------------------------------------------------------
 
     string_append(switching_output, "\n#evaluating expression\n");
-
 
 
     // type of first operand
@@ -612,24 +604,20 @@ char *generate_expression(token_t *operand1, token_t *operator, token_t *operand
 
 void generate_create_frame(){
 
-
-    string_t * switchting_output = switch_definitions_frame(); // todo check
+    string_t * switchting_output = switch_frame(); // todo check
     string_append(switchting_output,"CREATEFRAME\n");
     identificator.param_call = 1 ;
-
 }
 
 void generate_function(token_t *id){
 
     //------------------------ generovanie definicie-----------------------------
-    string_append(assembly_code.function_definitions, "\n\nLABEL !"); // can't use generate label because !
-    string_append(assembly_code.function_definitions, id->attribute.string);
-    string_append(assembly_code.function_definitions, "\n");
+    string_append(assembly_code.stash, "\n\nLABEL !"); // can't use generate label because !
+    string_append(assembly_code.stash, id->attribute.string);
+    string_append(assembly_code.stash, "\n");
 
-
-    string_append(assembly_code.function_definitions, "PUSHFRAME\n");
-    string_append(assembly_code.function_definitions, "DEFVAR LF@%%return_value\n");
-
+    string_append(assembly_code.stash, "PUSHFRAME\n");
+    string_append(assembly_code.stash, "DEFVAR LF@%%return_value\n");
 }
 
 void generate_print(const char* label){
@@ -718,8 +706,8 @@ void generate_print(const char* label){
 void generate_function_end() {
 
     //--------------------- koniec definicie funkcie
-    string_append(assembly_code.function_definitions, "POPFRAME \n");
-    string_append(assembly_code.function_definitions, "RETURN \n");
+    string_append(assembly_code.stash, "POPFRAME \n");
+    string_append(assembly_code.stash, "RETURN \n");
     identificator.param_def = 1;
 }
 
@@ -728,7 +716,7 @@ void generate_call_function(const char *id){
 
 
     // call
-    string_t *switching_output = switch_definitions_frame();
+    string_t *switching_output = switch_frame();
     // if function is print
     if((strcmp(id, "print")) == 0){
 
@@ -746,7 +734,6 @@ void generate_call_function(const char *id){
         string_append(switching_output, id);
         string_append(switching_output, "\n");
     }
-
 }
 
 
@@ -761,15 +748,13 @@ void generate_jumpeq_string_char(string_t * frame , const char * jump , string_t
 
 }
 
-
-
 void generate_def_param(token_t *id){
 
     // declaration of variable
-    string_append(assembly_code.function_definitions, "DEFVAR");
+    string_append(assembly_code.stash, "DEFVAR");
     //printing_frame_to_variable(function_definitions); -> redundant LF@
-    append_string_variable_to_assembly(assembly_code.function_definitions, id->attribute.string);
-    string_append(assembly_code.function_definitions, "\n");
+    append_string_variable_to_assembly(assembly_code.stash, id->attribute.string);
+    string_append(assembly_code.stash, "\n");
 
 
     // createion of new variable
@@ -780,10 +765,10 @@ void generate_def_param(token_t *id){
 
 
     //moving value
-    string_append(assembly_code.function_definitions, "MOVE");
-    append_string_variable_to_assembly(assembly_code.function_definitions, id->attribute.string);
-    append_string_variable_to_assembly(assembly_code.function_definitions, parameter->array);
-    string_append(assembly_code.function_definitions, "\n");
+    string_append(assembly_code.stash, "MOVE");
+    append_string_variable_to_assembly(assembly_code.stash, id->attribute.string);
+    append_string_variable_to_assembly(assembly_code.stash, parameter->array);
+    string_append(assembly_code.stash, "\n");
 
     string_free(parameter);
 }
@@ -817,8 +802,6 @@ void generate_call_param(token_t *id){
 void generate_while(token_t * expression){
 // ?
     string_t * switching_output = switch_frame();
-
-
     string_t *switching_output_definitions = switch_definitions_frame();
 
     string_t *while_expression = define_uniq_variable(switching_output_definitions, &identificator.expression, "%while_expression");
@@ -913,14 +896,9 @@ void generate_while(token_t * expression){
 void generate_while_label(){
     string_t *switching_output = switch_frame();
 
-
-
-
     string_t *while_beginning_label = string_create_init();
     create_unic_label(while_beginning_label, &identificator.while_label, "%while_beginning_label");
     string_append(switching_output, "\n#while cycle\n");
-
-
 
     generate_label(switching_output,while_beginning_label->array);
     //free string
@@ -947,12 +925,8 @@ void generate_while_end(){
     //increase the label uniq variable, so that in next while are going to be different labels
     identificator.while_label += 1;
 
-
-
     string_free(while_end_label);
     string_free(while_beginning_label);
-
-
 }
 
 void generate_if(token_t *expression){
@@ -993,7 +967,7 @@ void generate_if(token_t *expression){
 
     string_t *id_type = define_uniq_variable(switching_output_definitions, &identificator.expression, "%if_check_type");
     //get type of passed parameter
-    get_type_variable( switching_output, id_type,expression);
+    get_type_variable(switching_output, id_type,expression);
 
 
     string_append(switching_output, "\n#checking if expression in if statement is false\n");
@@ -1070,9 +1044,6 @@ void generate_else(){
     //uniq for if labels will be set to one
     string_free(else_body_label);
     string_free(else_if_end_label);
-
-
-
 }
 
 void generate_elseif_end(){
@@ -1086,9 +1057,6 @@ void generate_elseif_end(){
 
     identificator.if_label+=1;
     string_free(else_if_end_label);
-
-
-
 }
 
 void generate_assign_to_retvalue(const char *return_result){
@@ -1100,8 +1068,6 @@ void generate_assign_to_retvalue(const char *return_result){
     append_frame_to_variable(switching_output);
     string_append(switching_output, return_result);
     string_append(switching_output, "\n");
-
-
 }
 
 
@@ -1123,28 +1089,28 @@ void generate_assign(const char *destination, token_t *content){
     append_string_variable_to_assembly(switching_output, destination);
     append_token_variable_to_assembly(switching_output, content);
     string_append(switching_output, "\n");
-
-
 }
 
 void declaration_variable(token_t *variable){
 
-    string_t *switching_output = switch_frame();
+    string_t *switching_output_definitions = switch_definitions_frame();
 
-    /*
-    if (while_label_cnt > 0) {
-        switching_output = defvars;
-    } else {
-        if (in_function) {
-            switching_output = function_definitions;
-        } else {
-            switching_output = output_code;
-        }
-    }
-    */
-    string_append(switching_output, "DEFVAR");
-    append_token_variable_to_assembly(switching_output, variable);
-    string_append(switching_output, "\n");
-
+    string_append(switching_output_definitions, "DEFVAR");
+    append_token_variable_to_assembly(switching_output_definitions, variable);
+    string_append(switching_output_definitions, "\n");
 }
 
+
+int concat_main_stash() {
+    int retvalue = SUCCESS;
+    string_append(assembly_code.main, assembly_code.stash->array);
+    string_clear(assembly_code.stash);
+    return retvalue;
+}
+
+int concat_function_stash() {
+    int retvalue = SUCCESS;
+    string_append(assembly_code.function_definitions, assembly_code.stash->array);
+    string_clear(assembly_code.stash);
+    return retvalue;
+}

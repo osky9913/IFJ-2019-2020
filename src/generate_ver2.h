@@ -117,12 +117,12 @@ void generate_assign(const char *destination, token_t *content);
 
 void declaration_variable(token_t *variable);
 
-
-
-
-
-
-
+/**
+ * These two functions take the content of the stash code string, and
+ * append it to the main or the function code string. Then, they clear the stash.
+ */
+int concat_main_stash();
+int concat_function_stash();
 
 
 #endif //GENERATE_2_H
