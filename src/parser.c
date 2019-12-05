@@ -103,7 +103,7 @@ int r_program() {
             retvalue = ERROR_SYNTAX;
             break;
     }
-    retvalue = concat_main_stash(); // concat the code and the variable declarations
+    if (concat_main_stash()) return ERROR_INTERNAL; // concat the code and the variable declarations
     return retvalue;
 }
 
