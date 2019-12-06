@@ -378,3 +378,7 @@ Line 1 - Lex error 1
 Test lex_escape_5 PASSED - returned 1, expected 1
 ===============================================
  
+Test case lex_escape_6:
+Test lex_escape_6 PASSED - returned 0, expected 0
+===============================================
+ 

@@ -45,7 +45,7 @@ void generate_assembly_start(){
 
     string_append(assembly_code.errors, "LABEL %error_label_0\n");
     string_append(assembly_code.errors, "DPRINT string@DIVISION_BY_ZERO\n");
-    string_append(assembly_code.errors, "EXIT int@4\n");
+    string_append(assembly_code.errors, "EXIT int@9\n");
 
 
 
@@ -549,7 +549,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
 
 
             //check if operand1 < operand2
-            string_append(switching_output, "LS");
+            string_append(switching_output, "LT");
             append_token_operands_to_assembly(switching_output, result_eq_1, assembly_1_token, assembly_2_token);
             //check if operand1 == operand2
             string_append(switching_output, "EQ");

@@ -63,3 +63,4 @@ lex_escape_2 0
 lex_escape_3 1
 lex_escape_4 1
 lex_escape_5 1
+lex_escape_6 0
