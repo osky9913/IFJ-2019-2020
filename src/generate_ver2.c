@@ -24,11 +24,13 @@ int generate_strings_input_init(){
     assembly_code.errors = string_create_init();
     assembly_code.function_definitions = string_create_init();
     assembly_code.main = string_create_init();
+    assembly_code.print = string_create_init();
     //checks alloc
     if( assembly_code.stash == NULL ||
         assembly_code.errors == NULL ||
         assembly_code.function_definitions == NULL ||
-        assembly_code.main == NULL  
+        assembly_code.main == NULL ||
+        assembly_code.print == NULL  
         )
     {
         return ALLOC_ERROR;
@@ -237,12 +239,14 @@ void free_assembly_code() {
     string_free(assembly_code.stash);
     string_free(assembly_code.function_definitions);
     string_free(assembly_code.errors);
+    string_free(assembly_code.print);
     free(general_stacks.if_labels_stack);
     free(general_stacks.while_labels_stack);
 }
 
 
 void end_program() {
+    string_append(assembly_code.function_definitions, assembly_code.print->array);
     string_append(assembly_code.function_definitions, assembly_code.main->array);
     string_append(assembly_code.function_definitions, assembly_code.errors->array);
     printf("%s\n", assembly_code.function_definitions->array);
@@ -458,13 +462,6 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     create_unic_label(int_to_float,&identificator.label,"%label_int_to_float");
     create_unic_label(float_to_int,&identificator.label,"%label_float_to_int");
     create_unic_label(_2_ints_to_floats,&identificator.label,"%_2_int_to_float");
-
-
-
-
-
-
-
 
 
     //-------------------------------------------------------------Labels for operation -----------------------------------------------
@@ -987,6 +984,11 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     token_free(assembly_1_token);
     token_free(assembly_2_token);
 
+    free(assembly_1_variable);
+    free(assembly_2_variable);
+
+    free(assembly_1_token);
+    free(assembly_2_token);
 
     char *final_result = string_copy_data(result);
     string_free(label_int_dodge);
@@ -999,6 +1001,21 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     string_free(variable2);
     string_free(temporary_div1);
     string_free(temporary_div2);
+
+    string_free(label_LSOREQ);
+    string_free(label_GTOREQ);
+    string_free(label_ISEQ);
+    string_free(label_LS);
+    string_free(label_GT);
+    string_free(label_ADD);
+    string_free(label_SUB);
+    string_free(label_MUL);
+    string_free(label_DIV);
+    string_free(label_IDIV);
+    string_free(label_ISNEQ);
+    string_free(int_to_float);
+    string_free(_2_ints_to_floats);
+    string_free(float_to_int);
     return final_result;
 }
 
@@ -1024,11 +1041,11 @@ void generate_print(const char* label){
 
     //toto prerobit na generate_function a generate_call_function, tak aby mi do tych funkcii posielali iba string nie token
 
-    string_append(assembly_code.function_definitions, "\nLABEL !");
-    string_append(assembly_code.function_definitions, label);
-    string_append(assembly_code.function_definitions, "\n");
-    string_append(assembly_code.function_definitions, "PUSHFRAME\n");
-    string_append(assembly_code.function_definitions, "DEFVAR LF@%%return_value\n");
+    string_append(assembly_code.print, "\nLABEL !");
+    string_append(assembly_code.print, label);
+    string_append(assembly_code.print, "\n");
+    string_append(assembly_code.print, "PUSHFRAME\n");
+    string_append(assembly_code.print, "DEFVAR LF@%%return_value\n");
     //label for potentional next parameters after None
     string_t* process_next_param = string_create_init();
     //variable to check type
@@ -1043,61 +1060,61 @@ void generate_print(const char* label){
     for(int i = identificator.param_def; i < identificator.param_call; i++){
         //we declare variable which we will use for storing type of passed variable
         create_unic_variable(check_variable, &identificator.general, "%check_type");
-        string_append(assembly_code.function_definitions, "DEFVAR LF@");
-        string_append(assembly_code.function_definitions, check_variable->array);
-        string_append(assembly_code.function_definitions, "\n");
+        string_append(assembly_code.print, "DEFVAR LF@");
+        string_append(assembly_code.print, check_variable->array);
+        string_append(assembly_code.print, "\n");
 
         //checking type from passed parameter, generating params according to called params
         create_unic_variable(parameter, &identificator.param_def, "%param");
-        string_append(assembly_code.function_definitions, "TYPE LF@");
-        string_append(assembly_code.function_definitions, check_variable->array);
-        string_append(assembly_code.function_definitions, " LF@");
-        string_append(assembly_code.function_definitions, parameter->array);
-        string_append(assembly_code.function_definitions, "\n");
+        string_append(assembly_code.print, "TYPE LF@");
+        string_append(assembly_code.print, check_variable->array);
+        string_append(assembly_code.print, " LF@");
+        string_append(assembly_code.print, parameter->array);
+        string_append(assembly_code.print, "\n");
 
         //jumps when passed parameter is nil -> NONE_LABEL
         create_unic_variable(none_label, &identificator.label, "%none_label");
-        string_append(assembly_code.function_definitions, "JUMPIFEQ ");
-        string_append(assembly_code.function_definitions, none_label->array);
-        string_append(assembly_code.function_definitions, " LF@");
-        string_append(assembly_code.function_definitions,  check_variable->array);
-        string_append(assembly_code.function_definitions, " string@nil\n");
+        string_append(assembly_code.print, "JUMPIFEQ ");
+        string_append(assembly_code.print, none_label->array);
+        string_append(assembly_code.print, " LF@");
+        string_append(assembly_code.print,  check_variable->array);
+        string_append(assembly_code.print, " string@nil\n");
 
         //parameter wasnt nil -> we can print it
-        string_append(assembly_code.function_definitions, "WRITE ");
-        string_append(assembly_code.function_definitions, " LF@");
-        string_append(assembly_code.function_definitions, parameter->array);
-        string_append(assembly_code.function_definitions, "\n");
+        string_append(assembly_code.print, "WRITE ");
+        string_append(assembly_code.print, " LF@");
+        string_append(assembly_code.print, parameter->array);
+        string_append(assembly_code.print, "\n");
 
         //we have to jump over the print of None
         create_unic_variable(process_next_param, &identificator.label, "%next_param");
-        string_append(assembly_code.function_definitions, "JUMP ");
-        string_append(assembly_code.function_definitions, process_next_param->array);
-        string_append(assembly_code.function_definitions, "\n");
+        string_append(assembly_code.print, "JUMP ");
+        string_append(assembly_code.print, process_next_param->array);
+        string_append(assembly_code.print, "\n");
 
         //paramter was None -> jumped here
-        string_append(assembly_code.function_definitions, "LABEL ");
-        string_append(assembly_code.function_definitions, none_label->array);
-        string_append(assembly_code.function_definitions, "\n");
+        string_append(assembly_code.print, "LABEL ");
+        string_append(assembly_code.print, none_label->array);
+        string_append(assembly_code.print, "\n");
 
         //print None
-        string_append(assembly_code.function_definitions, "WRITE string@None\n");
+        string_append(assembly_code.print, "WRITE string@None\n");
 
         //end processing of first parameter
-        string_append(assembly_code.function_definitions, "LABEL ");
-        string_append(assembly_code.function_definitions, process_next_param->array);
-        string_append(assembly_code.function_definitions, "\n");
+        string_append(assembly_code.print, "LABEL ");
+        string_append(assembly_code.print, process_next_param->array);
+        string_append(assembly_code.print, "\n");
 
         /* Ensures there is no space after the last param*/
         if (i < identificator.param_call - 1)
-            string_append(assembly_code.function_definitions, "WRITE string@\\032\n");
+            string_append(assembly_code.print, "WRITE string@\\032\n");
     }
     //printing \n after printing all parameters
-    string_append(assembly_code.function_definitions, "WRITE string@\\010\n");
+    string_append(assembly_code.print, "WRITE string@\\010\n");
     //print always returns nil
-    string_append(assembly_code.function_definitions,"MOVE LF@%%return_value nil@nil\n");
-    string_append(assembly_code.function_definitions, "POPFRAME \n");
-    string_append(assembly_code.function_definitions, "RETURN \n");
+    string_append(assembly_code.print,"MOVE LF@%%return_value nil@nil\n");
+    string_append(assembly_code.print, "POPFRAME \n");
+    string_append(assembly_code.print, "RETURN \n");
     identificator.param_def = 1;
 
     string_free(process_next_param);

@@ -114,3 +114,267 @@ Test case s_function_call_1:
 Test s_function_call_1 PASSED - returned 0, expected 0
 ===============================================
  
+Test case m_sem_wrong_1:
+Line 2 - String and non string as operands in expression.
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_1 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_2:
+Line 2 - IDIV with floating points
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_2 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_3:
+Line 2 - The only valid string operation is concatenation
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_3 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_4:
+Line 2 - Division by zero.
+Line 2 - Return semantic[9]
+9
+error - division by zero
+Test m_sem_wrong_4 PASSED - returned 9, expected 9
+===============================================
+ 
+Test case m_sem_wrong_5:
+semantic error - other
+Test m_sem_wrong_5 PASSED - returned 6, expected 6
+===============================================
+ 
+Test case m_sem_wrong_6:
+semantic error - other
+Test m_sem_wrong_6 PASSED - returned 6, expected 6
+===============================================
+ 
+Test case m_sem_wrong_7:
+Line 2 - Variable a was undefined.
+Line 2 - Undefined variable
+3
+semantic error - undefined symbol
+Test m_sem_wrong_7 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_8:
+Line 2 - String and non string as operands in expression.
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_8 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_9:
+Line 2 - The only valid string operation is concatenation
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_9 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_10:
+Line 7 - Variable x was undefined.
+Line 7 - Undefined variable
+3
+semantic error - undefined symbol
+Test m_sem_wrong_10 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_11:
+Line 3 - Semantic error: Function 'b' is undefinded.
+semantic error - undefined symbol
+Test m_sem_wrong_11 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_12:
+Line 4 - Variable b was undefined.
+Line 4 - Undefined variable
+3
+semantic error - undefined symbol
+Test m_sem_wrong_12 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_13:
+semantic error - other
+Test m_sem_wrong_13 PASSED - returned 6, expected 6
+===============================================
+ 
+Test case m_sem_wrong_14:
+Line 2 - String and non string as operands in expression.
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_14 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_15:
+Line 2 - Return semantic[4]
+4
+semantic error - invalid operand types
+Test m_sem_wrong_15 PASSED - returned 4, expected 4
+===============================================
+ 
+Test case m_sem_wrong_16:
+Test m_sem_wrong_16 FAILED - returned 0, expected 4
+===============================================
+ 
+Test case m_sem_wrong_17:
+Test m_sem_wrong_17 FAILED - returned 0, expected 4
+===============================================
+ 
+Test case m_sem_wrong_18:
+Test m_sem_wrong_18 FAILED - returned 0, expected 4
+===============================================
+ 
+Test case m_sem_wrong_19:
+Line 5 - Semantic error: ID 'foo' has already been defined as a function.
+semantic error - undefined symbol
+Test m_sem_wrong_19 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_20:
+Line 3 - Semantic error: ID 'foo' has already been defined as a function.
+semantic error - undefined symbol
+Test m_sem_wrong_20 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_21:
+Line 13 - Semantic error: A dependency 'b' of function 'foo' is undefinded.
+semantic error - undefined symbol
+Test m_sem_wrong_21 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_wrong_22:
+Line 5 - Semantic error: Wrong parameter count when calling function 'foo'.
+semantic error - invalid function parameter count
+Test m_sem_wrong_22 PASSED - returned 5, expected 5
+===============================================
+ 
+Test case m_sem_wrong_23:
+Line 4 - Semantic error: Wrong parameter count when calling function 'foo'.
+semantic error - invalid function parameter count
+Test m_sem_wrong_23 PASSED - returned 5, expected 5
+===============================================
+ 
+Test case m_sem_wrong_24:
+Line 3 - Semantic error: ID 'foo' has already been defined.
+semantic error - undefined symbol
+Test m_sem_wrong_24 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case m_sem_ok_1:
+Test m_sem_ok_1 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case m_sem_ok_2:
+Test m_sem_ok_2 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case m_sem_ok_3:
+Test m_sem_ok_3 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case syntax_def_1:
+syntax is incorrect
+Test syntax_def_1 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case syntax_def_2:
+syntax is incorrect
+Test syntax_def_2 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case syntax_def_3:
+syntax is incorrect
+Test syntax_def_3 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case syntax_def_4:
+syntax is incorrect
+Test syntax_def_4 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case syntax_def_5:
+syntax is incorrect
+Test syntax_def_5 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case syntax_def_6:
+syntax is incorrect
+Test syntax_def_6 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case syntax_prog_1:
+Test syntax_prog_1 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case syntax_prog_2:
+Line 1 - Syntax error: unexpected keyword.
+syntax is incorrect
+Test syntax_prog_2 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case sem_call_param_cnt_1:
+Line 4 - Semantic error: Wrong parameter count when calling function 'foo'.
+semantic error - invalid function parameter count
+Test sem_call_param_cnt_1 PASSED - returned 5, expected 5
+===============================================
+ 
+Test case sem_call_param_cnt_2:
+Line 4 - Semantic error: Wrong parameter count when defining function 'f2'.
+semantic error - invalid function parameter count
+Test sem_call_param_cnt_2 PASSED - returned 5, expected 5
+===============================================
+ 
+Test case sem_call_param_cnt_3:
+Line 5 - Semantic error: Wrong parameter count when calling function 'f2'.
+semantic error - invalid function parameter count
+Test sem_call_param_cnt_3 PASSED - returned 5, expected 5
+===============================================
+ 
+Test case sem_call_param_cnt_4:
+Line 1 - Semantic error: Wrong parameter count when calling function 'substr'.
+semantic error - invalid function parameter count
+Test sem_call_param_cnt_4 PASSED - returned 5, expected 5
+===============================================
+ 
+Test case lex_empty_string_1:
+Test lex_empty_string_1 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case lex_escape_1:
+line 1 : Lexical analysis error: Unknown operator!
+Line 1 - Lex error 1
+Test lex_escape_1 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case lex_escape_2:
+Test lex_escape_2 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case lex_escape_3:
+line 1: Lexical analysis error : Invalid escape sequence!
+Line 1 - Lex error 1
+Test lex_escape_3 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case lex_escape_4:
+line 1: Lexical analysis error : Invalid escape sequence!
+Line 1 - Lex error 1
+Test lex_escape_4 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case lex_escape_5:
+line 1: Lexical analysis error : Invalid escape sequence!
+Line 1 - Lex error 1
+Test lex_escape_5 PASSED - returned 1, expected 1
+===============================================
+ 

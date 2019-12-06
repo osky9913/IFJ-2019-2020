@@ -14,6 +14,7 @@ typedef struct generate_strings_output{
     string_t *function_definitions;
     string_t *errors;
     string_t * stash;
+    string_t * print;
 } generate_strings_output_t;
 
 

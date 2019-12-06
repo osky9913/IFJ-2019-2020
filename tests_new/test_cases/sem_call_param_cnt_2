@@ -1,0 +1,5 @@
+def f1():
+   f2(2, 2)
+
+def f2(a, b, c):
+   pass
