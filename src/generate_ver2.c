@@ -788,12 +788,12 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             generate_jumpeq_string_string(switching_output,"JUMPIFEQ",label_SUB,variable1,variable2);
 
             //if variable1 is int the variable2 have to be float, so jump -> variable1 to float
-            generate_jumpeq_string_char(switching_output,"JUMPIFEQ",int_to_float,variable1,"string@int");
+            generate_jumpeq_string_char(switching_output,"JUMPIFEQ",int_to_float,variable2,"string@int");
 
             // variable1 is not int so variable2 is int
             string_append(switching_output, "INT2FLOAT");
-            append_token_variable_to_assembly(switching_output,assembly_2_token);
-            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
             string_append(switching_output,"\n");
             // jump
             generate_jump(switching_output,"JUMP",label_SUB->array);
@@ -802,8 +802,8 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             // int to flat variable one
             generate_label(switching_output,int_to_float->array);
             string_append(switching_output, "INT2FLOAT");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);
-            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
             string_append(switching_output,"\n");
 
             generate_label(switching_output,label_SUB->array);
@@ -863,18 +863,18 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
 
             generate_jumpeq_string_string(switching_output,"JUMPIFEQ",label_DIV,variable1,variable2);
 
-            generate_jumpeq_string_char(switching_output,"JUMPIFEQ",int_to_float,variable2,"string@int");
+            generate_jumpeq_string_char(switching_output,"JUMPIFEQ",int_to_float,variable1,"string@int");
 
             // variable1 is not int so variable2 is int
             string_append(switching_output, "JUMPIFEQ ");
             string_append(switching_output,"%error_label_0 ");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
             string_append(switching_output," int@0\n");
 
 
             string_append(switching_output, "INT2FLOAT");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);
-            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
             string_append(switching_output,"\n");
             // jump
             generate_jump(switching_output,"JUMP",label_DIV->array);
@@ -885,8 +885,8 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             // int to flat variable one
             generate_label(switching_output,int_to_float->array);
             string_append(switching_output, "INT2FLOAT");
-            append_token_variable_to_assembly(switching_output,assembly_2_token);
-            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
             string_append(switching_output,"\n");
 
 
@@ -902,7 +902,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             //delenie nulou pre float
             string_append(switching_output, "\nJUMPIFEQ ");
             string_append(switching_output,"%error_label_0 ");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
             string_append(switching_output," float@0x0.0p+0\n");
 
             string_append(switching_output,"DIV");
@@ -955,7 +955,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
 
             string_append(switching_output, "JUMPIFEQ ");
             string_append(switching_output,"%error_label_0 ");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);// check
+            append_token_variable_to_assembly(switching_output,assembly_2_token);// check
             string_append(switching_output," int@0\n");
 
 
