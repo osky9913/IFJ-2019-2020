@@ -488,10 +488,10 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
             return ERROR_SEM_TYPE;
         }
-        if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type != TTYPE_INT && operand2->type != TTYPE_DOUBLE)){
+        if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type != TTYPE_INT && operand2->type != TTYPE_DOUBLE && operand2->type != TTYPE_ID)){
             return ERROR_SEM_TYPE;
         }
-        if((operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE) && (operand1->type != TTYPE_INT && operand1->type != TTYPE_DOUBLE)){
+        if((operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE) && (operand1->type != TTYPE_INT && operand1->type != TTYPE_DOUBLE && operand2->type != TTYPE_ID)){
             return ERROR_SEM_TYPE;
         }
     }
