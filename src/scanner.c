@@ -392,8 +392,8 @@ int get_token(token_t* token){
                             break;
 
                         default:
-                            string_append_char(token_string, '\\');
-                            string_append_char(token_string, c);
+                            string_append(token_string, "\\092");
+                            ungetc(c, stdin);
                             break;
                     }
                 }
@@ -665,8 +665,8 @@ int get_token(token_t* token){
                             break;
 
                         default:
-                            string_append_char(token_string, '\\');
-                            string_append_char(token_string, c);
+                            string_append(token_string, "\\092");
+                            ungetc(c, stdin);
                             break;
                     }
                 }

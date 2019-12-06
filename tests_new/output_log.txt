@@ -382,3 +382,12 @@ Test case lex_escape_6:
 Test lex_escape_6 PASSED - returned 0, expected 0
 ===============================================
  
+Test case nested_def_1:
+syntax is incorrect
+Test nested_def_1 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case expr_test_1:
+Test expr_test_1 PASSED - returned 0, expected 0
+===============================================
+ 
