@@ -114,6 +114,9 @@ void generate_elseif_end();
 
 void generate_assign_to_retvalue(const char *return_result);
 
+void generate_jumpeq_string_string(string_t * frame , const char * jump , string_t * label , string_t * variable1, string_t * variable2 );
+
+
 
 void generate_assign_retvalue(const char *dest);
 
