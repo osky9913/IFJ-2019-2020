@@ -322,7 +322,7 @@ int psa(const char* assignmentID){
 
     //checking if relational operator is only in if or while statement
     int lastOperator = getPriority(&(postfix.arr[postfix.currLen-1]));
-    if((psa_state != IF && psa_state != WHILE) && lastOperator == 0){
+    if((psa_state == RETURN || psa_state == ASSIGN) && lastOperator == 0){
         unget_token();
         stack_free(PAStack);
         freePsaResources(&infixArr, &postfix, s);

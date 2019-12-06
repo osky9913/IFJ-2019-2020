@@ -343,7 +343,6 @@ bool isOperator(const token_t* const token){
 //evaluate postfix expression
 int postfixEval(t_array* postfix, const char* assignmentID){
     //checks if all variables in expression are defined
-
     int checkDefine = checkDefinedVarInPostfix(postfix, assignmentID);
     if(checkDefine == ERROR_SEM_DEFINITION){
         fprintf(stderr, "Line %d - Undefined variable\n", line_counter);
@@ -428,28 +427,18 @@ int postfixEval(t_array* postfix, const char* assignmentID){
 }
 
 
-//loop through the postfix array and if token is variable check if it's defined
-int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
-    int checkDef;
-    for(int i = 0; i < postfix->currLen ; i++){
-        if(postfix->arr[i].type == TTYPE_ID){
-
-            checkDef = check_if_defined_var(postfix->arr[i].attribute.string, assignmentID);
-            if(checkDef != VARIABLE_FOUND){
-                fprintf(stderr, "Line %d - Variable %s was undefined.\n",
-                        line_counter, postfix->arr[i].attribute.string);
-                return ERROR_SEM_DEFINITION;
-            }
-        }
-    }
-    return SUCCESS;
-}
-
 int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
+    // == or != can use every type
+    if(operator->type == TTYPE_ISEQ || operator->type == TTYPE_ISNEQ){
+        return SUCCESS;
+    }
+
     int checkInt = 1;
     if(operand1->type == TTYPE_INT){
         sscanf( operand1->attribute.string, "%d", &checkInt );
     }
+
+    //if operands are numbers check if zero division
     if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE)){
         if(isOperator(operator)){
             if(operator->type == TTYPE_IDIV){
@@ -482,16 +471,46 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
     if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
 
         if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
-        operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
+           operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
             fprintf(stderr, "Line %d - The only valid string operation is concatenation\n",
                     line_counter);
             return ERROR_SEM_TYPE;
         }
         return SUCCESS;
     }
-    if((operand1->type == TTYPE_STR && (operand2->type != TTYPE_STR && operand2->type != TTYPE_ID) ) || (operand2->type == TTYPE_STR && (operand1->type != TTYPE_STR && operand1->type != TTYPE_ID))){
+
+    if((operand1->type == TTYPE_STR && (operand2->type != TTYPE_STR && operand2->type != TTYPE_ID) ) ||
+       (operand2->type == TTYPE_STR && (operand1->type != TTYPE_STR && operand1->type != TTYPE_ID))){
         fprintf(stderr, "Line %d - String and non string as operands in expression.\n", line_counter);
         return ERROR_SEM_TYPE;
+    }
+    if(operator->type == TTYPE_GT || operator->type == TTYPE_LS || operator->type == TTYPE_LSOREQ || operator->type == TTYPE_GTOREQ){
+        if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
+            return ERROR_SEM_TYPE;
+        }
+        if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type != TTYPE_INT && operand2->type != TTYPE_DOUBLE)){
+            return ERROR_SEM_TYPE;
+        }
+        if((operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE) && (operand1->type != TTYPE_INT && operand1->type != TTYPE_DOUBLE)){
+            return ERROR_SEM_TYPE;
+        }
+    }
+    return SUCCESS;
+}
+
+//loop through the postfix array and if token is variable check if it's defined
+int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
+    int checkDef;
+    for(int i = 0; i < postfix->currLen ; i++){
+        if(postfix->arr[i].type == TTYPE_ID){
+
+            checkDef = check_if_defined_var(postfix->arr[i].attribute.string, assignmentID);
+            if(checkDef != VARIABLE_FOUND){
+                fprintf(stderr, "Line %d - Variable %s was undefined.\n",
+                        line_counter, postfix->arr[i].attribute.string);
+                return ERROR_SEM_DEFINITION;
+            }
+        }
     }
     return SUCCESS;
 }
