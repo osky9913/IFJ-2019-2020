@@ -1,11 +1,3 @@
-Test case lex_wrong_id_1:
-Line 2 - Variable _ was undefined.
-Line 2 - Undefined variable
-3
-semantic error - undefined symbol
-Test lex_wrong_id_1 FAILED - returned 3, expected 1
-===============================================
- 
 Test case lex_wrong_id_2:
 line 1 : Lexical analysis error: Unknown operator!
 Line 1 - Lex error 1
@@ -28,5 +20,97 @@ Test case lex_wrong_id_5:
 line 1 : Lexical analysis error: Unknown operator!
 Line 1 - Lex error 1
 Test lex_wrong_id_5 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case s_badindent1:
+line 4: Lexical analysis error: Indentation in commands sequence was not correct!
+Line 4 - Lex error 1
+Test s_badindent1 PASSED - returned 1, expected 1
+===============================================
+ 
+Test case s_badindent2:
+Test s_badindent2 FAILED - returned 0, expected 1
+===============================================
+ 
+Test case s_undef_var_1:
+Line 1 - Sematic error: parameter a was undefined.
+semantic error - undefined symbol
+Test s_undef_var_1 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_local_var_ref_1:
+Line 4 - Semantic error: Local variable 'a' has been referenced before it's definition.
+semantic error - undefined symbol
+Test s_local_var_ref_1 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_local_var_ref_2:
+Test s_local_var_ref_2 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case s_local_var_ref_3:
+Line 4 - Semantic error: Local variable 'a' has been referenced before it's definition.
+semantic error - undefined symbol
+Test s_local_var_ref_3 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undef_var_2:
+Line 2 - Variable a was undefined.
+Line 2 - Undefined variable
+3
+semantic error - undefined symbol
+Test s_undef_var_2 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undef_var_3:
+Line 5 - Sematic error: parameter a was undefined.
+semantic error - undefined symbol
+Test s_undef_var_3 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undef_var_4:
+Line 7 - Variable a was undefined.
+Line 7 - Undefined variable
+3
+semantic error - undefined symbol
+Test s_undef_var_4 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case semantic_input.py:
+Test semantic_input.py PASSED - returned 0, expected 0
+===============================================
+ 
+Test case s_undefined_function_1:
+Line 2 - Semantic error: Function 'foo' is undefinded.
+semantic error - undefined symbol
+Test s_undefined_function_1 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undefined_function_2:
+Line 1 - Semantic error: Function 'foo' is undefinded.
+semantic error - undefined symbol
+Test s_undefined_function_2 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undefined_function_3:
+Line 4 - Semantic error: A dependency 'f2' of function 'f1' is undefinded.
+semantic error - undefined symbol
+Test s_undefined_function_3 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undefined_function_4:
+Line 10 - Semantic error: A dependency 'f2' of function 'f3' is undefinded.
+semantic error - undefined symbol
+Test s_undefined_function_4 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_undefined_function_5:
+Line 9 - Semantic error: A dependency 'f2' of function 'f3' is undefinded.
+semantic error - undefined symbol
+Test s_undefined_function_5 PASSED - returned 3, expected 3
+===============================================
+ 
+Test case s_function_call_1:
+Test s_function_call_1 PASSED - returned 0, expected 0
 ===============================================
  
