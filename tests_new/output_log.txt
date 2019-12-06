@@ -391,3 +391,13 @@ Test case expr_test_1:
 Test expr_test_1 PASSED - returned 0, expected 0
 ===============================================
  
+Test case expr_test_2:
+Test expr_test_2 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case expr_test_3:
+Line 2 - Syntax error in psa
+syntax is incorrect
+Test expr_test_3 PASSED - returned 2, expected 2
+===============================================
+ 

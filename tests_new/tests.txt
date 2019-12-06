@@ -66,3 +66,5 @@ lex_escape_5 1
 lex_escape_6 0
 nested_def_1 2
 expr_test_1 0
+expr_test_2 0
+expr_test_3 2

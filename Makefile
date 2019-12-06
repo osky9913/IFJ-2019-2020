@@ -59,7 +59,7 @@ parser: $(PARSER_C) src/*
 	gcc $(CFLAGS) -o $@ $(PARSER_C)
 
 test:
-	cd tests_new && ./test.sh
+	cd tests_new && bash test.sh
 
 
 .PHONY: clean

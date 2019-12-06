@@ -1,7 +1,13 @@
 #!/bin/bash
 
+nl="
+"
 fileText=$(cat "./tests.txt")
 iteration=0
+
+failCnt=0
+passCnt=0
+failures=""
 
 red=`tput setaf 1`
 green=`tput setaf 2`
@@ -27,9 +33,12 @@ do
     then
       echo "Test $testCase ${green}PASSED${reset} - returned $retvalue, expected $line"
       echo "Test $testCase PASSED - returned $retvalue, expected $line">>output_log.txt
+      passCnt=$((passCnt+1))
     else
       echo "Test $testCase ${red}FAILED${reset} - returned $retvalue, expected $line"
       echo "Test $testCase FAILED - returned $retvalue, expected $line">>output_log.txt
+      failCnt=$((failCnt+1))
+      failures=${failures}$(echo "Test $testCase ${red}FAILED${reset} - returned $retvalue, expected $line")${nl}
     fi
 
     echo "===============================================">>output_log.txt
@@ -38,3 +47,7 @@ do
   fi
 done
 
+echo "==================FAILURES=====================${nl}"
+echo "${failures}"
+echo "==============================================="
+echo "Done. ${green}$passCnt PASSED${reset}, ${red}$failCnt FAILED${reset}"
