@@ -43,11 +43,6 @@ int stack_general_push_char(stack_general_t *stack, char data) {
     return stack_general_push(stack, (void *) temp);
 }
 
-
-
-
-
-
 int stack_general_push(stack_general_t *stack, void *data) {
 
     stack_general_item_t *new_item = malloc(sizeof(struct stack_general_item));
@@ -80,7 +75,6 @@ void stack_pop(stack_general_t *stack) {
     free(temp->data);
     free(temp);
     temp = NULL;
-
 }
 
 void stack_popNoDataFree(stack_general_t *stack) {
@@ -92,7 +86,6 @@ void stack_popNoDataFree(stack_general_t *stack) {
     stack->top = temp->next;
     free(temp);
     temp = NULL;
-
 }
 
 bool stack_empty(stack_general_t *stack) {

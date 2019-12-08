@@ -34,7 +34,7 @@ int init_resources() {
 
     if (add_built_in_functions()) return ERROR_INTERNAL;
 
-    start_program();
+    if (start_program()) return ERROR_INTERNAL;
     return SUCCESS;
 }
 
@@ -49,7 +49,7 @@ void free_resources() {
     symtable_clear_all(&table_global);
     symtable_clear_all(&table_local);
 
-    free_finals_string();
+    free_assembly_code();
 }
 
 int r_program() {
@@ -103,6 +103,7 @@ int r_program() {
             retvalue = ERROR_SYNTAX;
             break;
     }
+    if (concat_main_stash()) return ERROR_INTERNAL; // concat the code and the variable declarations
     return retvalue;
 }
 
@@ -194,6 +195,9 @@ int r_function_def() {
     int retvalue = ERROR_SYNTAX;
     in_function = true;
 
+    /* Append the main program code, we're switching output string */
+    if ((retvalue = concat_main_stash()) != SUCCESS) return retvalue;
+
     next_token(false);
     if (curr_token.type != TTYPE_ID) return ERROR_SYNTAX;
 
@@ -244,6 +248,9 @@ int r_function_def() {
     generate_function_end();
 
     if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* DEDENT */
+
+    /* Append the function program code, we're switching output string */
+    if ((retvalue = concat_function_stash()) != SUCCESS) return retvalue;
     
     in_function = false;
     symtable_clear_all(&table_local);
@@ -412,7 +419,7 @@ int r_cycle() {
     int retvalue = SUCCESS;
     psa_state = WHILE;
     
-    generate_while_lable();
+    generate_while_label();
 
     if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
 
@@ -663,10 +670,15 @@ void stash_clear() {
 }
 
 void token_free(token_t *token) {
-    if (token->type == TTYPE_STR || token->type == TTYPE_ID) {
+    switch (token->type) {
+        case TTYPE_STR: case TTYPE_ID: case TTYPE_INT:
+        case TTYPE_DOUBLE:
+            free(token->attribute.string);
+            token->attribute.string = NULL;
+            break;
 
-        free(token->attribute.string);
-        token->attribute.string = NULL;
+        default:
+            break;
     }
 }
 

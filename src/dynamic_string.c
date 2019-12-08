@@ -126,7 +126,7 @@ int str_find_char(string_t* s, char c) {
 }
 
 
-void create_unic_variable(string_t *result, int *unic, char* base_name) {
+void create_unic_variable(string_t *result, int *uniq, char* base_name) {
 
     char variable[1000] = {0};
     sprintf(variable,"%s", base_name);
@@ -135,13 +135,13 @@ void create_unic_variable(string_t *result, int *unic, char* base_name) {
     for (size_t i = 0; i < strlen(variable); i++) {
         string_append_char(result, variable[i]);
     }
-    sprintf(number_string, "%d", *unic);
+    sprintf(number_string, "%d", *uniq);
     string_append(result, number_string);
-    *unic = *unic + 1;
+    *uniq = *uniq + 1;
 }
 
 
-void create_unic_label(string_t *result, int *unic, char *base_name) {
+void create_unic_label(string_t *result, int *uniq, char *base_name) {
 
     char variable[1000] = {0};
     sprintf(variable, "%s", base_name);
@@ -150,7 +150,7 @@ void create_unic_label(string_t *result, int *unic, char *base_name) {
     for (size_t i = 0; i < strlen(variable); i++) {
         string_append_char(result, variable[i]);
     }
-    sprintf(number_string, "%d", *unic);
+    sprintf(number_string, "%d", *uniq);
     string_append(result, number_string);
 }
 
@@ -160,7 +160,7 @@ void string_append(string_t *s1, const char *s2) {
 
     for (unsigned i = 0; i < len; i++) {
         if (string_append_char(s1, s2[i]) == STR_ALLOC_ERROR)
-            return;
+            exit(ERROR_INTERNAL);// todo check
     }
 }
 

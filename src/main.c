@@ -7,8 +7,9 @@
 #include "parser.h"
 
 int main(void) {
-    init_resources();
-    int retvalue;
+    int retvalue = init_resources();
+    if (retvalue) return retvalue; 
+
     switch(retvalue = r_program()) {
         case SUCCESS:
             end_program();
@@ -41,7 +42,6 @@ int main(void) {
         default:
             fprintf(stderr, "other error\n");
             break;
-
     }
     free_resources();
     return retvalue;

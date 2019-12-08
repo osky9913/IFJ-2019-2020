@@ -9,6 +9,7 @@
 
 #include "parser.h"
 #include "symtable.h"
+#include "symbol_list.h"
 
 #define SYMBOL_NOT_FOUND 66 
 #define VARIABLE_FOUND 67
@@ -31,7 +32,7 @@ int add_undefined_function(const char *id);
  *
  * @return TODO
  */
-int check_function_dependencies(const symbol_t *function);
+int check_function_dependencies(const symbol_t *function, snode_t **dep_list);
 
 /**
  * @brief Used when in function definition. Checks if the declared parameter is

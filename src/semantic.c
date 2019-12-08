@@ -7,9 +7,25 @@
 
 #include "semantic.h"
 
-int check_function_dependencies(const symbol_t *function) {
+int check_function_dependencies(const symbol_t *function, snode_t **dep_list) {
     if (function) {
+
+        /* create a dependency record list if needed -> prevents recursion */
+        if (!*dep_list) {
+            *dep_list = list_init(function->id);
+            if (!*dep_list) exit(ERROR_INTERNAL); //FIXME
+
+        } else {
+
+            if (list_contains(*dep_list, function->id))
+                return SUCCESS; /* This function has already been checked */
+            else
+                list_insert_symbol(*dep_list, function->id);
+        }
+
+        /* Now iterate over the dependency list in the symbol table */
         for (unsigned i = 0; i < function->attributes.func_att.dep_len; i++) {
+
             if (!function->attributes.func_att.depends[i]->attributes.func_att.defined) {
                 /* A dependency was undefined */
                 fprintf(stderr, "Line %d - Semantic error: A dependency '%s' of function "
@@ -20,7 +36,8 @@ int check_function_dependencies(const symbol_t *function) {
             } else {
                 /* Recursively call this function in order to check all the dependencies
                  * of all dependencies */
-                if (check_function_dependencies(function->attributes.func_att.depends[i]))
+                if (check_function_dependencies(function->attributes.func_att.depends[i],
+                        dep_list))
                     return ERROR_SEM_DEFINITION;
             }
         }
@@ -306,33 +323,52 @@ int check_function_call(const char *id) {
     switch (retvalue) {
         case FUNCTION_FOUND:
             retvalue = ERROR_SYNTAX;
-            curr_function_call = symtable_search(&table_global,
-                    curr_token.attribute.string);
+            curr_function_call = symtable_search(&table_global, id);
             if (!curr_function_call) return ERROR_INTERNAL;
 
             if (!in_function) { /* check the dependencies */
-                if (check_function_dependencies(curr_function_call))
+
+                /* create a dependency list to avoid infinite recursion */
+                snode_t *list = NULL;
+                if (check_function_dependencies(curr_function_call, &list)) {
+                    list_free(list);
                     return ERROR_SEM_DEFINITION;
+                }
+                list_free(list);
+
+            } else { /* Add the current function call as a dependency */
+                curr_function_def->attributes.func_att.depends[
+                    curr_function_def->attributes.func_att.dep_len++] = curr_function_call;
+
+                /* Realloc the dependency array if needed */
+                if ((curr_function_def->attributes.func_att.dep_len % 20) == 0) {
+                    symbol_t **tmp = realloc(curr_function_def->attributes.func_att.depends,
+                            curr_function_def->attributes.func_att.dep_len * 2);
+                    if (!tmp) {
+                        fprintf(stderr, "Line %d - Internal error: Could not reallocate "
+                                "the dependency list for function %s.\n", line_counter,
+                                curr_function_def->id);
+                        return ERROR_INTERNAL;
+                    }
+                }
             }
 
             break;
 
         case VARIABLE_FOUND:
             fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                    "has already been defined as a variable.\n", line_counter,
-                    curr_token.attribute.string);
+                    "has already been defined as a variable.\n", line_counter, id);
             return ERROR_SEM_DEFINITION;
             break;
 
         case SYMBOL_NOT_FOUND:
             if (in_function) {
-                retvalue = add_undefined_function(curr_token.attribute.string);
+                retvalue = add_undefined_function(id);
                 if (retvalue !=SUCCESS) return retvalue;
 
             } else {
                 fprintf(stderr, "Line %d - Semantic error: Function '%s' "
-                        "is undefinded.\n", line_counter,
-                        curr_token.attribute.string);
+                        "is undefinded.\n", line_counter, id);
                 return ERROR_SEM_DEFINITION;
             }
             break;

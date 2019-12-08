@@ -44,36 +44,30 @@ token_t* tokenGen(char* name){
 int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
     //checks if array is not full, if so, resizes it's length
     resizeArrayIfNeeded(arrayToCopy);
-
     //create new token which will be add to the
     token_t* tmpToken = &arrayToCopy->arr[arrayToCopy->currLen];
     tmpToken->type = originalToken->type;
 
-    //if string allocation is need - based on token type
-    if (originalToken->type == TTYPE_STR || originalToken->type == TTYPE_ID){
-        
+    if(originalToken->type == TTYPE_ID || originalToken->type == TTYPE_STR ||
+    originalToken->type == TTYPE_INT || originalToken->type == TTYPE_DOUBLE){
         //get length of string which will be copied
+
         unsigned long length = strlen(originalToken->attribute.string);
+
         //make room for zero at the end
         length++;
-        
+
         //allocate memory for the string
         tmpToken->attribute.string = (char*)calloc(length, 1);
         if(tmpToken->attribute.string == NULL){
             return ALLOC_ERROR;
         }
-        
+
         //copy string from given token to the new one
         strcpy(tmpToken->attribute.string, originalToken->attribute.string);
     }
-    //integer
-    else if (originalToken->type == TTYPE_INT){
-        tmpToken->attribute.integer = originalToken->attribute.integer;
-    }
-    //float
-    else if(originalToken->type == TTYPE_DOUBLE) {
-        tmpToken->attribute.decimal = originalToken->attribute.decimal;
-    }
+
+
     //increment current number of tokens in array as current length
     arrayToCopy->currLen++;
     return SUCCESS;
@@ -82,7 +76,8 @@ int copyTokenToArray(t_array* arrayToCopy, const token_t* const originalToken){
 //free all memory allocated for given array
 void freeArray(t_array* toDelete){
     for(int i = 0; i< toDelete->currLen ; i++){
-        if(toDelete->arr[i].type == TTYPE_STR || toDelete->arr[i].type == TTYPE_ID){
+        if(toDelete->arr[i].type == TTYPE_ID || toDelete->arr[i].type == TTYPE_STR ||
+                toDelete->arr[i].type == TTYPE_INT || toDelete->arr[i].type == TTYPE_DOUBLE){
             free(toDelete->arr[i].attribute.string);
         }
     }
@@ -97,7 +92,8 @@ void freeTokenStack(stack_general_t* stackToFree){
     while(!stack_empty(stackToFree)){
         stack_general_item_t *tmpStackItem = stack_general_top(stackToFree);
         token_t *stackToken = (token_t *) tmpStackItem->data;
-        if(stackToken->type == TTYPE_STR || stackToken->type == TTYPE_ID){
+        if(stackToken->type == TTYPE_ID || stackToken->type == TTYPE_STR ||
+                stackToken->type == TTYPE_INT || stackToken->type == TTYPE_DOUBLE){
             free(stackToken->attribute.string);
         }
         stack_pop(stackToFree);
@@ -122,10 +118,10 @@ void printArray(t_array* toPrint){
                 printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_INT:
-                printf("%ld", toPrint->arr[i].attribute.integer);
+                printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_DOUBLE:
-                printf("%f", toPrint->arr[i].attribute.decimal);
+                printf("%s", toPrint->arr[i].attribute.string);
                 break;
             case TTYPE_ADD:
                 printf("+");
@@ -347,7 +343,6 @@ bool isOperator(const token_t* const token){
 //evaluate postfix expression
 int postfixEval(t_array* postfix, const char* assignmentID){
     //checks if all variables in expression are defined
-
     int checkDefine = checkDefinedVarInPostfix(postfix, assignmentID);
     if(checkDefine == ERROR_SEM_DEFINITION){
         fprintf(stderr, "Line %d - Undefined variable\n", line_counter);
@@ -432,6 +427,77 @@ int postfixEval(t_array* postfix, const char* assignmentID){
 }
 
 
+int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
+    // == or != can use every type
+    if(operator->type == TTYPE_ISEQ || operator->type == TTYPE_ISNEQ){
+        return SUCCESS;
+    }
+
+    int checkInt = 1;
+    if(operand1->type == TTYPE_INT){
+        sscanf( operand1->attribute.string, "%d", &checkInt );
+    }
+
+    //if operands are numbers check if zero division
+    if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE)){
+        if(isOperator(operator)){
+            if(operator->type == TTYPE_IDIV){
+                if(operand1->type == TTYPE_DOUBLE || operand2->type == TTYPE_DOUBLE){
+                    fprintf(stderr, "Line %d - IDIV with floating points\n", line_counter);
+                    return ERROR_SEM_TYPE;
+                }
+                else if(checkInt == 0){
+                    fprintf(stderr, "Line %d - Division by zero.\n", line_counter);
+                    return ERROR_DIV_ZERO;
+                }
+                return SUCCESS;
+            }
+            /*
+            if(operator->type == TTYPE_DIV) {
+                if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
+                    fprintf(stderr, "Line %d - Division by zero\n", line_counter);
+                    return ERROR_DIV_ZERO;
+                }
+                return SUCCESS;
+            }
+             */
+        }
+        else{
+            fprintf(stderr, "Line %d - Expected operator is not a valid operator.\n",
+                    line_counter);
+            return ERROR_SEM_OTHER;
+        }
+    }
+    if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
+
+        if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
+           operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
+            fprintf(stderr, "Line %d - The only valid string operation is concatenation\n",
+                    line_counter);
+            return ERROR_SEM_TYPE;
+        }
+        return SUCCESS;
+    }
+
+    if((operand1->type == TTYPE_STR && (operand2->type != TTYPE_STR && operand2->type != TTYPE_ID) ) ||
+       (operand2->type == TTYPE_STR && (operand1->type != TTYPE_STR && operand1->type != TTYPE_ID))){
+        fprintf(stderr, "Line %d - String and non string as operands in expression.\n", line_counter);
+        return ERROR_SEM_TYPE;
+    }
+    if(operator->type == TTYPE_GT || operator->type == TTYPE_LS || operator->type == TTYPE_LSOREQ || operator->type == TTYPE_GTOREQ){
+        if((operand1->type == TTYPE_STR && operand2->type != TTYPE_STR) || (operand2->type == TTYPE_STR && operand1->type != TTYPE_STR)){
+            return ERROR_SEM_TYPE;
+        }
+        if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type != TTYPE_INT && operand2->type != TTYPE_DOUBLE && operand2->type != TTYPE_ID)){
+            return ERROR_SEM_TYPE;
+        }
+        if((operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE) && (operand1->type != TTYPE_INT && operand1->type != TTYPE_DOUBLE && operand2->type != TTYPE_ID)){
+            return ERROR_SEM_TYPE;
+        }
+    }
+    return SUCCESS;
+}
+
 //loop through the postfix array and if token is variable check if it's defined
 int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
     int checkDef;
@@ -445,51 +511,6 @@ int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
                 return ERROR_SEM_DEFINITION;
             }
         }
-    }
-    return SUCCESS;
-}
-
-int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
-    if((operand1->type == TTYPE_INT || operand1->type == TTYPE_DOUBLE) && (operand2->type == TTYPE_INT || operand2->type == TTYPE_DOUBLE)){
-        if(isOperator(operator)){
-            if(operator->type == TTYPE_IDIV){
-                if(operand1->type == TTYPE_DOUBLE || operand2->type == TTYPE_DOUBLE){
-                    fprintf(stderr, "Line %d - IDIV with floating points\n", line_counter);
-                    return ERROR_SEM_TYPE;
-                }
-                else if(operand1->attribute.integer == 0){
-                    fprintf(stderr, "Line %d - Division by zero.\n", line_counter);
-                    return ERROR_DIV_ZERO;
-                }
-                return SUCCESS;
-            }
-            if(operator->type == TTYPE_DIV) {
-                if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
-                    fprintf(stderr, "Line %d - Division by zero\n", line_counter);
-                    return ERROR_DIV_ZERO;
-                }
-                return SUCCESS;
-            }
-        }
-        else{
-            fprintf(stderr, "Line %d - Expected operator is not a valid operator.\n",
-                    line_counter);
-            return ERROR_SEM_OTHER;
-        }
-    }
-    if(operand1->type == TTYPE_STR && operand2->type == TTYPE_STR){
-
-        if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
-        operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
-            fprintf(stderr, "Line %d - The only valid string operation is concatenation\n",
-                    line_counter);
-            return ERROR_SEM_TYPE;
-        }
-        return SUCCESS;
-    }
-    if((operand1->type == TTYPE_STR && (operand2->type != TTYPE_STR && operand2->type != TTYPE_ID) ) || (operand2->type == TTYPE_STR && (operand1->type != TTYPE_STR && operand1->type != TTYPE_ID))){
-        fprintf(stderr, "Line %d - String and non string as operands in expression.\n", line_counter);
-        return ERROR_SEM_TYPE;
     }
     return SUCCESS;
 }
