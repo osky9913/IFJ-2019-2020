@@ -1,0 +1,13 @@
+def a():
+  b = 4
+def c():
+ d = 2
+def e():
+  f = 3
+
+def foo():
+ a()
+ c()
+ b()
+
+foo()

@@ -12,7 +12,7 @@ EXEC=ifj
 CFLAGS=-std=c11 -Wall -Wextra -pedantic -g
 TEST_SRC=tests/src
 TEST_BIN=tests/bin/
-PARSER_C=src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c src/precedence_analysis.c src/general_stack.c src/symtable.c src/precedence_semantic.c src/semantic.c src/generate.c
+PARSER_C=src/main.c src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c src/precedence_analysis.c src/general_stack.c src/symtable.c src/precedence_semantic.c src/semantic.c src/generate_ver2.c src/symbol_list.c
 
 PREC_C= src/parser.c src/scanner.c src/dynamic_string.c src/indent_stack.c src/precedence_analysis.c src/general_stack.c src/symtable.c src/infixToPostfix.c src/semantic.c inf2post_main.c
 
@@ -57,6 +57,9 @@ infoToPost: $(PREC_C) src/*
 
 parser: $(PARSER_C) src/*
 	gcc $(CFLAGS) -o $@ $(PARSER_C)
+
+test:
+	cd tests_new && bash test.sh
 
 
 .PHONY: clean

@@ -1,0 +1,5 @@
+def foo():
+  a = 5
+  foo = a
+  return foo
+

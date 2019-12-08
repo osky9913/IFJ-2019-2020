@@ -1,0 +1,13 @@
+def f1():
+   f2()
+   f3()
+
+
+def f3():
+   f1()
+   pass
+
+f3()
+
+def f2():
+   pass

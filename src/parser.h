@@ -15,9 +15,9 @@
 #include "symtable.h"
 #include "precedence_analysis.h"
 #include "errors.h"
-#include "general_stack.h"
 #include "semantic.h"
-#include "generate.h"
+#include "generate_ver2.h"
+//#include "general_stack.h"
 
 typedef enum {
     DEFAULT,

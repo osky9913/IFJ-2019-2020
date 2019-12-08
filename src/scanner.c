@@ -55,6 +55,19 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
     if(token->type == TTYPE_STR || token->type == TTYPE_ID){
         token->attribute.string = string_copy_data(token_string);
     }
+    if(token->type == TTYPE_INT) {
+        token->attribute.string = string_copy_data(tmp);
+    }
+    //in case of double we expect format of 123e12 -> needed conversion
+    if(token->type == TTYPE_DOUBLE){
+        char *ptr = NULL;
+        char number_string[100] = {0};
+        double convert_exponent = strtod(tmp->array, &ptr);
+        string_clear(tmp);
+        sprintf(number_string, "%f", convert_exponent);
+        string_append(tmp, number_string);
+        token->attribute.string = string_copy_data(tmp);
+    }
     if(token->type == TTYPE_EOL){
         new_line = 1;
     } else {
@@ -65,46 +78,18 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
 
     return exit_code;
 }
-
-void hexa_escape(string_t* token_string){
-    long hexa;
-    string_t* tmp = string_create_init();
-    int c;
-    c = getc(stdin);
-    if(isxdigit(c)){
-        string_append_char(tmp, '0');
-        string_append_char(tmp, 'x');
-        string_append_char(tmp, c);
-        c = getc(stdin);
-        if(isxdigit(c)){
-            string_append_char(tmp, c);
-            hexa = strtol(tmp->array, NULL, 16);
-            string_append_char(token_string, hexa);
-        }
-        else{
-            ungetc(c, stdin);
-            hexa = strtol(tmp->array, NULL, 16);
-            string_append_char(token_string, hexa);
-        }
-    }
-    else{
-        string_append_char(token_string, '\\');
-        ungetc(c, stdin);
-    }
-
-    string_free(tmp);                                   
-}
-
 int process_dedents(){
     int pop_indent;     //indentation sequence that will be removed from indent_stack
     stack_general_item_t* stack_top = stack_general_top(dent_stack);
     int stack_top_int = *(int*)stack_top->data;
 
+
     while(indent != stack_top_int){
         pop_indent = stack_top_int;//indent_stack_top(dent_stack);
         stack_pop(dent_stack);
         if(stack_empty(dent_stack)){
-            fprintf(stderr, "Indentation error: Indentation in commands sequence was not correct!\n");
+            fprintf(stderr, "line %d: Lexical analysis error: "
+                            "Indentation in commands sequence was not correct!\n", line_counter);
             return 0;
         }
         stack_top = stack_general_top(dent_stack);
@@ -127,7 +112,9 @@ int get_token(token_t* token){
     int state = 0;
     int c;
     string_t* token_string = string_create_init();
+    if(!token_string){return ALLOC_ERROR;}
     string_t* tmp = string_create_init();
+    if(!tmp){ return ALLOC_ERROR;}
     stack_general_item_t* stack_top = NULL;
     int stack_top_int;
 
@@ -139,7 +126,6 @@ int get_token(token_t* token){
     //there is more dedents to be generated
     if(indents_to_pop){
         token->type = TTYPE_DEDENT;
-
         if(process_dedents()){
             return finish_free_resources(SUCCESS, token, tmp, token_string);
         }
@@ -261,18 +247,25 @@ int get_token(token_t* token){
                             token->type = TTYPE_ID;
                             string_append_char(token_string, c);
                             state = 6;
+
                         }
                         //numbers
                         else if(isdigit(c)){
                             token->type = TTYPE_INT;
                             string_append_char(tmp, c);
-                            state = 5;
+                            if(c == '0'){
+                                state = 9;
+                            }
+                            else {
+                                state = 5;
+                            }
                         }
                         else if(isspace(c)) {   
                             state = 0;
                         }
                         else{
-                            fprintf(stderr, "Lexical analysis error: Unknown operator!\n");
+                            fprintf(stderr, "line %d : Lexical analysis error: "
+                                            "Unknown operator!\n", line_counter);
                             return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                         }
                         break;
@@ -302,7 +295,8 @@ int get_token(token_t* token){
                     string_append_char(tmp, c);
                 }
                 else{
-                    fprintf(stderr, "Lexical analysis error: Quotation marks for documentation string were not written correctly!\n");
+                    fprintf(stderr, "line %d: Lexical analysis error: "
+                                    "Quotation marks for documentation string were not written correctly!\n", line_counter);
                     return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);             
                 }
                 //multiline string, searching for """
@@ -319,7 +313,8 @@ int get_token(token_t* token){
                 //EOF appeared before enclosure of multiline string
                 else if(c == EOF) {
                     ungetc(c, stdin);
-                    fprintf(stderr, "Lexical analysis error: EOF appeared before enclosure of multiline string!\n");
+                    fprintf(stderr, "line %d: Lexical analysis error : "
+                                    "EOF appeared before enclosure of multiline string!\n", line_counter);
                     return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                 }
                 else if (c == ' ') {
@@ -397,8 +392,8 @@ int get_token(token_t* token){
                             break;
 
                         default:
-                            string_append_char(token_string, '\\');
-                            string_append_char(token_string, c);
+                            string_append(token_string, "\\092");
+                            ungetc(c, stdin);
                             break;
                     }
                 }
@@ -467,32 +462,35 @@ int get_token(token_t* token){
             case 5:      
                 //number with floating point
                 if(c == '.'){
-                    //bad order in number (eg. 10e32.3)
+                    token->type = TTYPE_DOUBLE;
+                    //previous occurance of 'e' -> bad order in number (eg. 10e32.3)
                     if(str_find_char(tmp, 'e')){
-                        fprintf(stderr, "Lexical analysis error : Wrong order of exponent and floating point in number!\n");
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Wrong order of exponent and floating point in number!\n", line_counter);
                         return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     //searching for previous occurances of '.'
                     if((str_find_char(tmp, c))){ 
-                        fprintf(stderr, "Lexical analysis error : Bad formatting of float number!\n");
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Bad formatting of floating points in number!\n", line_counter);
                         return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     else{
                         string_append_char(tmp, c);
-                        token->type = TTYPE_DOUBLE;
                     }
                 }
                 //exponent numbers
                 else if(c == 'e' || c == 'E'){
+                    token->type = TTYPE_DOUBLE;
                      //searching for previous occurances of 'e'
                     if(str_find_char(tmp, c)){
-                        fprintf(stderr, "Lexical analysis error : Bad formatting of number with exponent!\n");
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Bad formatting of number with exponent!\n", line_counter);
                         return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     else{
                         //e.g 203ebola 23e-blabla
                         string_append_char(tmp, c);
-                        token->type = TTYPE_DOUBLE;
                         state = 8;
                     }
                 }
@@ -501,12 +499,13 @@ int get_token(token_t* token){
                     //if '+'/'-' appeared after int
                     if(token->type == TTYPE_INT){
                         ungetc(c ,stdin);
-                        token->attribute.integer = strtol(tmp->array, NULL, 10);
                         return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                     //latest char in tmp string is '.', return it to file stream and finish
                     if(tmp->array[tmp->index-1] == '.'){
-                        ungetc('.', stdin);
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Invalid number format!\n", line_counter);
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     //latest char in tmp string is 'e'/'E', continue
                     if(tmp->array[tmp->index-1] == 'e'){
@@ -517,7 +516,6 @@ int get_token(token_t* token){
                     }
                     else{
                         ungetc(c, stdin);
-                        token->attribute.decimal = strtod(tmp->array, NULL);
                         return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                 }
@@ -528,8 +526,9 @@ int get_token(token_t* token){
                 else{
                     //after '.' or 'e' 'E' non-numeric number appeared
                     if(tmp->array[tmp->index-1] == '.'){
-                        ungetc('.', stdin);
-                        token->type = TTYPE_INT;
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Invalid number format!\n", line_counter);
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                     }
                     if(tmp->array[tmp->index-1] == 'e'){
                         ungetc('e', stdin);
@@ -538,12 +537,6 @@ int get_token(token_t* token){
                         ungetc('E', stdin);
                     }
                     ungetc(c, stdin);
-                    if(token->type == TTYPE_INT){
-                        token->attribute.integer = strtol(tmp->array, NULL, 10);
-                    }
-                    if(token->type == TTYPE_DOUBLE){
-                        token->attribute.decimal = strtod(tmp->array, NULL);
-                    }
                     return finish_free_resources(SUCCESS, token, tmp, token_string);
                 }
                 break;
@@ -608,7 +601,8 @@ int get_token(token_t* token){
                 }
                 else if(c == '\n' || c == EOF){
                     ungetc(c, stdin);
-                    fprintf(stderr, "Lexical analysis error : String was not enclosed!\n");
+                    fprintf(stderr, "line %d: Lexical analysis error : "
+                                    "String was not enclosed!\n", line_counter);
                     return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);  
                 }
                 //escape sequence
@@ -671,8 +665,8 @@ int get_token(token_t* token){
                             break;
 
                         default:
-                            string_append_char(token_string, '\\');
-                            string_append_char(token_string, c);
+                            string_append(token_string, "\\092");
+                            ungetc(c, stdin);
                             break;
                     }
                 }
@@ -693,22 +687,48 @@ int get_token(token_t* token){
                         ungetc(c ,stdin);
                         if(tmp->array[tmp->index-1] == 'e'){
                             ungetc('e', stdin);
-                            token->type = TTYPE_INT;
                         }
-                        else if(tmp->array[tmp->index-1] == 'E'){
+                        else if(tmp->array[tmp->index-1] == 'E') {
                             ungetc('E', stdin);
-                            token->type = TTYPE_INT;
-                        }
-                        if(token->type == TTYPE_INT){
-                            token->attribute.integer = strtol(tmp->array, NULL, 10);
-                        }
-                        if(token->type == TTYPE_DOUBLE){
-                            token->attribute.decimal = strtod(tmp->array, NULL);
                         }
                         return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                     break;
-
+                case 9:
+                    //checking bad number formats
+                    if(isdigit(c)){
+                        //after zero, nonzero number appeared -> error
+                        string_append_char(tmp, c);
+                        if(c != '0'){
+                            state = 10;
+                        }
+                    }
+                    else if(c == '.' || c == 'e' || c == 'E'){
+                        token->type = TTYPE_DOUBLE;
+                        string_append_char(tmp, c);
+                        state = 5;
+                    }
+                    else{
+                        ungetc(c, stdin);
+                        return finish_free_resources(SUCCESS, token, tmp, token_string);
+                    }
+                    break;
+                //state for checking invalid integer format 00003 -> invalid , 00003.0 -> valid
+                case 10:
+                    if(isdigit(c)){
+                        string_append_char(tmp, c);
+                    }
+                    else if(c == '.' || c == 'e' || c == 'E'){
+                        token->type = TTYPE_DOUBLE;
+                        string_append_char(tmp, c);
+                        state = 5;
+                    }
+                    else{
+                        fprintf(stderr, "line %d: Lexical analysis error : "
+                                        "Invalid number format!\n", line_counter);
+                        return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
+                    }
+                    break;
         }
     }
 }
