@@ -1,3 +1,7 @@
+Test case lex_wrong_id_1:
+Test lex_wrong_id_1 PASSED - returned 0, expected 0
+===============================================
+ 
 Test case lex_wrong_id_2:
 line 1 : Lexical analysis error: Unknown operator!
 Line 1 - Lex error 1
@@ -399,5 +403,17 @@ Test case expr_test_3:
 Line 2 - Syntax error in psa
 syntax is incorrect
 Test expr_test_3 PASSED - returned 2, expected 2
+===============================================
+ 
+Test case expr_test_1:
+Test expr_test_1 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case expr_test_2:
+Test expr_test_2 PASSED - returned 0, expected 0
+===============================================
+ 
+Test case implicit_conversion_ok_1:
+Test implicit_conversion_ok_1 PASSED - returned 0, expected 0
 ===============================================
  
