@@ -304,19 +304,19 @@ void convert_floats_to_ints(string_t * frame,
     string_append(frame,"JUMPIFEQ ");
     string_append(frame,label1->array);
     append_string_variable_to_assembly(frame,flag_1->array);
-    string_append(frame,"int@1\n");
+    string_append(frame," int@1\n");
 
     string_append(frame,"JUMPIFEQ ");
     string_append(frame,label2->array);
     append_string_variable_to_assembly(frame,flag_2->array);
-    string_append(frame,"int@1\n");
+    string_append(frame," int@1\n");
     generate_jump(frame,"JUMP",end_of_expression->array);
 
 
 
 
     generate_label(frame,label1->array);
-    string_append(frame, "INT2FLOAT");
+    string_append(frame, "FLOAT2INT");
     append_token_variable_to_assembly(frame,assembly_1_token);
     append_token_variable_to_assembly(frame,assembly_1_token);
     string_append(frame,"\n");
@@ -326,13 +326,13 @@ void convert_floats_to_ints(string_t * frame,
     string_append(frame,"JUMPIFEQ ");
     string_append(frame,label2->array);
     append_string_variable_to_assembly(frame,flag_2->array);
-    string_append(frame,"int@1\n");
+    string_append(frame," int@1\n");
     generate_jump(frame,"JUMP",end_of_expression->array);
 
 
 
     generate_label(frame,label2->array);
-    string_append(frame, "INT2FLOAT");
+    string_append(frame, "FLOAT2INT");
     append_token_variable_to_assembly(frame,assembly_2_token);
     append_token_variable_to_assembly(frame,assembly_2_token);
     string_append(frame,"\n");
@@ -889,6 +889,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             check_if_op_type_eq(switching_output, variable2->array, "string@string", "%error_label_semantic");
             check_if_op_type_eq(switching_output, variable2->array, "string@bool", "%error_label_semantic");
 
+            generate_jumpeq_string_string(switching_output,"JUMPIFEQ",label_SUB,variable1,variable2);
 
             convert_ints_to_floats( switching_output,  int_to_float, variable1, assembly_1_token,assembly_2_token ,  label_GT, false,flag_1,flag_2); // check if assembli1 and 2 are in order
             generate_label(switching_output,label_SUB->array);
