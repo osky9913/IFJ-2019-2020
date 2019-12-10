@@ -912,7 +912,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
 
             generate_jumpeq_string_string(switching_output,"JUMPIFEQ",label_SUB,variable1,variable2);
 
-            convert_ints_to_floats( switching_output,  int_to_float, variable1, assembly_1_token,assembly_2_token ,  label_GT, false,flag_1,flag_2); // check if assembli1 and 2 are in order
+            convert_ints_to_floats( switching_output,  int_to_float, variable1, assembly_1_token,assembly_2_token ,  label_SUB, false,flag_1,flag_2); // check if assembli1 and 2 are in order
             generate_label(switching_output,label_SUB->array);
 
             string_append(switching_output, "SUB");
