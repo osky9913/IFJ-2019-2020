@@ -991,7 +991,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             generate_label(switching_output,_2_ints_to_floats->array);//------------------------rovnakeeeeeeeeeeeeeeee
             string_append(switching_output, "JUMPIFEQ ");
             string_append(switching_output,"%error_label_0 ");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);// check
+            append_token_variable_to_assembly(switching_output,assembly_2_token);// check
             string_append(switching_output," int@0\n");
 
             string_append(switching_output, "INT2FLOAT");
