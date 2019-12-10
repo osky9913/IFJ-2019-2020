@@ -135,9 +135,11 @@ int check_if_defined_func(const char *id) {
     if (symbol) {
         if (symbol->type == STYPE_FUNC) {
             if (symbol->attributes.func_att.defined) {
+                /* A defined function was found */
                 return FUNCTION_FOUND;
             }
         } else {
+            /* A variable function was found */
             return VARIABLE_FOUND;
         }
     }
@@ -159,6 +161,8 @@ int add_symbol_var(const char *id) {
         }
     }
 
+    /* The next few steps are dependent on whether we are in a function definition
+     * or in the global scope */
     if (in_function) {
         symbol = symtable_search(&table_local, id);
 
@@ -179,7 +183,7 @@ int add_symbol_var(const char *id) {
             return NEW_VARIABLE;
         }
 
-    } else {
+    } else { /* Global scope */
 
         symbol = symtable_search(&table_global, id);
         if (!symbol) {
@@ -381,6 +385,7 @@ int check_function_call(const char *id) {
 
 int add_built_in_functions() {
     int retvalue = SUCCESS;
+    /* Setting default attributes */
     symbol_attributes att = { .func_att = { .defined = true, .param_count = 0,
     .depends = NULL, .dep_len = 0 } };
 
@@ -390,6 +395,9 @@ int add_built_in_functions() {
         retvalue = ERROR_INTERNAL;
     }
 
+    /* For the print function, we set he default parameter count to
+     * -1, which indicates the possibility of calling it with a
+     *  variable amount of parameters */
     att.func_att.param_count = -1;
     if (!symtable_insert(&table_global, "print", STYPE_FUNC, att)) {
         retvalue = ERROR_INTERNAL;

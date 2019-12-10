@@ -17,40 +17,7 @@ int param_count = 0;
 symbol_t *undef_symbol = NULL; // maybe make global
 psa_state_t psa_state = DEFAULT;
 
-int init_resources() {
-    /* Initialize the indent stack for scanner */
-    dent_stack = stack_general_init();
-    if (!dent_stack) return ERROR_INTERNAL;
 
-    /* Initialize the token stash */
-    token_stash[0].type = TTYPE_EOF;
-    token_stash[0].attribute.string = NULL;
-    token_stash[1].type = TTYPE_EOF;
-    token_stash[1].attribute.string = NULL;
-
-    /* Initialize symbol tables */
-    symtable_init(&table_global);
-    symtable_init(&table_local);
-
-    if (add_built_in_functions()) return ERROR_INTERNAL;
-
-    if (start_program()) return ERROR_INTERNAL;
-    return SUCCESS;
-}
-
-void free_resources() {
-    token_free(&curr_token);
-    token_free(&token_stash[0]);
-    token_free(&token_stash[1]);
-
-    stack_free(dent_stack);
-    stash_clear();
-
-    symtable_clear_all(&table_global);
-    symtable_clear_all(&table_local);
-
-    free_assembly_code();
-}
 
 int r_program() {
     int retvalue = ERROR_SYNTAX;
@@ -170,7 +137,8 @@ int r_statement_list() {
             break;
 
         case TTYPE_KEYWORD: 
-            if (curr_token.attribute.keyword != KEY_DEF) {
+            /* Care for nested definitions */
+            if (curr_token.attribute.keyword != KEY_DEF) { 
                 retvalue = r_statement();
             } else {
                 retvalue = ERROR_SYNTAX;
@@ -525,6 +493,7 @@ int r_rest() {
              * valid before defining bar */
             retvalue = add_symbol_var(curr_token.attribute.string);
             switch (retvalue) {
+                /* The first occurence of the symbolt */
                 case NEW_VARIABLE:
                     if (in_function)
                         undef_symbol = symtable_search(&table_local,
@@ -535,12 +504,15 @@ int r_rest() {
                     
                     undef_symbol->attributes.var_att.defined = false;
 
-                    declaration_variable(&curr_token);
+                    /* This is a new variable - declare it */
+                    declaration_variable(&curr_token); 
                     retvalue = SUCCESS;
                     break;
 
                 case SUCCESS:
-                    if (in_function)
+                    /* Load the referenced variable from the correct
+                     * symtable */
+                    if (in_function) 
                         undef_symbol = symtable_search(&table_local,
                                 curr_token.attribute.string);
                     else
@@ -584,15 +556,15 @@ int r_rest() {
                     }
 
                 } else {
-                    unget_token();
+                    unget_token(); /* Not a function call */
                     retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
                 }
 
-            } else {
+            } else { /* A literal -> expression -> let psa do the work */
                 retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
             }
 
-            if (undef_symbol) {
+            if (undef_symbol) { /* Reset the undefined symbol attributes */
                 undef_symbol->attributes.var_att.defined = true;
                 undef_symbol = NULL;
             }
@@ -611,8 +583,9 @@ int r_rest() {
 
 int r_function_call() {
     int retvalue = ERROR_SYNTAX;
-    if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;
+    if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX; /* ( */
 
+    /* Onto the param list */
     next_token(false);
     if ((retvalue = r_param_list()) != SUCCESS) return retvalue;
     if (curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX;
@@ -643,18 +616,20 @@ int next_token(bool load_from_stash) {
         }
     } 
 
-
-    retvalue = get_token(&curr_token); // Get next token
+    /* At this point, we dont't care about leaks,
+     * just free whatever you can and exit */
+    retvalue = get_token(&curr_token); /* Get next token */
     if (retvalue != SUCCESS) {
         free_resources();
         fprintf(stderr, "Line %d - Lex error %d\n", line_counter, retvalue);
-        exit(ERROR_LEXICAL);
+        exit(retvalue);
     }
 
     return retvalue;
 }
 
 void unget_token() {
+    /* always stash the token on the first free index */
     if (token_stash[0].type == TTYPE_EOF) {
         token_stash[0] = curr_token;
     } else {
@@ -663,6 +638,7 @@ void unget_token() {
 }
 
 void stash_clear() {
+    /* free the tokens, reinit the stash */
     for (int i = 0; i < 2; i++) {
         token_free(&token_stash[i]);
         token_stash[i].type = TTYPE_EOF;
@@ -671,6 +647,7 @@ void stash_clear() {
 
 void token_free(token_t *token) {
     switch (token->type) {
+        /* free the token attribute if it was of type char * */
         case TTYPE_STR: case TTYPE_ID: case TTYPE_INT:
         case TTYPE_DOUBLE:
             free(token->attribute.string);
@@ -684,4 +661,39 @@ void token_free(token_t *token) {
 
 bool stash_empty() {
     return token_stash[0].type == TTYPE_EOF && token_stash[1].type == TTYPE_EOF;
+}
+
+int init_resources() {
+    /* Initialize the indent stack for scanner */
+    dent_stack = stack_general_init();
+    if (!dent_stack) return ERROR_INTERNAL;
+
+    /* Initialize the token stash */
+    token_stash[0].type = TTYPE_EOF;
+    token_stash[0].attribute.string = NULL;
+    token_stash[1].type = TTYPE_EOF;
+    token_stash[1].attribute.string = NULL;
+
+    /* Initialize symbol tables */
+    symtable_init(&table_global);
+    symtable_init(&table_local);
+
+    if (add_built_in_functions()) return ERROR_INTERNAL;
+
+    if (start_program()) return ERROR_INTERNAL;
+    return SUCCESS;
+}
+
+void free_resources() {
+    token_free(&curr_token);
+    token_free(&token_stash[0]);
+    token_free(&token_stash[1]);
+
+    stack_free(dent_stack);
+    stash_clear();
+
+    symtable_clear_all(&table_global);
+    symtable_clear_all(&table_local);
+
+    free_assembly_code();
 }

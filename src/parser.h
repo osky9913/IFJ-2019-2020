@@ -17,7 +17,6 @@
 #include "errors.h"
 #include "semantic.h"
 #include "generate_ver2.h"
-//#include "general_stack.h"
 
 typedef enum {
     DEFAULT,
