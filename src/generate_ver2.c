@@ -766,6 +766,13 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output,"MOVE");
             append_string_variable_to_assembly(switching_output,flag_1->array);
             string_append(switching_output," int@1\n");
+
+            string_append(switching_output, "INT2FLOAT");
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            string_append(switching_output,"\n");
+
+
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_2,variable2,"string@int");
             generate_jump(switching_output,"JUMP", label_ISEQ->array);
 
@@ -773,6 +780,12 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             string_append(switching_output,"MOVE");
             append_string_variable_to_assembly(switching_output,flag_2->array);
             string_append(switching_output," int@1\n");
+
+
+            string_append(switching_output, "INT2FLOAT");
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            string_append(switching_output,"\n");
 
             //------------konvertovanie ------------
 
@@ -791,27 +804,35 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
         case TTYPE_ISNEQ:
 
             //------------konvertovanie ------------
-
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_1,variable1,"string@int");
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_2,variable2,"string@int");
-            generate_jump(switching_output,"JUMP",label_ISNEQ->array);
+            generate_jump(switching_output,"JUMP",label_ISEQ->array);
 
 
             generate_label(switching_output,label_bool_int_float_1->array);
             string_append(switching_output,"MOVE");
             append_string_variable_to_assembly(switching_output,flag_1->array);
             string_append(switching_output," int@1\n");
+
+            string_append(switching_output, "INT2FLOAT");
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            append_token_variable_to_assembly(switching_output,assembly_1_token);
+            string_append(switching_output,"\n");
+
+
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_2,variable2,"string@int");
-            generate_jump(switching_output,"JUMP",label_ISNEQ->array);
-
-
-
+            generate_jump(switching_output,"JUMP", label_ISEQ->array);
 
             generate_label(switching_output,label_bool_int_float_2->array);
             string_append(switching_output,"MOVE");
             append_string_variable_to_assembly(switching_output,flag_2->array);
             string_append(switching_output," int@1\n");
 
+
+            string_append(switching_output, "INT2FLOAT");
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            append_token_variable_to_assembly(switching_output,assembly_2_token);
+            string_append(switching_output,"\n");
 
             //------------konvertovanie ------------
 
