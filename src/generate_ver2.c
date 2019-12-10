@@ -262,6 +262,9 @@ void append_frame_to_variable(string_t *frame) {
 
 void append_token_variable_to_assembly(string_t * frame , token_t * variable){
     string_append(frame," ");
+    char temporary[100] = {0};
+    double temp = 0.0 ;
+
     switch (variable->type) {
         case TTYPE_ID:
             append_frame_to_variable(frame);
@@ -273,9 +276,11 @@ void append_token_variable_to_assembly(string_t * frame , token_t * variable){
 
             break;
         case TTYPE_DOUBLE:
-            string_append(frame,"float@0x");
-            string_append(frame, variable->attribute.string);
-            string_append(frame,"p+0");
+
+            sscanf(variable->attribute.string,"%lf",&temp);
+            sprintf(temporary, "%a", temp);
+            string_append(frame,"float@");
+            string_append(frame, temporary);
             break;
         case TTYPE_STR:
             string_append(frame, "string@");
@@ -986,7 +991,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             generate_label(switching_output,_2_ints_to_floats->array);//------------------------rovnakeeeeeeeeeeeeeeee
             string_append(switching_output, "JUMPIFEQ ");
             string_append(switching_output,"%error_label_0 ");
-            append_token_variable_to_assembly(switching_output,assembly_1_token);// check
+            append_token_variable_to_assembly(switching_output,assembly_2_token);// check
             string_append(switching_output," int@0\n");
 
             string_append(switching_output, "INT2FLOAT");
