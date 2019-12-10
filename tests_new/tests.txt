@@ -67,3 +67,5 @@ nested_def_1 2
 expr_test_1 0
 expr_test_2 0
 expr_test_3 2
+s_lex_float_1 0
+s_lex_float_2 2
