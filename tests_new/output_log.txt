@@ -27,12 +27,14 @@ Test lex_wrong_id_5 PASSED - returned 1, expected 1
 ===============================================
  
 Test case s_badindent1:
+1
 line 4: Lexical analysis error: Indentation in commands sequence was not correct!
 Line 4 - Lex error 1
 Test s_badindent1 PASSED - returned 1, expected 1
 ===============================================
  
 Test case s_badindent2:
+1
 Test s_badindent2 FAILED - returned 0, expected 1
 ===============================================
  
@@ -81,6 +83,9 @@ Test s_undef_var_4 PASSED - returned 3, expected 3
 ===============================================
  
 Test case semantic_input.py:
+1
+1
+1
 Test semantic_input.py PASSED - returned 0, expected 0
 ===============================================
  
