@@ -17,6 +17,7 @@
 
 #include "errors.h"
 
+/* Velikost pole bucketu tabulky symbolu */
 #define  SYMTABLE_SIZE 12289
 
 /**
@@ -24,8 +25,7 @@
  */
 typedef enum {
     STYPE_VAR,
-    STYPE_FUNC,
-    STYPE_LABEL
+    STYPE_FUNC
 } symbol_type_t;
 
 /**
@@ -80,27 +80,15 @@ typedef struct function_attributes {
 #define DEPEND_LEN 20
 
 /**
- * @struct label_attributes
- * @brief Struktura reprezentujici atributy navesti
- *
- * @var defined Indikuje, zda bylo navesti jiz definovane
- */
-typedef struct label_attributes {
-    bool defined;
-} label_att_t;
-
-/**
  * @union symbol_attributes
  * @brief Unie uchovavajici atributy promenne
  *
  * @var var_att Atributy promenne
  * @var func_att Atributy funkce
- * @var label_att Atributy navesti
  */
 typedef union {
     var_att_t var_att;
     func_att_t func_att;
-    label_att_t label_att;
 } symbol_attributes;
 
 /**
