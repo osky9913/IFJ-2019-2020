@@ -1,3 +1,4 @@
+lex_wrong_id_1 0
 lex_wrong_id_2 1
 lex_wrong_id_3 1
 lex_wrong_id_4 1
@@ -33,9 +34,7 @@ m_sem_wrong_12 3
 m_sem_wrong_13 6
 m_sem_wrong_14 4
 m_sem_wrong_15 4
-m_sem_wrong_16 4
-m_sem_wrong_17 4
-m_sem_wrong_18 4
+m_sem_wrong_16 0
 m_sem_wrong_19 3
 m_sem_wrong_20 3
 m_sem_wrong_21 3
@@ -68,3 +67,10 @@ nested_def_1 2
 expr_test_1 0
 expr_test_2 0
 expr_test_3 2
+m_badindent3 2
+m_badfloat1 1
+m_okfloat2 0	
+m_badindent4 2
+s_lex_float_1 0
+s_lex_float_2 1
+s_lex_float_3 1

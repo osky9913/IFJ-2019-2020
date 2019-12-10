@@ -1,4 +1,6 @@
 IFJ
+tests_new/output_log.txt
+output_log.txt
 string_test
 tests/bin
 parser

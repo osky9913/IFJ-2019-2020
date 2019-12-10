@@ -1,10 +1,11 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file indent_stack.h
+ * @author Marek Ziska - xziska03
  * @brief This is header file of indent_stack.c
- * @author xziska03
  */
-#ifndef _INDENT_STACK_H_
-#define _INDENT_STACK_H_
+#ifndef __INDENT_STACK_H__
+#define __INDENT_STACK_H__
 
 /*default stack length*/
 #define STACK_DEFAULT_LEN 10

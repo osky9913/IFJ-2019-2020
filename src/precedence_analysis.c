@@ -1,10 +1,9 @@
 /**
- *	@file   precedence_analysis.c
- *	@author Marek Sarvas, xsarva00
- *	@brief Precedence syntax analysis module
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   precedence_analysis.c
+ * @author Marek Sarvas, xsarva00
+ * @brief Precedence syntax analysis module
  */
-
-
 
 #include "precedence_analysis.h"
 

@@ -1,7 +1,8 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file scanner.c
+ * @author Marek Ziska, xziska03
  * @brief This module implements all parts of lexical analysis.
- * @author xziska03
  */
 
 #include "scanner.h"

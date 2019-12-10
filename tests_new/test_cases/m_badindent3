@@ -1,0 +1,13 @@
+def foo():
+  a = 43
+  if 1:
+    if 2:
+      if 3:
+        if 5:
+	  a =2
+	else:
+	  prints('a')
+     else:
+      a = 23
+
+

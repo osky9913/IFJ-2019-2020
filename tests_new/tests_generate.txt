@@ -1,0 +1,15 @@
+expr_test_1 0
+expr_test_2 0
+implicit_conversion_ok_1 0
+m_sem_wrong_17 4
+m_sem_wrong_18 4
+m_zerodiv 9
+
+s_div_zero_1 9
+s_div_zero_2 9
+s_div_zero_3 9
+s_div_zero_4 9
+s_div_zero_5 9
+s_div_zero_6 9
+s_float_1 9
+s_float_2 0

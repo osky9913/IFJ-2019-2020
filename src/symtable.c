@@ -1,9 +1,9 @@
 /**
- *	@file   symtable.c
- *	@author Simon Sedlacek, Martin Osvald
- *	@date
- *	@brief Modul implementujici tabulku symbolu.
- *	@note	TODO: revidovat funkce, struktury
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   symtable.c
+ * @author Simon Sedlacek, xsedla1h
+ * @brief This module implements the table of symbols
+ * @note	TODO: revidovat funkce, struktury
  */
 
 #include "symtable.h"

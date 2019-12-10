@@ -1,7 +1,8 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file main.c
- * @author Simon Sedlacek
- * @brief
+ * @author Simon Sedlacek, xsedla1h
+ * @brief The main module of the compiler
  */
 
 #include "parser.h"

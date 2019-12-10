@@ -1,8 +1,8 @@
 /**
- *	@file   symtable.h
- *	@author Simon Sedlacek Martin Osvald , xsedla1h , xosval03
- *	@date
- *	@brief Modul implementujici tabulku symbolu.
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   symtable.h
+ * @author Simon Sedlacek, xsedla1h
+ * @brief A header file for the symtable module
  */
 
 

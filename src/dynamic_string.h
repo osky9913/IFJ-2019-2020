@@ -1,11 +1,12 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file dynamic_string.h
+ * @author Martin Osvald - xosval03, Simon Sedlacek - xsedla1h
  * @brief A header file for dynamic_string.c
- * @author xosval03, xsedla1h
  */
 
-#ifndef DYNAMIC_STRING_H
-#define DYNAMIC_STRING_H
+#ifndef __DYNAMIC_STRING_H__
+#define __DYNAMIC_STRING_H__
 
 #include "errors.h"
 #include <stdlib.h>

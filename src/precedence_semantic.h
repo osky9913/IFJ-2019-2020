@@ -1,11 +1,12 @@
 /**
- *	@file   precedence_semantic.h
- *	@author Marek Sarvas, xsarva00
- *	@brief Header file for precedence semantic analysis
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   precedence_semantic.h
+ * @author Marek Sarvas, xsarva00
+ * @brief Header file for precedence semantic analysis
  */
 
-#ifndef INFTOPOST
-#define INFTOPOST
+#ifndef __PRECEDENCE_SEMANTIC_H__
+#define __PRECEDENCE_SEMANTIC_H__
 
 #include "scanner.h"
 #include "parser.h"

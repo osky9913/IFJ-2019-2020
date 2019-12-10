@@ -1,10 +1,11 @@
-#include "precedence_semantic.h"
 /**
- *	@file   precedence_semantic.c
- *	@author Marek Sarvas, xsarva00
- *	@brief Precedence semantic analysis module
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   precedence_semantic.c
+ * @author Marek Sarvas, xsarva00
+ * @brief Precedence semantic analysis module
  */
 
+#include "precedence_semantic.h"
 #include <string.h>
 
 
@@ -452,15 +453,6 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
                 }
                 return SUCCESS;
             }
-            /*
-            if(operator->type == TTYPE_DIV) {
-                if (operand1->type == TTYPE_INT && operand1->attribute.integer == 0) {
-                    fprintf(stderr, "Line %d - Division by zero\n", line_counter);
-                    return ERROR_DIV_ZERO;
-                }
-                return SUCCESS;
-            }
-             */
         }
         else{
             fprintf(stderr, "Line %d - Expected operator is not a valid operator.\n",

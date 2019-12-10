@@ -1,8 +1,8 @@
 /**
- *	@file   general_stack.c
- *	@author Martin Osvald , xosval03
- *	@date
- *	@brief Modul implementujici stack.
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   general_stack.c
+ * @author Martin Osvald - xosval03
+ * @brief This module implements a general stack
  */
 
 
