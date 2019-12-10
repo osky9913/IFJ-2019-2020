@@ -1,10 +1,11 @@
-#include "precedence_semantic.h"
 /**
- *	@file   precedence_semantic.c
- *	@author Marek Sarvas, xsarva00
- *	@brief Precedence semantic analysis module
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   precedence_semantic.c
+ * @author Marek Sarvas, xsarva00
+ * @brief Precedence semantic analysis module
  */
 
+#include "precedence_semantic.h"
 #include <string.h>
 
 

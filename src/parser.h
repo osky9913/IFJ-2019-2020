@@ -1,8 +1,8 @@
 /**
- *	@file   parser.h
- *	@author Simon Sedlacek, xsedla1h
- *	@date
- *	@brief Parser header file
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   parser.h
+ * @author Simon Sedlacek, xsedla1h
+ * @brief Parser header file
  */
 
 #ifndef __PARSER_H__

@@ -1,8 +1,8 @@
 /**
- *	@file   parser.c
- *	@author Simon Sedlacek, xsedla1h
- *	@date
- *	@brief Parser 
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   parser.c
+ * @author Simon Sedlacek, xsedla1h
+ * @brief The main parser module
  */
 
 #include "parser.h"

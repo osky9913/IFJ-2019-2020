@@ -1,5 +1,12 @@
-#ifndef GENERATE_2_H
-#define GENERATE_2_H
+/**
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   generate_ver2.h
+ * @author Martin Osvald - xosval03, Marek Ziska - xziska03
+ * @brief A header file for the code generator module.
+ */
+
+#ifndef __GENERATE_2_H__
+#define __GENERATE_2_H__
 
 
 #include <string.h>

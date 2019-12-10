@@ -1,8 +1,9 @@
 /**
- *	@file   symbol_list.h
- *	@author Simon Sedlacek, xsedla1h
- *	@brief A module implementing a list of symbols. This module is used solely
- *	for avoiding infinite recursion when checking the dependencies of functions.
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   symbol_list.h
+ * @author Simon Sedlacek, xsedla1h
+ * @brief A module implementing a list of symbols. This module is used solely
+ * for avoiding infinite recursion when checking the dependencies of functions.
  */
 
 #ifndef __SYMBOL_LIST_H__

@@ -1,5 +1,5 @@
-#ifndef GENERATE_H
-#define GENERATE_H
+#ifndef __GENERATE_H__
+#define __GENERATE_H__
 
 #include <string.h>
 #include "dynamic_string.h"

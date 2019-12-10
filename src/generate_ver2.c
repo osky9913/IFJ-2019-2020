@@ -1,3 +1,9 @@
+/**
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   generate_ver2.c
+ * @author Martin Osvald - xosval03, Marek Ziska - xziska03
+ * @brief Output code generatorm module
+ */
 #include "scanner.h"
 #include "parser.h"
 #include "errors.h"

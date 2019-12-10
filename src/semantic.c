@@ -1,9 +1,9 @@
 /**
- *	@file   semantic.c
- *	@author Simon Sedlacek, xsedla1h
- *	@brief Semantic analysis module
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   semantic.c
+ * @author Simon Sedlacek, xsedla1h
+ * @brief The main semantic analysis module
  */
-
 
 #include "semantic.h"
 

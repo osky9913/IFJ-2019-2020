@@ -1,7 +1,9 @@
 /**
- *	@file   symbol_list.c
- *	@author Simon Sedlacek, xsedla1h
- *	@brief A module implementing a list of symbols
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   symbol_list.c
+ * @author Simon Sedlacek, xsedla1h
+ * @brief A module implementing a list of symbols used to check
+ * recursive function calls
  */
 
 #include "symbol_list.h"

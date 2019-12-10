@@ -1,13 +1,13 @@
 /**
- *	@file   errors.h
- *	@author Martin Osvald , xosval03
- *	@date
- *	@brief hlava implementujuca chyby.
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   errors.h
+ * @author Martin Osvald - xosval03
+ * @brief This header file contains all the used return codes
  */
 
 
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifndef __ERRORS_H__
+#define __ERRORS_H__
 
 
 enum errors {

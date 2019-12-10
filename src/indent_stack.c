@@ -1,7 +1,8 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file indent_stack.c
+ * @author Marek Ziska - xziska03
  * @brief This module implements simple stack of integers
- * @author xziska03
  */
 #include "indent_stack.h"
 #include <stdio.h>

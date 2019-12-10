@@ -1,13 +1,13 @@
 /**
- *	@file   general_stack.h
- *	@author Martin Osvald , xosval03
- *	@date
- *	@brief hlava implementujici stack.
+ * Implementace překladače imperativního jazyka IFJ19
+ * @file   general_stack.h
+ * @author Martin Osvald - xosval03
+ * @brief A header file for the general stack module
  */
 
 
-#ifndef STACK_GENERAL_H
-#define STACK_GENERAL_H
+#ifndef __STACK_GENERAL_H__
+#define __STACK_GENERAL_H__
 
 #include <stdio.h>
 #include <stdbool.h>

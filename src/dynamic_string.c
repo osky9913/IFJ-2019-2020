@@ -1,8 +1,9 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file dynamic_string.c
+ * @author Martin Osvald - xosval03, Simon Sedlacek - xsedla1h
  * @brief This module implements all the necessary operations needed for manipulating
  * our dynamic string implementation.
- * @author xosval03, xsedla1h
  */
 
 #include "dynamic_string.h"

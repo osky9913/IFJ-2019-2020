@@ -1,10 +1,11 @@
 /**
+ * Implementace překladače imperativního jazyka IFJ19
  * @file scanner.h
+ * @author Marek Ziska, xziska03
  * @brief This is header file of scanner.c
- * @author xziska03
  */
-#ifndef SCANNER_H
-#define SCANNER_H
+#ifndef __SCANNER_H__
+#define __SCANNER_H__
 
 #include <stdio.h>
 #include "dynamic_string.h"
