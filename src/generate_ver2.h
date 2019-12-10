@@ -6,6 +6,7 @@
 #include "dynamic_string.h"
 #include "scanner.h"
 #include "general_stack.h"
+#include <stdbool.h>
 
 
 // structure for implementing generator for output
@@ -35,6 +36,12 @@ typedef struct labels_stacks {
     stack_general_t * while_labels_stack;
     stack_general_t * if_labels_stack;
 }  labels_stacks_t;
+
+
+void convert_ints_to_floats( string_t * frame, string_t * int_to_float, string_t *variable1,
+                             token_t *assembly_1_token,token_t * assembly_2_token ,
+                             string_t * jump_destination_label, bool is_div_zero, string_t * flag1, string_t * flag2 );
+
 
 // for every string in generate strings output call string_init
 int generate_strings_input_init();
@@ -68,8 +75,7 @@ void append_string_operands_to_assembly(string_t *frame, string_t *result, strin
 // is returning string from assembly_code
 string_t * switch_frame();
 
-// @todo ask Simon or Marek for this magic function
-string_t * switch_definitions_frame();
+
 
 
 //  it generates the expression for every operation
@@ -117,9 +123,13 @@ void generate_assign_to_retvalue(const char *return_result);
 
 void generate_jumpeq_string_string(string_t * frame , const char * jump , string_t * label , string_t * variable1, string_t * variable2 );
 
-
+void generate_jumpeq_string_char(string_t * frame , const char * jump , string_t * label , string_t * variable, const char * type );
 
 void generate_assign_retvalue(const char *dest);
+
+void generate_jump(string_t * frame,const char * jump_instruction , const char * destination_label );
+
+void generate_label(string_t * frame,const char * label);
 
 
 void generate_assign(const char *destination, token_t *content);
