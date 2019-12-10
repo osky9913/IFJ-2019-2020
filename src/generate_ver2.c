@@ -587,7 +587,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
     create_unic_label(label_bool_int_float_1, &identificator.label, "%bool_int_to_float_1");
     create_unic_label(label_bool_int_float_2, &identificator.label, "%bool_int_to_float_2");
     create_unic_label(is_eq_1_int, &identificator.label, "%is_eq_1_int");
-    create_unic_label(is_eq_2_int, &identificator.label, "%bool_int_to_float_2");
+    create_unic_label(is_eq_2_int, &identificator.label, "%is_eq_2_int");
 
 
     //-------------------------------------------------------------Labels for operation -----------------------------------------------
