@@ -958,6 +958,10 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             generate_label(switching_output,label_DIV->array);
 
 
+
+            get_type_variable( switching_output, variable1, assembly_1_token);
+            get_type_variable(switching_output,variable2, assembly_2_token);
+
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",_2_ints_to_floats,variable1,"string@int");
 
             // dva rovnake int  alebo dva floaty -> riesenie pomocny label -> _2_ints_to_floats
