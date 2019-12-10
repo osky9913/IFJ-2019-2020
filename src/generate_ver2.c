@@ -806,7 +806,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
             //------------konvertovanie ------------
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_1,variable1,"string@int");
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_2,variable2,"string@int");
-            generate_jump(switching_output,"JUMP",label_ISEQ->array);
+            generate_jump(switching_output,"JUMP",label_ISNEQ->array);
 
 
             generate_label(switching_output,label_bool_int_float_1->array);
@@ -821,7 +821,7 @@ char *generate_expression(token_t *operand2, token_t *operator, token_t *operand
 
 
             generate_jumpeq_string_char(switching_output,"JUMPIFEQ",label_bool_int_float_2,variable2,"string@int");
-            generate_jump(switching_output,"JUMP", label_ISEQ->array);
+            generate_jump(switching_output,"JUMP", label_ISNEQ->array);
 
             generate_label(switching_output,label_bool_int_float_2->array);
             string_append(switching_output,"MOVE");
