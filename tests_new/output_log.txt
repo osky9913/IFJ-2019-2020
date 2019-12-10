@@ -81,7 +81,7 @@ Test s_undef_var_4 PASSED - returned 3, expected 3
 ===============================================
  
 Test case semantic_input.py:
-Test semantic_input.py PASSED - returned 0, expected 0
+Test semantic_input.py FAILED - returned 1, expected 0
 ===============================================
  
 Test case s_undefined_function_1:
@@ -227,15 +227,7 @@ Test m_sem_wrong_15 PASSED - returned 4, expected 4
 ===============================================
  
 Test case m_sem_wrong_16:
-Test m_sem_wrong_16 FAILED - returned 0, expected 4
-===============================================
- 
-Test case m_sem_wrong_17:
-Test m_sem_wrong_17 FAILED - returned 0, expected 4
-===============================================
- 
-Test case m_sem_wrong_18:
-Test m_sem_wrong_18 FAILED - returned 0, expected 4
+Test m_sem_wrong_16 PASSED - returned 0, expected 0
 ===============================================
  
 Test case m_sem_wrong_19:
@@ -406,14 +398,22 @@ Test expr_test_3 PASSED - returned 2, expected 2
 ===============================================
  
 Test case expr_test_1:
-Test expr_test_1 PASSED - returned 0, expected 0
+Test expr_test_1 FAILED - returned 127, expected 0
 ===============================================
  
 Test case expr_test_2:
-Test expr_test_2 PASSED - returned 0, expected 0
+Test expr_test_2 FAILED - returned 127, expected 0
 ===============================================
  
 Test case implicit_conversion_ok_1:
-Test implicit_conversion_ok_1 PASSED - returned 0, expected 0
+Test implicit_conversion_ok_1 FAILED - returned 127, expected 0
+===============================================
+ 
+Test case m_sem_wrong_17:
+Test m_sem_wrong_17 FAILED - returned 127, expected 4
+===============================================
+ 
+Test case m_sem_wrong_18:
+Test m_sem_wrong_18 FAILED - returned 127, expected 4
 ===============================================
  
