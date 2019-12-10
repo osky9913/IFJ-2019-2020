@@ -72,4 +72,5 @@ m_badfloat1 1
 m_okfloat2 0	
 m_badindent4 2
 s_lex_float_1 0
-s_lex_float_2 2
+s_lex_float_2 1
+s_lex_float_3 1
