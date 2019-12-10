@@ -1129,7 +1129,9 @@ void generate_print(const char* label){
     string_t *none_label = string_create_init();
 
     //cycle that prints parametres all parametres of print function
-
+    
+    //reset the param_def counter
+    identificator.param_def = 1;
     for(int i = identificator.param_def; i < identificator.param_call; i++){
         //we declare variable which we will use for storing type of passed variable
         create_unic_variable(check_variable, &identificator.general, "%check_type");
