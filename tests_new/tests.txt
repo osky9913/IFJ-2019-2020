@@ -67,3 +67,7 @@ nested_def_1 2
 expr_test_1 0
 expr_test_2 0
 expr_test_3 2
+m_badindent3 2
+m_badfloat1 1
+m_okfloat2 0	
+m_badindent4 2
