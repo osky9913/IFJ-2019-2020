@@ -16,8 +16,9 @@
 #include "precedence_analysis.h"
 #include "errors.h"
 #include "semantic.h"
-#include "generate_ver2.h"
+#include "generate.h"
 
+/** @brief This enum indicates the currently parsed construction - PSA */
 typedef enum {
     DEFAULT,
     IF,
@@ -25,29 +26,6 @@ typedef enum {
     ASSIGN,
     RETURN,
 } psa_state_t;
-
-/** @brief This variable indicates the currently parsed construction - PSA */
-
-/* Local and global symtables */
-
-/**
- * @brief Indicates whether the currently analyzed block
- * of code is inside a function or not.
- */
-
-/**
- * @brief A variable that stores the currently processed token.
- */
-
-/**
- * @brief A variable that stores the currently processed symbol. Useful
- * when we need to check the number of function parameters and don't want
- * to lose the reference to it's id.
- */
-
-/**
- * @brief A variable that stores up to two tokens at a time.
- */
 
 /**
  * @struct parser_data
