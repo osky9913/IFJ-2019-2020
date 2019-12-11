@@ -31,24 +31,12 @@ typedef enum {
 } symbol_type_t;
 
 /**
- * @brief Represents the type of the variable
- */
-typedef enum {
-    VTYPE_INT,
-    VTYPE_DBL,
-    VTYPE_STR,
-    VTYPE_UNKNOWN
-} var_type_t;
-
-/**
  * @struct variable_attributes
  * @brief This structure represents the variable symbol attributes
  *
  * @var defined Indicates whether the variable has been defined
- * @var type Variable type
  */
 typedef struct variable_attributes {
-    var_type_t type;
     bool defined;
 } var_att_t;
 

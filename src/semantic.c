@@ -67,8 +67,7 @@ int check_and_add_parameter_def(const char *id) {
 
     } else {
         /* Add a new local variable into the local symtable */
-        symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
-            .defined = true} };
+        symbol_attributes att = { .var_att = { .defined = true} };
         
         symbol_t *new = symtable_insert(&prg.table_local, id, STYPE_VAR, att);
         if (!new) return ERROR_INTERNAL;
@@ -111,8 +110,7 @@ int check_if_defined_var(const char *id, const char *assignment_id) {
                 } else {
 
                     /* Add an undefined local variable into the local symtable */
-                    symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
-                        .defined = false} };
+                    symbol_attributes att = { .var_att = { .defined = false} };
                     
                     symbol_t *new = symtable_insert(&prg.table_local, id, STYPE_VAR, att);
                     if (!new) return ERROR_INTERNAL;
@@ -176,8 +174,7 @@ int add_symbol_var(const char *id) {
 
         } else { /* Cover the potential global variable */
             /* Add a new local variable into the local symtable */
-            symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
-                .defined = true} };
+            symbol_attributes att = { .var_att = { .defined = true} };
             
             symbol_t *new = symtable_insert(&prg.table_local, id, STYPE_VAR, att);
             if (!new) return ERROR_INTERNAL;
@@ -189,8 +186,7 @@ int add_symbol_var(const char *id) {
         symbol = symtable_search(&prg.table_global, id);
         if (!symbol) {
             /* Add the new global variable into the global symtable */
-            symbol_attributes att = { .var_att = { .type = VTYPE_UNKNOWN,
-                .defined = true} };
+            symbol_attributes att = { .var_att = { .defined = true} };
             
             symbol_t *new = symtable_insert(&prg.table_global, id, STYPE_VAR, att);
             if (!new) return ERROR_INTERNAL;
