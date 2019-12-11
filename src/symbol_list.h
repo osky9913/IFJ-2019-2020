@@ -15,17 +15,34 @@
 #include "symtable.h"
 #include "errors.h"
 
+/**
+ * @brief This is the structure representing the list of symbols.
+ */
 typedef struct symbol_node {
     const char *symbol_id;
     struct symbol_node *next;
 } snode_t;
 
+/**
+ * @biref Inits a new list node and returns a pointer to it.
+ */
 snode_t *list_init(const char *id);
 
+/**
+ * @brief Tries to insert a new list node to the list.
+ */
 int list_insert_symbol(snode_t *list, const char *id);
 
+/**
+ * @brief This function checks a list for an identifier,
+ * if the identifier is present in the list, the function
+ * returns true.
+ */
 bool list_contains(snode_t *list, const char *id);
 
+/**
+ * @brief Frees the symbol list.
+ */
 void list_free(snode_t *list);
 
 #endif

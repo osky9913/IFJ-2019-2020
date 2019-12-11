@@ -7,62 +7,28 @@
 
 #include "parser.h"
 
-/* Some global variables */
-bool in_function = false;
-token_t curr_token = { .type = TTYPE_EOF };
-token_t token_stash[2];
-symbol_t *curr_function_def = NULL;
-symbol_t *curr_function_call = NULL;
-int param_count = 0;
-symbol_t *undef_symbol = NULL; // maybe make global
-psa_state_t psa_state = DEFAULT;
-
-int init_resources() {
-    /* Initialize the indent stack for scanner */
-    dent_stack = stack_general_init();
-    if (!dent_stack) return ERROR_INTERNAL;
-
-    /* Initialize the token stash */
-    token_stash[0].type = TTYPE_EOF;
-    token_stash[0].attribute.string = NULL;
-    token_stash[1].type = TTYPE_EOF;
-    token_stash[1].attribute.string = NULL;
-
-    /* Initialize symbol tables */
-    symtable_init(&table_global);
-    symtable_init(&table_local);
-
-    if (add_built_in_functions()) return ERROR_INTERNAL;
-
-    if (start_program()) return ERROR_INTERNAL;
-    return SUCCESS;
-}
-
-void free_resources() {
-    token_free(&curr_token);
-    token_free(&token_stash[0]);
-    token_free(&token_stash[1]);
-
-    stack_free(dent_stack);
-    stash_clear();
-
-    symtable_clear_all(&table_global);
-    symtable_clear_all(&table_local);
-
-    free_assembly_code();
-}
+/* Parser data global structure */
+pdata_t prg = {
+    .in_function = false,
+    .curr_token.type = TTYPE_EOF,
+    .curr_function_def = NULL,
+    .curr_function_call = NULL,
+    .param_count = 0,
+    .undef_symbol = NULL,
+    .psa_state = DEFAULT
+    };
 
 int r_program() {
     int retvalue = ERROR_SYNTAX;
     next_token(false);
 
-    switch (curr_token.type) {
+    switch (prg.curr_token.type) {
         case TTYPE_EOF:
-            retvalue = SUCCESS; // End of input - EOF represents the '$' token
+            retvalue = SUCCESS; /* End of input - EOF represents the '$' token */
             break;
 
         case TTYPE_KEYWORD:
-            switch (curr_token.attribute.keyword) {
+            switch (prg.curr_token.attribute.keyword) {
                 case KEY_DEF:
                     if ((retvalue = r_function_def()) == SUCCESS) {
                         retvalue = r_program();
@@ -75,15 +41,16 @@ int r_program() {
                     }
                     break;
 
+                /* A return statement cannot occur in the main program body */
                 case KEY_RETURN:
                     fprintf(stderr, "Line %d - Syntax error: 'return' in r_program.\n",
-                            line_counter);
+                            scn.line_counter);
                     retvalue = ERROR_SYNTAX;
                     break;
 
                 default:
                     fprintf(stderr, "Line %d - Syntax error: unexpected keyword.\n",
-                            line_counter);
+                            scn.line_counter);
                     retvalue = ERROR_SYNTAX;
                     break;
             }
@@ -99,18 +66,19 @@ int r_program() {
 
         default:
             fprintf(stderr, "Line %d - ERROR_SYNTAX in r_program "
-                    "- not a statement or def.\n", line_counter);
+                    "- not a statement or def.\n", scn.line_counter);
             retvalue = ERROR_SYNTAX;
             break;
     }
-    if (concat_main_stash()) return ERROR_INTERNAL; // concat the code and the variable declarations
+    /* concatenate the code and the variable declarations */
+    if (concat_main_stash()) return ERROR_INTERNAL;
     return retvalue;
 }
 
 int r_statement() {
     int retvalue = SUCCESS;
 
-    switch (curr_token.type) {
+    switch (prg.curr_token.type) {
         case TTYPE_ID: case TTYPE_LTBRAC: case TTYPE_INT: case TTYPE_DOUBLE:
         case TTYPE_STR: case TTYPE_NONE:
             /* id, (, int, dbl, str, none */
@@ -118,7 +86,7 @@ int r_statement() {
             break;
 
         case TTYPE_KEYWORD:
-            switch (curr_token.attribute.keyword) {
+            switch (prg.curr_token.attribute.keyword) {
                 case KEY_RETURN:
                     retvalue = r_function_ret(); /* return */
                     break;
@@ -135,23 +103,24 @@ int r_statement() {
 
                 default:
                     fprintf(stderr, "Line %d - ERROR_SYNTAX 'None' in r_statement.\n",
-                            line_counter);
+                            scn.line_counter);
                     retvalue = ERROR_SYNTAX;
                     break;
             }
             break;
 
         default:
-            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_statement.\n", line_counter);
+            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_statement.\n", scn.line_counter);
             retvalue = ERROR_SYNTAX;
     }
 
     if (retvalue != SUCCESS) return retvalue;
 
     next_token(true);
-    if (curr_token.type != TTYPE_EOL) { /* eol */
+    /* Every statement has to end with EOL */
+    if (prg.curr_token.type != TTYPE_EOL) { /* eol */
         fprintf(stderr, "Line %d - ERROR_SYNTAX %d in r_statement - didn't "
-                "end with eol.\n", line_counter, curr_token.type);
+                "end with eol.\n", scn.line_counter, prg.curr_token.type);
         retvalue = ERROR_SYNTAX;
     }
 
@@ -160,7 +129,7 @@ int r_statement() {
 int r_statement_list() {
     int retvalue = SUCCESS;
 
-    switch (curr_token.type) {
+    switch (prg.curr_token.type) {
         case TTYPE_DEDENT: /* dedent -> eps*/
             return SUCCESS;
             break;
@@ -170,7 +139,8 @@ int r_statement_list() {
             break;
 
         case TTYPE_KEYWORD: 
-            if (curr_token.attribute.keyword != KEY_DEF) {
+            /* Care for nested definitions */
+            if (prg.curr_token.attribute.keyword != KEY_DEF) { 
                 retvalue = r_statement();
             } else {
                 retvalue = ERROR_SYNTAX;
@@ -179,7 +149,7 @@ int r_statement_list() {
 
         default:
             fprintf(stderr, "Line %d - ERROR_SYNTAX %d in r_statement_list.\n",
-                    line_counter, curr_token.type);
+                    scn.line_counter, prg.curr_token.type);
             retvalue = ERROR_SYNTAX;
             break;
     }
@@ -193,49 +163,49 @@ int r_statement_list() {
 
 int r_function_def() {
     int retvalue = ERROR_SYNTAX;
-    in_function = true;
+    prg.in_function = true;
 
     /* Append the main program code, we're switching output string */
     if ((retvalue = concat_main_stash()) != SUCCESS) return retvalue;
 
     next_token(false);
-    if (curr_token.type != TTYPE_ID) return ERROR_SYNTAX;
+    if (prg.curr_token.type != TTYPE_ID) return ERROR_SYNTAX;
 
     /* Let's try to add the function to our symtable */
-    if ((retvalue = define_function(curr_token.attribute.string)) != SUCCESS)
+    if ((retvalue = define_function(prg.curr_token.attribute.string)) != SUCCESS)
         return retvalue;
 
-    generate_function(&curr_token);
+    generate_function(&prg.curr_token);
 
     next_token(false);
-    if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;  /* ( */
+    if (prg.curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;  /* ( */
 
     next_token(false);
     retvalue = r_param_list_def(); /* <param_list_def> */
     if (retvalue != SUCCESS) return retvalue;
 
     /* Check parameter count */
-    if ((param_count != curr_function_def->attributes.func_att.param_count) &&
-            (curr_function_def->attributes.func_att.param_count >= 0)) {
+    if ((prg.param_count != prg.curr_function_def->attributes.func_att.param_count) &&
+            (prg.curr_function_def->attributes.func_att.param_count >= 0)) {
         fprintf(stderr, "Line %d - Semantic error: Wrong parameter "
-                "count when defining function '%s'.\n", line_counter,
-                curr_function_def->id);
+                "count when defining function '%s'.\n", scn.line_counter,
+                prg.curr_function_def->id);
         return ERROR_SEM_PARAM_COUNT;
     }
 
     /* Store the number of parameters for the function */
-    curr_function_def->attributes.func_att.param_count = param_count;
-    param_count = 0;
+    prg.curr_function_def->attributes.func_att.param_count = prg.param_count;
+    prg.param_count = 0;
 
     /* params_list has already loaded this token */
-    if (curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX; /* ) */
+    if (prg.curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX; /* ) */
 
     next_token(false);
-    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
+    if (prg.curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* EOL */
+    if (prg.curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* EOL */
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* INDENT */
+    if (prg.curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* INDENT */
 
     next_token(false);
     retvalue = r_statement(); /* <statement> */
@@ -247,13 +217,13 @@ int r_function_def() {
 
     generate_function_end();
 
-    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* DEDENT */
+    if (prg.curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* DEDENT */
 
     /* Append the function program code, we're switching output string */
     if ((retvalue = concat_function_stash()) != SUCCESS) return retvalue;
     
-    in_function = false;
-    symtable_clear_all(&table_local);
+    prg.in_function = false;
+    symtable_clear_all(&prg.table_local);
 
     return retvalue;
 }
@@ -261,17 +231,17 @@ int r_function_def() {
 int r_param_list_def() {
     int retvalue = SUCCESS;
 
-    if (curr_token.type == TTYPE_ID) { /* id */
+    if (prg.curr_token.type == TTYPE_ID) { /* id */
         
         /* Add the parameters to the local symtable */
-        if ((retvalue = check_and_add_parameter_def(curr_token.attribute.string))
+        if ((retvalue = check_and_add_parameter_def(prg.curr_token.attribute.string))
                 != SUCCESS) {
             return retvalue;
         }
 
-        generate_def_param(&curr_token);
+        generate_def_param(&prg.curr_token);
 
-        param_count++;
+        prg.param_count++;
         next_token(false);
         retvalue = r_params_def(); /* <params_def> */
     }
@@ -281,24 +251,24 @@ int r_param_list_def() {
 int r_params_def() {
     int retvalue = SUCCESS;
 
-    if (curr_token.type == TTYPE_COMMA) { /* , */
-        param_count++;
+    if (prg.curr_token.type == TTYPE_COMMA) { /* , */
+        prg.param_count++;
         next_token(false);
 
-        if (curr_token.type == TTYPE_ID) { /* id */
+        if (prg.curr_token.type == TTYPE_ID) { /* id */
             /* Add the parameters to the local symtable */
-            if ((retvalue = check_and_add_parameter_def(curr_token.attribute.string))
+            if ((retvalue = check_and_add_parameter_def(prg.curr_token.attribute.string))
                     != SUCCESS) {
                 return retvalue;
             }
 
-            generate_def_param(&curr_token);
+            generate_def_param(&prg.curr_token);
 
             next_token(false);
             retvalue = r_params_def(); /* <params_def> */
 
         } else {
-            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_params_def.\n", line_counter);
+            fprintf(stderr, "Line %d - ERROR_SYNTAX in r_params_def.\n", scn.line_counter);
             retvalue = ERROR_SYNTAX;
         }
     }
@@ -309,17 +279,17 @@ int r_params_def() {
 int r_param_list() {
     int retvalue = SUCCESS;
 
-    switch (curr_token.type) {
+    switch (prg.curr_token.type) {
         case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
         case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
 
             /* Check if the parameter was a defined variable */
-            if (check_parameter_valid(curr_token, undef_symbol ? undef_symbol->id : NULL))
+            if (check_parameter_valid(prg.curr_token, prg.undef_symbol ? prg.undef_symbol->id : NULL))
                 return ERROR_SEM_DEFINITION;
 
-            generate_call_param(&curr_token);
+            generate_call_param(&prg.curr_token);
 
-            param_count++;
+            prg.param_count++;
             next_token(false);
             retvalue = r_params(); /* <params> */
             break;
@@ -334,20 +304,20 @@ int r_param_list() {
 int r_params() {
     int retvalue = SUCCESS;
 
-    if (curr_token.type == TTYPE_COMMA) { /* , or eps */
-        param_count++;
+    if (prg.curr_token.type == TTYPE_COMMA) { /* , or eps */
+        prg.param_count++;
         next_token(false);
 
-        switch (curr_token.type) {
+        switch (prg.curr_token.type) {
             case TTYPE_ID: case TTYPE_INT: case TTYPE_STR:
             case TTYPE_DOUBLE: case TTYPE_NONE: /* TERMS */
 
                 /* Check if the parameter was a defined variable */
-                if (check_parameter_valid(curr_token,
-                            undef_symbol ? undef_symbol->id : NULL))
+                if (check_parameter_valid(prg.curr_token,
+                            prg.undef_symbol ? prg.undef_symbol->id : NULL))
                     return ERROR_SEM_DEFINITION;
 
-                generate_call_param(&curr_token);
+                generate_call_param(&prg.curr_token);
 
                 next_token(false);
                 retvalue = r_params(); /* <params> */
@@ -355,7 +325,7 @@ int r_params() {
 
             default:
                 fprintf(stderr, "Line %d - ERROR_SYNTAX in r_params - "
-                        "wrong parameter.\n", line_counter);
+                        "wrong parameter.\n", scn.line_counter);
                 retvalue = ERROR_SYNTAX;
                 break;
         }
@@ -366,40 +336,40 @@ int r_params() {
 
 int r_if_else() {
     int retvalue = SUCCESS;
-    psa_state = IF;
+    prg.psa_state = IF;
     
-    if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* if expr */
+    if ((retvalue = psa(prg.undef_symbol ? prg.undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* if expr */
 
-    psa_state = DEFAULT;
+    prg.psa_state = DEFAULT;
 
     next_token(true);
-    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
+    if (prg.curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
 
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
+    if (prg.curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
 
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
+    if (prg.curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
-    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
+    if (prg.curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
     next_token(false);
-    if (curr_token.type != TTYPE_KEYWORD) return ERROR_SYNTAX;
-    if (curr_token.attribute.keyword != KEY_ELSE) return ERROR_SYNTAX; /* else */
+    if (prg.curr_token.type != TTYPE_KEYWORD) return ERROR_SYNTAX;
+    if (prg.curr_token.attribute.keyword != KEY_ELSE) return ERROR_SYNTAX; /* else */
 
     next_token(true);
-    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
+    if (prg.curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
 
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
+    if (prg.curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
 
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
+    if (prg.curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
     generate_else();
 
@@ -408,7 +378,7 @@ int r_if_else() {
 
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
-    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
+    if (prg.curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
     generate_elseif_end();
 
@@ -417,29 +387,29 @@ int r_if_else() {
 
 int r_cycle() {
     int retvalue = SUCCESS;
-    psa_state = WHILE;
+    prg.psa_state = WHILE;
     
     generate_while_label();
 
-    if ((retvalue = psa(undef_symbol ? undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
+    if ((retvalue = psa(prg.undef_symbol ? prg.undef_symbol->id : NULL)) != SUCCESS) return retvalue; /* while expr */
 
-    psa_state = DEFAULT;
+    prg.psa_state = DEFAULT;
 
     next_token(true);
-    if (curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
+    if (prg.curr_token.type != TTYPE_COLUMN) return ERROR_SYNTAX; /* : */
 
     next_token(false);
-    if (curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
+    if (prg.curr_token.type != TTYPE_EOL) return ERROR_SYNTAX; /* eol */
 
     next_token(false);
-    if (curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
+    if (prg.curr_token.type != TTYPE_INDENT) return ERROR_SYNTAX; /* indent */
 
     next_token(false);
     if ((retvalue = r_statement()) != SUCCESS) return retvalue; /* statement */
 
     next_token(false);
     if ((retvalue = r_statement_list()) != SUCCESS) return retvalue; /* statement_list */
-    if (curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
+    if (prg.curr_token.type != TTYPE_DEDENT) return ERROR_SYNTAX; /* dedent */
 
     generate_while_end();
 
@@ -447,10 +417,10 @@ int r_cycle() {
 }
 
 int r_function_ret() {
-    if (!in_function)
+    if (!prg.in_function)
         return ERROR_SYNTAX; /* return statement cannot exist outside a
                                           function definition */
-    psa_state = RETURN;
+    prg.psa_state = RETURN;
     next_token(false);
     return r_retvalue();
 }
@@ -458,7 +428,7 @@ int r_function_ret() {
 int r_retvalue() {
     int retvalue = ERROR_SYNTAX;
 
-    if (curr_token.type == TTYPE_EOL) { /* eps */
+    if (prg.curr_token.type == TTYPE_EOL) { /* eps */
         unget_token();
         retvalue = SUCCESS;
 
@@ -468,14 +438,14 @@ int r_retvalue() {
     }
 
     generate_function_end();
-    psa_state = DEFAULT;
+    prg.psa_state = DEFAULT;
     return retvalue;
 }
 
 int r_value() {
     int retvalue = SUCCESS;
 
-    if (curr_token.type == TTYPE_ID) { /* id, can be function call */
+    if (prg.curr_token.type == TTYPE_ID) { /* id, can be function call */
         unget_token();
         next_token(false);
         retvalue = r_rest();
@@ -491,13 +461,13 @@ int r_value() {
 int r_rest() {
     int retvalue = ERROR_SYNTAX;
 
-    switch (curr_token.type) {
+    switch (prg.curr_token.type) {
         case TTYPE_LTBRAC:
             unget_token();
 
             /* the statement is a function call, let's check the semantics */
             next_token(true); /* First load the last token */
-            if ((retvalue = check_function_call(curr_token.attribute.string)) != SUCCESS)
+            if ((retvalue = check_function_call(prg.curr_token.attribute.string)) != SUCCESS)
                 return retvalue;
                
             generate_create_frame();
@@ -505,47 +475,51 @@ int r_rest() {
             next_token(true);
             if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
-            generate_call_function(curr_function_call->id);
+            generate_call_function(prg.curr_function_call->id);
 
             /* Check parameter count */
-            if((retvalue = check_parameter_count_call(param_count)) != SUCCESS)
+            if((retvalue = check_parameter_count_call(prg.param_count)) != SUCCESS)
                 return retvalue;
-            param_count = 0;
+            prg.param_count = 0;
 
             break;
 
         case TTYPE_ASSIGN: /* assignment - we need to check if the assigned value
                               comes from an expression or a function call */
 
-            psa_state = ASSIGN;
+            prg.psa_state = ASSIGN;
             next_token(true);
 
 
             /* This block ensures that a construction like bar = foo(bar) is not
              * valid before defining bar */
-            retvalue = add_symbol_var(curr_token.attribute.string);
+            retvalue = add_symbol_var(prg.curr_token.attribute.string);
             switch (retvalue) {
+                /* The first occurence of the symbolt */
                 case NEW_VARIABLE:
-                    if (in_function)
-                        undef_symbol = symtable_search(&table_local,
-                                curr_token.attribute.string);
+                    if (prg.in_function)
+                        prg.undef_symbol = symtable_search(&prg.table_local,
+                                prg.curr_token.attribute.string);
                     else
-                        undef_symbol = symtable_search(&table_global,
-                                curr_token.attribute.string);
+                        prg.undef_symbol = symtable_search(&prg.table_global,
+                                prg.curr_token.attribute.string);
                     
-                    undef_symbol->attributes.var_att.defined = false;
+                    prg.undef_symbol->attributes.var_att.defined = false;
 
-                    declaration_variable(&curr_token);
+                    /* This is a new variable - declare it */
+                    declaration_variable(&prg.curr_token); 
                     retvalue = SUCCESS;
                     break;
 
                 case SUCCESS:
-                    if (in_function)
-                        undef_symbol = symtable_search(&table_local,
-                                curr_token.attribute.string);
+                    /* Load the referenced variable from the correct
+                     * symtable */
+                    if (prg.in_function) 
+                        prg.undef_symbol = symtable_search(&prg.table_local,
+                                prg.curr_token.attribute.string);
                     else
-                        undef_symbol = symtable_search(&table_global,
-                                curr_token.attribute.string);
+                        prg.undef_symbol = symtable_search(&prg.table_global,
+                                prg.curr_token.attribute.string);
                     break;
 
                 default:
@@ -555,15 +529,15 @@ int r_rest() {
             stash_clear();
             next_token(false);
             unget_token();
-            if (curr_token.type == TTYPE_ID) {
+            if (prg.curr_token.type == TTYPE_ID) {
 
                 next_token(false);
-                if (curr_token.type == TTYPE_LTBRAC) {
+                if (prg.curr_token.type == TTYPE_LTBRAC) {
                     unget_token();
 
                     /* the statement is a function call, let's check the semantics */
                     next_token(true);
-                    if ((retvalue = check_function_call(curr_token.attribute.string))
+                    if ((retvalue = check_function_call(prg.curr_token.attribute.string))
                             != SUCCESS)
                         return retvalue;
 
@@ -572,37 +546,37 @@ int r_rest() {
                     next_token(true);
                     if((retvalue = r_function_call()) != SUCCESS) return retvalue;
 
-                    generate_call_function(curr_function_call->id);
+                    generate_call_function(prg.curr_function_call->id);
 
                     /* Check parameter count */
-                    if ((retvalue = check_parameter_count_call(param_count)))
+                    if ((retvalue = check_parameter_count_call(prg.param_count)))
                         return retvalue;
-                    param_count = 0;
+                    prg.param_count = 0;
 
-                    if (undef_symbol) {
-                        generate_assign_retvalue(undef_symbol->id);
+                    if (prg.undef_symbol) {
+                        generate_assign_retvalue(prg.undef_symbol->id);
                     }
 
                 } else {
-                    unget_token();
-                    retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
+                    unget_token(); /* Not a function call */
+                    retvalue = psa(prg.undef_symbol ? prg.undef_symbol->id : NULL);
                 }
 
-            } else {
-                retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
+            } else { /* A literal -> expression -> let psa do the work */
+                retvalue = psa(prg.undef_symbol ? prg.undef_symbol->id : NULL);
             }
 
-            if (undef_symbol) {
-                undef_symbol->attributes.var_att.defined = true;
-                undef_symbol = NULL;
+            if (prg.undef_symbol) { /* Reset the undefined symbol attributes */
+                prg.undef_symbol->attributes.var_att.defined = true;
+                prg.undef_symbol = NULL;
             }
 
-            psa_state = DEFAULT;
+            prg.psa_state = DEFAULT;
             break;
 
         default: /* expression */
             unget_token();
-            retvalue = psa(undef_symbol ? undef_symbol->id : NULL);
+            retvalue = psa(prg.undef_symbol ? prg.undef_symbol->id : NULL);
             break;
     }
 
@@ -611,11 +585,12 @@ int r_rest() {
 
 int r_function_call() {
     int retvalue = ERROR_SYNTAX;
-    if (curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX;
+    if (prg.curr_token.type != TTYPE_LTBRAC) return ERROR_SYNTAX; /* ( */
 
+    /* Onto the param list */
     next_token(false);
     if ((retvalue = r_param_list()) != SUCCESS) return retvalue;
-    if (curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX;
+    if (prg.curr_token.type != TTYPE_RTBRAC) return ERROR_SYNTAX;
 
     return retvalue;
 }
@@ -625,52 +600,56 @@ int next_token(bool load_from_stash) {
 
     /* Free token string attribute if loading with get_token and stash is empty */
     if (stash_empty()
-            || (token_stash[0].type == TTYPE_EOF && token_stash[1].type != TTYPE_EOF)) {
-        token_free(&curr_token);
+            || (prg.token_stash[0].type == TTYPE_EOF && prg.token_stash[1].type != TTYPE_EOF)) {
+        token_free(&prg.curr_token);
     }
 
     if (load_from_stash) {
 
-        if (token_stash[0].type != TTYPE_EOF) {
-            curr_token = token_stash[0];
-            token_stash[0].type = TTYPE_EOF;
+        if (prg.token_stash[0].type != TTYPE_EOF) {
+            prg.curr_token = prg.token_stash[0];
+            prg.token_stash[0].type = TTYPE_EOF;
             return SUCCESS;
 
-        } else if (token_stash[1].type != TTYPE_EOF) {
-            curr_token = token_stash[1];
-            token_stash[1].type = TTYPE_EOF;
+        } else if (prg.token_stash[1].type != TTYPE_EOF) {
+            prg.curr_token = prg.token_stash[1];
+            prg.token_stash[1].type = TTYPE_EOF;
             return SUCCESS;
         }
     } 
 
-
-    retvalue = get_token(&curr_token); // Get next token
+    /* At this point, we dont't care about leaks,
+     * just free whatever you can and exit */
+    retvalue = get_token(&prg.curr_token); /* Get next token */
     if (retvalue != SUCCESS) {
         free_resources();
-        fprintf(stderr, "Line %d - Lex error %d\n", line_counter, retvalue);
-        exit(ERROR_LEXICAL);
+        fprintf(stderr, "Line %d - Lex error %d\n", scn.line_counter, retvalue);
+        exit(retvalue);
     }
 
     return retvalue;
 }
 
 void unget_token() {
-    if (token_stash[0].type == TTYPE_EOF) {
-        token_stash[0] = curr_token;
+    /* always stash the token on the first free index */
+    if (prg.token_stash[0].type == TTYPE_EOF) {
+        prg.token_stash[0] = prg.curr_token;
     } else {
-        token_stash[1] = curr_token;
+        prg.token_stash[1] = prg.curr_token;
     }
 }
 
 void stash_clear() {
+    /* free the tokens, reinit the stash */
     for (int i = 0; i < 2; i++) {
-        token_free(&token_stash[i]);
-        token_stash[i].type = TTYPE_EOF;
+        token_free(&prg.token_stash[i]);
+        prg.token_stash[i].type = TTYPE_EOF;
     }
 }
 
 void token_free(token_t *token) {
     switch (token->type) {
+        /* free the token attribute if it was of type char * */
         case TTYPE_STR: case TTYPE_ID: case TTYPE_INT:
         case TTYPE_DOUBLE:
             free(token->attribute.string);
@@ -683,5 +662,41 @@ void token_free(token_t *token) {
 }
 
 bool stash_empty() {
-    return token_stash[0].type == TTYPE_EOF && token_stash[1].type == TTYPE_EOF;
+    return prg.token_stash[0].type == TTYPE_EOF && prg.token_stash[1].type == TTYPE_EOF;
+}
+
+int init_resources() {
+
+    /* Initialize the indent stack for scanner */
+    scn.dent_stack = stack_general_init();
+    if (!scn.dent_stack) return ERROR_INTERNAL;
+
+    /* Initialize the token stash */
+    prg.token_stash[0].type = TTYPE_EOF;
+    prg.token_stash[0].attribute.string = NULL;
+    prg.token_stash[1].type = TTYPE_EOF;
+    prg.token_stash[1].attribute.string = NULL;
+
+    /* Initialize symbol tables */
+    symtable_init(&prg.table_global);
+    symtable_init(&prg.table_local);
+
+    if (add_built_in_functions()) return ERROR_INTERNAL;
+
+    if (start_program()) return ERROR_INTERNAL;
+    return SUCCESS;
+}
+
+void free_resources() {
+    token_free(&prg.curr_token);
+    token_free(&prg.token_stash[0]);
+    token_free(&prg.token_stash[1]);
+
+    stack_free(scn.dent_stack);
+    stash_clear();
+
+    symtable_clear_all(&prg.table_global);
+    symtable_clear_all(&prg.table_local);
+
+    free_assembly_code();
 }

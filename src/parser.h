@@ -16,9 +16,9 @@
 #include "precedence_analysis.h"
 #include "errors.h"
 #include "semantic.h"
-#include "generate_ver2.h"
-//#include "general_stack.h"
+#include "generate.h"
 
+/** @brief This enum indicates the currently parsed construction - PSA */
 typedef enum {
     DEFAULT,
     IF,
@@ -27,35 +27,57 @@ typedef enum {
     RETURN,
 } psa_state_t;
 
-/** @brief This variable indicates the currently parsed construction - PSA */
-extern psa_state_t psa_state;
+/**
+ * @struct parser_data
+ * @brief This structure holds all the data the parser needs in order to function
+ * and communicate with other modules.
+ *
+ * @var table_local The local symtable
+ * @var table_global The global symtable
+ *
+ * @var curr_token The currently processed token
+ * @var token_stash A special variable that can hold up to two tokens that are to
+ * be withdrawn in the future
+ *
+ * @var curr_function_def This variable points to a function in the global symtable,
+ * which is the function that is currently being defined
+ * @var curr_function_call Analogical to curr_function_def, but represents the function
+ * that is currently being called
+ * @var undef_symbol This is a special symbol variable used by semantic analysis that
+ * is used to prevent constructions like a = a if the variable a hasn't
+ * been defined before
+ *
+ * @var in_function This boolean indicates whether we are analysing a function or
+ * the global scope of the source program
+ * @var psa_state This variable tells the precedence semantic analysis the context
+ * of the currently analysed expression so that it can perform the necessary semantic
+ * operations
+ *
+ * @var param_count This variable is used to count the number of parameters of a function
+ * call or a function definition
+ */
+typedef struct parser_data {
 
-/* Local and global symtables */
-symtable_t table_global, table_local;
+    symtable_t table_local;
+    symtable_t table_global;
+
+    token_t curr_token;
+    token_t token_stash[2];
+
+    symbol_t *curr_function_def;
+    symbol_t *curr_function_call;
+    symbol_t *undef_symbol;
+
+    bool in_function;
+    psa_state_t psa_state;
+
+    int param_count;
+} pdata_t;
 
 /**
- * @brief Indicates whether the currently analyzed block
- * of code is inside a function or not.
- */
-extern bool in_function;
-
-/**
- * @brief A variable that stores the currently processed token.
- */
-extern token_t curr_token;
-
-/**
- * @brief A variable that stores the currently processed symbol. Useful
- * when we need to check the number of function parameters and don't want
- * to lose the reference to it's id.
- */
-extern symbol_t *curr_function_def;
-extern symbol_t *curr_function_call;
-
-/**
- * @brief A variable that stores up to two tokens at a time.
- */
-extern token_t token_stash[2];
+ * @brief This is a parser data global structure
+ * */
+extern pdata_t prg;
 
 /**
  * @brief Inits all the resources for the compiler.
@@ -102,7 +124,6 @@ bool stash_empty();
  * @brief Frees the memory allocated for the token attribute if it's of type string.
  */
 void token_free(token_t *token);
-
 
 
 /* What follows are prototypes of funcions, that implement the syntax and semantic

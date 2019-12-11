@@ -12,7 +12,7 @@ int main() {
     //dent_stack = indent_stack_init();
 
 
-    dent_stack = stack_general_init();
+    scn.dent_stack = stack_general_init();
     token_t token; 
 
     int result;
@@ -107,7 +107,7 @@ int main() {
     if (token.type == TTYPE_EOF) {
             printf("<EOF> \n");
     }
-    stack_free(dent_stack);
+    stack_free(scn.dent_stack);
     //indent_stack_free(dent_stack);
 
     return 0;

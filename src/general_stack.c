@@ -10,7 +10,10 @@
 #include "errors.h"
 
 stack_general_t *stack_general_init() {
+    // constructor
     stack_general_t *stack = (stack_general_t *) malloc(sizeof(struct stack_general));
+
+    //check
     if (stack == NULL) {
         return NULL;
     }
@@ -19,14 +22,15 @@ stack_general_t *stack_general_init() {
 
 }
 
-
+//return pointer of stack_general_item_t *
 stack_general_item_t *stack_general_top(stack_general_t *stack) {
     return stack->top;
 
 }
 
+// push int
 int stack_general_push_int(stack_general_t *stack, int data) {
-    int *temp = (int *) malloc(sizeof(int));
+    int *temp = (int *) malloc(sizeof(int)); // alloc if you do not want to loose it
     if (temp == NULL) {
         return ALLOC_ERROR;
     }
@@ -34,8 +38,10 @@ int stack_general_push_int(stack_general_t *stack, int data) {
     return stack_general_push(stack, (void *) temp);
 }
 
+
+// push int
 int stack_general_push_char(stack_general_t *stack, char data) {
-    char *temp = (char *) malloc(sizeof(char));
+    char *temp = (char *) malloc(sizeof(char)); // alloc if you do not want to loose it
     if (temp == NULL) {
         return ALLOC_ERROR;
     }
@@ -43,6 +49,9 @@ int stack_general_push_char(stack_general_t *stack, char data) {
     return stack_general_push(stack, (void *) temp);
 }
 
+
+
+// alloc your item, convert pointer to void and use this function
 int stack_general_push(stack_general_t *stack, void *data) {
 
     stack_general_item_t *new_item = malloc(sizeof(struct stack_general_item));
@@ -64,6 +73,7 @@ int stack_general_push(stack_general_t *stack, void *data) {
     return SUCCESS;
 
 }
+
 
 void stack_pop(stack_general_t *stack) {
     if (stack_empty(stack)) {

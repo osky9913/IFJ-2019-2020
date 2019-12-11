@@ -8,15 +8,36 @@
 #define __SCANNER_H__
 
 #include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "dynamic_string.h"
 #include "general_stack.h"
+#include "errors.h"
 
-stack_general_t* dent_stack;
+/**
+ * @brief This structure holds all the data that the scanner needs to work with.
+ */
+typedef struct scanner_data {
+    /* variable to determine if we are on new line(time to evaluate scn.indent/dedent)
+      -1 -> when beginning of the file
+       0 -> when LA found token thats not EOL
+       1 -> when LA found token that is EOL */
+    int line_counter;
+    int new_line;
+    
+    /* global variable do determine if there are more dedent tokens to be generated */
+    int indents_to_pop;
 
-extern int line_counter;
-extern int new_line;
-extern int indents_to_pop;
-extern int indent;
+    /* actual line scn.indentation */
+    int indent;
+
+    stack_general_t* dent_stack;
+} sdata_t;
+
+/* An instance of scanner_data */
+extern sdata_t scn;
 
 /**
  * @brief This enum represents types of processed token.
@@ -95,15 +116,6 @@ int calculate_dent(int* c);
  */
 int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t* token_string);
 
-
-/**
- * @brief converts hexadecimal number from escape sequence to decimal number
- * @param f       [source file]
- * @param token_string [token's string attribute]
- */
-/*
-void hexa_escape(string_t* Tstring);
-*/
 
 /**
  * @brief Generates DEDENT tokens until dedent is equal to indent on top of stack

@@ -17,55 +17,35 @@
 
 #include "errors.h"
 
-#define  SYMTABLE_SIZE 12289
+/* Default symtable size - we chose this value because it is a prime number and secondly
+ * because it is a large enough number to keep our table load under 75% at all
+ * times (assuming we are not compiling a ridiculously big program). */
+#define SYMTABLE_SIZE 27457
 
 /**
- * @brief Reprezentuje typ symbolu.
+ * @brief Represents the type of the symbol
  */
 typedef enum {
     STYPE_VAR,
-    STYPE_FUNC,
-    STYPE_LABEL
+    STYPE_FUNC
 } symbol_type_t;
 
 /**
- * @brief Reprezentuje typ promenne.
- */
-typedef enum {
-    VTYPE_INT,
-    VTYPE_DBL,
-    VTYPE_STR,
-    VTYPE_UNKNOWN
-} var_type_t;
-
-
-/**
  * @struct variable_attributes
- * @brief Struktura reprezentujici atributy promenne
+ * @brief This structure represents the variable symbol attributes
  *
- * @var defined Indikuje, zda byla promenna jiz definovana
- * @var type Typ promenne
- * @var scope Reprezentuje scope promenne
- * @var int_value Int hodnota promenne
- * @var double_value Double hodnota promenne
- * @var string_value String hodnota promenne
+ * @var defined Indicates whether the variable has been defined
  */
 typedef struct variable_attributes {
-    var_type_t type;
     bool defined;
-    union {
-        int int_value;
-        double double_value;
-        char *string_value;
-    };
 } var_att_t;
 
 /**
  * @struct function_attributes
- * @brief Struktura reprezentujici atributy funkce
+ * @brief This structure represents the function symbol attributes
  *
- * @var defined Indikuje, zda byla funkce jiz definovana
- * @var param_count Pocet parametru deklarovany pri definici funkce
+ * @var defined Indicates whether the function has been defined
+ * @var param_count The number of parameters this function should be called with
  * @var depends Array of pointers to other functions that have to be
  * defined when calling this function.
  * @var dep_len The number of dependencies in depends.
@@ -77,41 +57,29 @@ typedef struct function_attributes {
     unsigned dep_len;
 } func_att_t;
 
+/* The default length of the function dependency array */
 #define DEPEND_LEN 20
 
 /**
- * @struct label_attributes
- * @brief Struktura reprezentujici atributy navesti
- *
- * @var defined Indikuje, zda bylo navesti jiz definovane
- */
-typedef struct label_attributes {
-    bool defined;
-} label_att_t;
-
-/**
  * @union symbol_attributes
- * @brief Unie uchovavajici atributy promenne
+ * @brief This union stores the symbol attributes
  *
- * @var var_att Atributy promenne
- * @var func_att Atributy funkce
- * @var label_att Atributy navesti
+ * @var var_att Variable attributes
+ * @var func_att Function attributes
  */
 typedef union {
     var_att_t var_att;
     func_att_t func_att;
-    label_att_t label_att;
 } symbol_attributes;
 
 /**
  * @struct symbol
- * @brief Struktura reprezentujici jeden symbol
+ * @brief This structure represents a symbol in the symbol table
  *
- * @var id   Identifikator symbolu
- * @var type Typ symbolu
- * @var attributes Unie uchovavajici informace o symbolu potrebne pro semantickou analyzu
- * @var data Pocet zaznamu vazajicich se k danemu klici.
- * @var next Ukazatel na dalsi polozku seznamu.
+ * @var id   Symbol identifier
+ * @var type The type of the symbol
+ * @var attributes A union that stores the symbol attributes
+ * @var next A pointer to the next symbol in the symbol table
  */
 typedef struct symbol {
     char *id;
@@ -128,8 +96,11 @@ typedef symbol_t *symtable_t[SYMTABLE_SIZE];
 
 
 /**
- * @brief Hash funkce pro ziskani indexu do tabulky symbolu.
- * @return Vraci index do tabulky pro zadany klic
+ * @brief The hash function used to obtain the table index for a key
+ * @return Returns the table index for a specific key
+ *
+ * @note The hash function we used for our symbol table is the GNU Hash ELF
+ * function - a variant of the PJW hash function.
  */
 unsigned int symtable_hash(const char *key);
 
@@ -153,6 +124,8 @@ symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type,
 
 /**
  * @brief Deletes a symbol from the table.
+ * @note This function is not used at all in the compiler currently, we just implemented
+ * it and left it here in case we needed it in the future.
  */
 void symtable_delete(symtable_t *table, const char *id);
 

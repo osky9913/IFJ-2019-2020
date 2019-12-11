@@ -14,7 +14,6 @@
 #include "errors.h"
 #include "parser.h"
 #include "precedence_semantic.h"
-#include <stdbool.h>
 
 #define P '<' // push to stack
 #define R '>' //reduce by rule

@@ -8,6 +8,9 @@
 #ifndef __PRECEDENCE_SEMANTIC_H__
 #define __PRECEDENCE_SEMANTIC_H__
 
+#include <string.h>
+#include <stdbool.h>
+
 #include "scanner.h"
 #include "parser.h"
 #include "dynamic_string.h"
@@ -15,9 +18,7 @@
 #include "precedence_analysis.h"
 #include "general_stack.h"
 #include "symtable.h"
-#include "generate_ver2.h"
-#include <string.h>
-#include <stdbool.h>
+#include "generate.h"
 
 #define INITLENGTH 20 //max length of postfix array of tokens
 

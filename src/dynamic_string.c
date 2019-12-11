@@ -6,20 +6,18 @@
  * our dynamic string implementation.
  */
 
+
 #include "dynamic_string.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-
-string_t *string_create_init() {
+string_t *string_create_init(void) {
+    /* Allocate memory for the string_t structure */
     string_t *s = malloc(sizeof(string_t));
     if (s == NULL) {
         fprintf(stderr, "String ERROR: Could not allocate memory for a string.\n");
         return NULL;
     }
 
+    /* Now init the new string */
     if (string_init(s) == STR_ALLOC_ERROR) {
         string_free(s);
         return NULL;
@@ -29,8 +27,10 @@ string_t *string_create_init() {
 }
 
 int string_init(string_t *s) {
+    /* Set the default string attributes */
     s->index = 0;
     s->real = STR_DEFAULT_LEN;
+    /* Allocate memory for the string array */
     s->array = calloc(STR_DEFAULT_LEN, 1);
     if (s->array == NULL) {
         fprintf(stderr, "String ERROR: Could not init string.\n");
@@ -71,6 +71,7 @@ void string_print(string_t *s, const char *append) {
 
 void string_free(string_t *s) {
     if (s) {
+        /* Free the whole structure */
         string_free_array(s);
         free(s);
     } else {
@@ -80,6 +81,7 @@ void string_free(string_t *s) {
 
 void string_free_array(string_t *s) {
     if (s) {
+        /* Reset the string to it's original state before initialization */
         free(s->array);
         s->real = 0;
         s->index = 0;
@@ -91,6 +93,7 @@ void string_free_array(string_t *s) {
 
 void string_clear(string_t *s) {
     if (s) {
+        /* Fill the string array with zeroes and reset the index */
         for(int i = 0; i < s->index; i++)
             s->array[i] = '\0';
         s->index = 0;
@@ -105,6 +108,7 @@ char *string_copy_data(string_t *s) {
         return NULL;
     }
 
+    /* Create a new array for the copied data - we need a deep copy */
     char *new = calloc(s->index + 1, 1);
     if (new == NULL) {
         fprintf(stderr, "String ERROR: Could not allocate memory for\
@@ -117,41 +121,37 @@ char *string_copy_data(string_t *s) {
 
 int str_find_char(string_t* s, char c) {
     int charFound = 0;
+    
+    /* Scan the string to find a character in it */
     for(int i = 0; i < s->index; i++){
         if(s->array[i] == c){
             charFound++;
         }
     }
     return charFound;
-
 }
 
+void create_unique_variable(string_t *result, int *unique, char* base_name) {
 
-void create_unic_variable(string_t *result, int *uniq, char* base_name) {
+    /* Create a temporary string to convert the uniqueue parameter to a string */
+    char number_string[30] = {0};
+    sprintf(number_string, "%d", *unique);
 
-    char variable[1000] = {0};
-    sprintf(variable,"%s", base_name);
-    char number_string[20] = {0};
     result->index = 0;
-    for (size_t i = 0; i < strlen(variable); i++) {
-        string_append_char(result, variable[i]);
-    }
-    sprintf(number_string, "%d", *uniq);
+    string_append(result, base_name);
     string_append(result, number_string);
-    *uniq = *uniq + 1;
+    *unique = *unique + 1;
 }
 
 
-void create_unic_label(string_t *result, int *uniq, char *base_name) {
+void create_unique_label(string_t *result, int *unique, char *base_name) {
 
-    char variable[1000] = {0};
-    sprintf(variable, "%s", base_name);
-    char number_string[20] = {0};
+    /* Create a temporary string to convert the uniqueue parameter to a string */
+    char number_string[30] = {0};
+    sprintf(number_string, "%d", *unique);
+
     result->index = 0;
-    for (size_t i = 0; i < strlen(variable); i++) {
-        string_append_char(result, variable[i]);
-    }
-    sprintf(number_string, "%d", *uniq);
+    string_append(result, base_name);
     string_append(result, number_string);
 }
 
@@ -159,9 +159,9 @@ void create_unic_label(string_t *result, int *uniq, char *base_name) {
 void string_append(string_t *s1, const char *s2) {
     unsigned len = strlen(s2);
 
+    /* Append s2 to s1 char by char */
     for (unsigned i = 0; i < len; i++) {
         if (string_append_char(s1, s2[i]) == STR_ALLOC_ERROR)
-            exit(ERROR_INTERNAL);// todo check
+            exit(ERROR_INTERNAL);
     }
 }
-
