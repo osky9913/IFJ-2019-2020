@@ -6,7 +6,6 @@
  */
 
 #include "precedence_semantic.h"
-#include <string.h>
 
 
 int tokenArrCreateInit(t_array* newArr){
@@ -346,7 +345,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
     //checks if all variables in expression are defined
     int checkDefine = checkDefinedVarInPostfix(postfix, assignmentID);
     if(checkDefine == ERROR_SEM_DEFINITION){
-        fprintf(stderr, "Line %d - Undefined variable\n", line_counter);
+        fprintf(stderr, "Line %d - Undefined variable\n", scn.line_counter);
         return ERROR_SEM_DEFINITION;
     }
 
@@ -395,7 +394,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
             stack_popNoDataFree(evalS);
             free(evalS);
             stack_free(tokenGarbageS);
-            fprintf(stderr, "Line %d - Return semantic[%d]\n", line_counter, semantic);
+            fprintf(stderr, "Line %d - Return semantic[%d]\n", scn.line_counter, semantic);
             return semantic;
         }
     }
@@ -404,7 +403,7 @@ int postfixEval(t_array* postfix, const char* assignmentID){
     stack_general_item_t *tmpStackItemResult = stack_general_top(evalS);
     token_t *result = (token_t *) tmpStackItemResult->data;
 
-    switch(psa_state){
+    switch(prg.psa_state){
         case WHILE:
             generate_while(result);
             break;
@@ -444,11 +443,11 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         if(isOperator(operator)){
             if(operator->type == TTYPE_IDIV){
                 if(operand1->type == TTYPE_DOUBLE || operand2->type == TTYPE_DOUBLE){
-                    fprintf(stderr, "Line %d - IDIV with floating points\n", line_counter);
+                    fprintf(stderr, "Line %d - IDIV with floating points\n", scn.line_counter);
                     return ERROR_SEM_TYPE;
                 }
                 else if(checkInt == 0){
-                    fprintf(stderr, "Line %d - Division by zero.\n", line_counter);
+                    fprintf(stderr, "Line %d - Division by zero.\n", scn.line_counter);
                     return ERROR_DIV_ZERO;
                 }
                 return SUCCESS;
@@ -456,7 +455,7 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         }
         else{
             fprintf(stderr, "Line %d - Expected operator is not a valid operator.\n",
-                    line_counter);
+                    scn.line_counter);
             return ERROR_SEM_OTHER;
         }
     }
@@ -465,7 +464,7 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
         if(operator->type == TTYPE_SUB || operator->type == TTYPE_MUL ||
            operator->type == TTYPE_DIV || operator->type == TTYPE_IDIV){
             fprintf(stderr, "Line %d - The only valid string operation is concatenation\n",
-                    line_counter);
+                    scn.line_counter);
             return ERROR_SEM_TYPE;
         }
         return SUCCESS;
@@ -473,7 +472,7 @@ int checkSemantic(token_t *operand1, token_t *operand2, token_t *operator){
 
     if((operand1->type == TTYPE_STR && (operand2->type != TTYPE_STR && operand2->type != TTYPE_ID) ) ||
        (operand2->type == TTYPE_STR && (operand1->type != TTYPE_STR && operand1->type != TTYPE_ID))){
-        fprintf(stderr, "Line %d - String and non string as operands in expression.\n", line_counter);
+        fprintf(stderr, "Line %d - String and non string as operands in expression.\n", scn.line_counter);
         return ERROR_SEM_TYPE;
     }
     if(operator->type == TTYPE_GT || operator->type == TTYPE_LS || operator->type == TTYPE_LSOREQ || operator->type == TTYPE_GTOREQ){
@@ -499,7 +498,7 @@ int checkDefinedVarInPostfix(t_array* postfix, const char* assignmentID){
             checkDef = check_if_defined_var(postfix->arr[i].attribute.string, assignmentID);
             if(checkDef != VARIABLE_FOUND){
                 fprintf(stderr, "Line %d - Variable %s was undefined.\n",
-                        line_counter, postfix->arr[i].attribute.string);
+                        scn.line_counter, postfix->arr[i].attribute.string);
                 return ERROR_SEM_DEFINITION;
             }
         }

@@ -3,7 +3,6 @@
  * @file   symtable.c
  * @author Simon Sedlacek, xsedla1h
  * @brief This module implements the table of symbols
- * @note	TODO: revidovat funkce, struktury
  */
 
 #include "symtable.h"

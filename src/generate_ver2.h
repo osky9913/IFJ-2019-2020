@@ -11,9 +11,14 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "dynamic_string.h"
 #include "scanner.h"
 #include "general_stack.h"
+#include "parser.h"
+#include "errors.h"
 
 
 // structure for implementing generator for output

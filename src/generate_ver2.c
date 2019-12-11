@@ -4,13 +4,8 @@
  * @author Martin Osvald - xosval03, Marek Ziska - xziska03
  * @brief Output code generatorm module
  */
-#include "scanner.h"
-#include "parser.h"
-#include "errors.h"
-#include "generate_ver2.h"
-#include <stdio.h>
-#include <stdlib.h>
 
+#include "generate_ver2.h"
 
 
 generate_strings_output_t assembly_code;
@@ -18,7 +13,7 @@ unique_id_t identificator;
 labels_stacks_t general_stacks;
 
 string_t * switch_definitions_frame(){
-    if (in_function ){
+    if (prg.in_function ){
         return assembly_code.function_definitions;
     }
     return  assembly_code.main;
@@ -259,7 +254,7 @@ void end_program() {
 }
 
 void append_frame_to_variable(string_t *frame) {
-    if (in_function) {
+    if (prg.in_function) {
         string_append(frame, "LF@");
     } else {
         string_append(frame, "GF@");

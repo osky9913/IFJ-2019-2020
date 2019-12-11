@@ -19,7 +19,7 @@ const char PREC_TABLE[7][7] =
         };
 
 int get_prec_table_symbol(){
-    switch(curr_token.type){
+    switch(prg.curr_token.type){
         case TTYPE_ID:
         case TTYPE_INT:
         case TTYPE_DOUBLE:
@@ -276,20 +276,20 @@ int psa(const char* assignmentID){
 
     next_token(true);
 
-    if (curr_token.type == TTYPE_EOL || curr_token.type == TTYPE_COLUMN) {
+    if (prg.curr_token.type == TTYPE_EOL || prg.curr_token.type == TTYPE_COLUMN) {
         stack_free(PAStack);
         freePsaResources(&infixArr, &postfix, s);
         fprintf(stderr, "Line %d - Syntax error in psa - expression cannot be empty.\n",
-                line_counter);
+                scn.line_counter);
         return ERROR_SYNTAX;
 
     }
 
     //loop through whole expression
-    while(curr_token.type != TTYPE_COLUMN && curr_token.type != TTYPE_EOL){
+    while(prg.curr_token.type != TTYPE_COLUMN && prg.curr_token.type != TTYPE_EOL){
 
 
-        copyTokenToArray(&infixArr, &curr_token);
+        copyTokenToArray(&infixArr, &prg.curr_token);
 
         //applying rules and checking for error indicating syntax error
         int psaCheck = apply_psa_rule(PAStack);
@@ -300,7 +300,7 @@ int psa(const char* assignmentID){
 
             stack_free(PAStack);
             freePsaResources(&infixArr, &postfix, s);
-            fprintf(stderr, "Line %d - Syntax error in psa\n", line_counter);
+            fprintf(stderr, "Line %d - Syntax error in psa\n", scn.line_counter);
             return ERROR_SYNTAX;
         }
 
@@ -312,7 +312,7 @@ int psa(const char* assignmentID){
     if(psaCheck) {
         stack_free(PAStack);
         freePsaResources(&infixArr, &postfix, s);
-        fprintf(stderr, "Line %d - Syntax error in psa\n", line_counter);
+        fprintf(stderr, "Line %d - Syntax error in psa\n", scn.line_counter);
         return ERROR_SYNTAX;
     }
 
@@ -321,7 +321,7 @@ int psa(const char* assignmentID){
 
     //checking if relational operator is only in if or while statement
     int lastOperator = getPriority(&(postfix.arr[postfix.currLen-1]));
-    if((psa_state == RETURN || psa_state == ASSIGN) && lastOperator == 0){
+    if((prg.psa_state == RETURN || prg.psa_state == ASSIGN) && lastOperator == 0){
         unget_token();
         stack_free(PAStack);
         freePsaResources(&infixArr, &postfix, s);
