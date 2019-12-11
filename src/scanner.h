@@ -118,15 +118,6 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
 
 
 /**
- * @brief converts hexadecimal number from escape sequence to decimal number
- * @param f       [source file]
- * @param token_string [token's string attribute]
- */
-/*
-void hexa_escape(string_t* Tstring);
-*/
-
-/**
  * @brief Generates DEDENT tokens until dedent is equal to indent on top of stack
  * @return [1 - found one dedent, 0 - indentation error, 2 - found all dedents(LA continues)
  */

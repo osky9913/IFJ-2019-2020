@@ -19,11 +19,12 @@ sdata_t scn = {
 int calculate_dent(int* c){
     scn.indent = 0;
     stack_general_item_t* stack_top = NULL;
-    //ignore newlines scn.indentation
+    //ignore newlines indentation
     if(*c == '\n'){
         stack_top = stack_general_top(scn.dent_stack);
         return *(int*)stack_top->data;
     }
+    //calc num of whitaspaces before valid lexem
     while(isspace(*c)){
         if(*c == '\n'){
             scn.indent = 0;
@@ -34,6 +35,7 @@ int calculate_dent(int* c){
             *c = getc(stdin);
         }
     }
+    //calculated indentation before comment, ignore it
     if(*c == '#' || *c == '"'){
         ungetc(*c, stdin);
         stack_top = stack_general_top(scn.dent_stack);
@@ -43,13 +45,14 @@ int calculate_dent(int* c){
 }
 
 int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t* token_string){
+    //convert received lexems to token's attribute as string
     if(token->type == TTYPE_STR || token->type == TTYPE_ID){
         token->attribute.string = string_copy_data(token_string);
     }
     if(token->type == TTYPE_INT) {
         token->attribute.string = string_copy_data(tmp);
     }
-    //in case of double we expect format of 123e12 -> needed conversion
+    //in case of double, possible format of 123e12 -> needed conversion
     if(token->type == TTYPE_DOUBLE){
         char *ptr = NULL;
         char number_string[100] = {0};
@@ -59,6 +62,7 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
         string_append(tmp, number_string);
         token->attribute.string = string_copy_data(tmp);
     }
+    //actual lexem is EOL, set flag for checking indent/dedent
     if(token->type == TTYPE_EOL){
         scn.new_line = 1;
     } else {
@@ -70,27 +74,27 @@ int finish_free_resources(int exit_code, token_t* token, string_t* tmp, string_t
     return exit_code;
 }
 int process_dedents(){
-    int pop_indent;     //scn.indentation sequence that will be removed from scn.indent_stack
+    int pop_indent;     //indentation sequence that will be removed from scn.indent_stack
     stack_general_item_t* stack_top = stack_general_top(scn.dent_stack);
     int stack_top_int = *(int*)stack_top->data;
 
 
     while(scn.indent != stack_top_int){
-        pop_indent = stack_top_int;//scn.indent_stack_top(dent_stack);
+        pop_indent = stack_top_int; //store indentation at the top of stack before pop
         stack_pop(scn.dent_stack);
         if(stack_empty(scn.dent_stack)){
             fprintf(stderr, "line %d: Lexical analysis error: "
-                            "scn.indentation in commands sequence was not correct!\n", scn.line_counter);
+                            "indentation in commands sequence was not correct!\n", scn.line_counter);
             return 0;
         }
         stack_top = stack_general_top(scn.dent_stack);
         stack_top_int = *(int*)stack_top->data;
-        //after first scn.indent was popped, dedent scn.indentation was equal to top of stack(there is no more scn.indents to be popped)
+        //after first indentation on stack was popped, dedents indentation was equal to top of stack(there is no more indentations to be popped)
         if(scn.indent == stack_top_int){
             scn.indents_to_pop = 0;
             return 1;
         }
-        //scn.indentation of dedent is smaller than one or more scn.indents scn.indentation(there is more scn.indents to be popped from stack)
+        //indentation of dedent is smaller than one or more indents indentation(there is more indents to be popped from stack, and more dedents to be generated)
         if(pop_indent > stack_top_int){
             scn.indents_to_pop = 1;
             return 1;
@@ -114,14 +118,14 @@ int get_token(token_t* token){
         stack_general_push_int(scn.dent_stack, 0);
     }
 
-    //there is more dedents to be generated
+    //flag for generating more dedents was set, there is more dedents to be generated
     if(scn.indents_to_pop){
         token->type = TTYPE_DEDENT;
         if(process_dedents()){
             return finish_free_resources(SUCCESS, token, tmp, token_string);
         }
         else{
-            scn.indents_to_pop = 0; //len kvoli tomu aby sa to nezacykliklo, odstranit z finalnej verzie
+            scn.indents_to_pop = 0;
             return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
         }
     }
@@ -131,14 +135,11 @@ int get_token(token_t* token){
         switch(state){
             //default state
             case 0:
-                //scn.indent dedent
+                //at the beggining of the line, check for indent/dedent
                 if(scn.new_line == 1){
-                    scn.indent = calculate_dent(&c);
-                    stack_top = stack_general_top(scn.dent_stack);
- 
+                    scn.indent = calculate_dent(&c);    /*actual indentation*/
+                    stack_top = stack_general_top(scn.dent_stack);  /*indentation on top of stack*/
                     stack_top_int = *(int*)stack_top->data;
-
-
                     if(scn.indent > stack_top_int){
                         //processed non-whitespace character we have to get it back
                         ungetc(c, stdin);
@@ -251,6 +252,7 @@ int get_token(token_t* token){
                                 state = 5;
                             }
                         }
+                        //ignore whitespaces between lexems
                         else if(isspace(c)) {   
                             state = 0;
                         }
@@ -538,6 +540,7 @@ int get_token(token_t* token){
                 }
                 else{
                     ungetc(c, stdin);
+                    //checking for keywords
                     if((strcmp(token_string->array, "def")) == 0){    
                         string_clear(token_string);
                         token->type = TTYPE_KEYWORD;
@@ -665,6 +668,7 @@ int get_token(token_t* token){
                     string_append_char(token_string, c);
                 }
                 break;
+                //state for checking correct exponent
                 case 8:
                     if(c == '-' || c == '+'){
                         string_append_char(tmp, c);
@@ -685,13 +689,18 @@ int get_token(token_t* token){
                         return finish_free_resources(SUCCESS, token, tmp, token_string);
                     }
                     break;
+                //checking bad number formats
                 case 9:
-                    //checking bad number formats
                     if(isdigit(c)){
                         //after zero, nonzero number appeared -> error
                         string_append_char(tmp, c);
                         if(c != '0'){
                             state = 10;
+                        }
+                        else{
+                            fprintf(stderr, "line %d: Lexical analysis error : "
+                                            "Invalid number format!\n", scn.line_counter);
+                            return finish_free_resources(ERROR_LEXICAL, token, tmp, token_string);
                         }
                     }
                     else if(c == '.' || c == 'e' || c == 'E'){
@@ -707,6 +716,7 @@ int get_token(token_t* token){
                 //state for checking invalid integer format 00003 -> invalid , 00003.0 -> valid
                 case 10:
                     if(isdigit(c)){
+
                         string_append_char(tmp, c);
                     }
                     else if(c == '.' || c == 'e' || c == 'E'){
