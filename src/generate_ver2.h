@@ -9,11 +9,16 @@
 #define __GENERATE_2_H__
 
 
+#include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "dynamic_string.h"
 #include "scanner.h"
 #include "general_stack.h"
-#include <stdbool.h>
+#include "parser.h"
+#include "errors.h"
 
 
 // structure for implementing generator for output
@@ -26,8 +31,8 @@ typedef struct generate_strings_output{
 } generate_strings_output_t;
 
 
-// structure for iterating/generating uniq variables/labels id 
-typedef struct uniq_id{
+// structure for iterating/generating unique variables/labels id 
+typedef struct unique_id{
     int general  ;
     int param_call ;
     int param_def ;
@@ -37,7 +42,7 @@ typedef struct uniq_id{
     int if_label ;
     int concat_label ;
     int label;
-} uniq_id_t;
+} unique_id_t;
 
 typedef struct labels_stacks {
     stack_general_t * while_labels_stack;

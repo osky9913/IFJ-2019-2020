@@ -1,7 +1,7 @@
 /**
  * Implementace překladače imperativního jazyka IFJ19
  * @file   semantic.h
- * @author Simon Sedlacek, xsedla1h
+ * @author Simon Sedlacek - xsedla1h
  * @brief Header file for semantic analysis module
  */
 
