@@ -5,7 +5,7 @@
  * @brief Output code generatorm module
  */
 
-#include "generate_ver2.h"
+#include "generate.h"
 
 
 generate_strings_output_t assembly_code;

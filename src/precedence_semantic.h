@@ -18,7 +18,7 @@
 #include "precedence_analysis.h"
 #include "general_stack.h"
 #include "symtable.h"
-#include "generate_ver2.h"
+#include "generate.h"
 
 #define INITLENGTH 20 //max length of postfix array of tokens
 
