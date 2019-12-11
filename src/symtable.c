@@ -75,8 +75,8 @@ symbol_t *symtable_insert(symtable_t *table, const char *id, symbol_type_t type,
 
         /* If the new symbol is to be a function, allocate a dependency list for it */
         if (type == STYPE_FUNC) {
-            if (!(new_item->attributes.func_att.depends = malloc(sizeof(symbol_t *)
-                            * DEPEND_LEN))) {
+            if (!(new_item->attributes.func_att.depends =
+                        malloc(sizeof(symbol_t *) * DEPEND_LEN))) {
                 free(new_item->id);
                 free(new_item);
                 return NULL;
