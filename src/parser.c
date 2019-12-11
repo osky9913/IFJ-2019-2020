@@ -25,7 +25,7 @@ int r_program() {
 
     switch (curr_token.type) {
         case TTYPE_EOF:
-            retvalue = SUCCESS; // End of input - EOF represents the '$' token
+            retvalue = SUCCESS; /* End of input - EOF represents the '$' token */
             break;
 
         case TTYPE_KEYWORD:
@@ -42,6 +42,7 @@ int r_program() {
                     }
                     break;
 
+                /* A return statement cannot occur in the main program body */
                 case KEY_RETURN:
                     fprintf(stderr, "Line %d - Syntax error: 'return' in r_program.\n",
                             line_counter);
@@ -70,7 +71,8 @@ int r_program() {
             retvalue = ERROR_SYNTAX;
             break;
     }
-    if (concat_main_stash()) return ERROR_INTERNAL; // concat the code and the variable declarations
+    /* concatenate the code and the variable declarations */
+    if (concat_main_stash()) return ERROR_INTERNAL;
     return retvalue;
 }
 
@@ -116,6 +118,7 @@ int r_statement() {
     if (retvalue != SUCCESS) return retvalue;
 
     next_token(true);
+    /* Every statement has to end with EOL */
     if (curr_token.type != TTYPE_EOL) { /* eol */
         fprintf(stderr, "Line %d - ERROR_SYNTAX %d in r_statement - didn't "
                 "end with eol.\n", line_counter, curr_token.type);

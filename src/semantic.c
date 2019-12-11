@@ -1,7 +1,7 @@
 /**
  * Implementace překladače imperativního jazyka IFJ19
  * @file   semantic.c
- * @author Simon Sedlacek, xsedla1h
+ * @author Simon Sedlacek - xsedla1h
  * @brief The main semantic analysis module
  */
 
@@ -92,6 +92,7 @@ int check_if_defined_var(const char *id, const char *assignment_id) {
     if (symbol) {
         if (symbol->type == STYPE_VAR) {
 
+            /* Now check for a potential undefinde local variable */
             if (in_function) {
                 symbol = symtable_search(&table_local, id);
                 if (symbol) {
@@ -118,12 +119,12 @@ int check_if_defined_var(const char *id, const char *assignment_id) {
                     return VARIABLE_FOUND;
                 }
 
-            } else {
+            } else { /* A perfectly fine global variable */
                 if (symbol->attributes.var_att.defined)
                     return VARIABLE_FOUND;
             }
 
-        } else if (symbol->type == STYPE_FUNC) {
+        } else if (symbol->type == STYPE_FUNC) { /* We found a function */
             return FUNCTION_FOUND;
         }
     }
@@ -202,6 +203,9 @@ int add_symbol_var(const char *id) {
 
 int define_function(const char *id) {
     if ((curr_function_def = symtable_search(&table_global, id))) {
+
+        /* This first case covers any function that might have been called
+         * before in a different function but was undefined at the time */
         if (curr_function_def->type == STYPE_FUNC 
                 && !curr_function_def->attributes.func_att.defined) {
 
@@ -215,6 +219,7 @@ int define_function(const char *id) {
         }
 
     } else {
+        /* Defining a new function */
         symbol_attributes att = { .func_att = { .defined = true, .param_count = -1,
         .depends = NULL, .dep_len = 0 } };
 
@@ -279,6 +284,7 @@ int add_undefined_function(const char *id) {
 
 int check_parameter_valid(const token_t token, const char *assignment_id) {
     if (token.type == TTYPE_ID) {
+        /* Simply check whether the passed parameter was a valid parameter */
         switch (check_if_defined_var(token.attribute.string, assignment_id)) {
             case FUNCTION_FOUND:
                 fprintf(stderr, "Line %d - Sematic error: parameter %s was a "
@@ -302,14 +308,17 @@ int check_parameter_valid(const token_t token, const char *assignment_id) {
 
 int check_parameter_count_call(const int param_count) {
     if (in_function) {
-        if (!curr_function_call->attributes.func_att.defined) {
 
+        /* This first case sets the initial parameter count when we encounter
+         * a call of a yet undefined function */
+        if (!curr_function_call->attributes.func_att.defined) {
             if (curr_function_call->attributes.func_att.param_count == -1) {
                 curr_function_call->attributes.func_att.param_count = param_count;
             }
         }
-
     }
+
+    /* Now check the current parameter count with the symtable stats */
     if ((param_count != curr_function_call->attributes.func_att.param_count) &&
             (curr_function_call->attributes.func_att.param_count >= 0)) {
 
@@ -318,7 +327,6 @@ int check_parameter_count_call(const int param_count) {
                 curr_function_call->id);
         return ERROR_SEM_PARAM_COUNT;
     }
-
     return SUCCESS;
 }
 
@@ -332,7 +340,8 @@ int check_function_call(const char *id) {
 
             if (!in_function) { /* check the dependencies */
 
-                /* create a dependency list to avoid infinite recursion */
+                /* create a dependency list to avoid infinite recursion when
+                 * checking function dependencies */
                 snode_t *list = NULL;
                 if (check_function_dependencies(curr_function_call, &list)) {
                     list_free(list);

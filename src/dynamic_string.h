@@ -8,15 +8,19 @@
 #ifndef __DYNAMIC_STRING_H__
 #define __DYNAMIC_STRING_H__
 
-#include "errors.h"
+#include <stdbool.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "errors.h"
+
 /* Default string length for initialization */
-#define STR_DEFAULT_LEN 20
+#define STR_DEFAULT_LEN 10
 
 /* Return codes */
-#define STR_ALLOC_ERROR 1
-#define STR_NULL_PASSED 2
+#define STR_ALLOC_ERROR 99 
+#define STR_NULL_PASSED 88 
 
 /**
  * @brief This structure represents our dynamic string.
@@ -32,7 +36,7 @@ typedef struct String {
  * @brief Allocates memory for a new string and initializes it.
  * @return Pointer to the new string or NULL if the operation fails.
  */
-string_t *string_create_init();
+string_t *string_create_init(void);
 
 /**
  * @brief Initializes s to the base values for a new string.
@@ -80,13 +84,20 @@ char *string_copy_data(string_t *s);
  */
 int str_find_char(string_t* s, char c);
 
+/**
+ * @brief Creates a unique variable name based on the unique parameter, which is
+ * also incremented in the process.
+ */
+void create_unique_variable(string_t *result, int *unique, char* base_name);
 
-void create_unic_variable(string_t *result, int *unic, char* base_name);
+/**
+ * @brief Creates a unique label based on the unique parameter.
+ */
+void create_unique_label(string_t *result, int  *unique, char *base_name);
 
-void create_unic_label(string_t *result, int  *unic, char *base_name);
-
-
+/**
+ * @brief Appends a string to s1
+ */
 void string_append(string_t *s1, const char *s2);
-
 
 #endif
