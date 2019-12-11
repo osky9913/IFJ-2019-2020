@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.12.7)  12 DEC 2019 00:14
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.12.7)  12 DEC 2019 00:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -572,147 +572,141 @@ been already used, duplicate ignored
                    \relax 
 l.58 	\newpage
                [1] [2]
-Overfull \hbox (26.11127pt too wide) in paragraph at lines 68--70
-\T1/cmr/m/n/12 Lexikálna analýza je implementovaná v module scanner.c. Úlohou l
-exikálnej analýzy je rozpoznávanie
+Overfull \hbox (31.98483pt too wide) in paragraph at lines 68--69
+\T1/cmr/m/n/12 Lexikálna analýza \TS1/cmr/m/n/12 ¨\T1/cmr/m/n/12 je implementov
+aná v module scanner.c. Úlohou lexikálnej analýzy je rozpoznávanie
  []
 
 
-Overfull \hbox (2.29495pt too wide) in paragraph at lines 68--70
-\T1/cmr/m/n/12 tokeny, teda poskytuje rozhranie pre syntaktickú analýzu formou 
-funkcie get_token(). Lexikálna
- []
-
-
-Overfull \hbox (4.26587pt too wide) in paragraph at lines 72--73
+Overfull \hbox (4.26587pt too wide) in paragraph at lines 73--74
 \T1/cmr/m/n/12 tomto module sa nachádza implementácia pravidiel pre rekurzívny 
 zostup, volá sa tu preceden£ná
  []
 
 
-Overfull \hbox (12.94551pt too wide) in paragraph at lines 72--73
+Overfull \hbox (12.94551pt too wide) in paragraph at lines 73--74
 \T1/cmr/m/n/12 syntaktického analyzátoru je potom modul precedence_analysis.c, 
 ktorý má na staros´ syntaktickú
  []
 
 
-Overfull \hbox (3.61307pt too wide) in paragraph at lines 76--77
+Overfull \hbox (3.61307pt too wide) in paragraph at lines 77--78
 \T1/cmr/m/n/12 lokálnych a globálnych tabuliek symbolov obsahuje premennú curr_
 token uchovávajúcu aktuálny
  []
 
 
-Overfull \hbox (8.26848pt too wide) in paragraph at lines 84--86
-\T1/cmr/m/n/12 pretoºe majú rovnakú asociativitu a prioritu. Takýmto spôsobom s
-ú rela£né operátory spracované
+Overfull \hbox (16.0482pt too wide) in paragraph at lines 81--82
+[]\T1/cmr/m/n/12 Pravidlá pre neterminály <term> a <literal> neboli vo výsledne
+j implementácii syntaktického
+ []
+
+
+Overfull \hbox (9.83237pt too wide) in paragraph at lines 81--82
+\T1/cmr/m/n/12 analyzátoru vyuºité - vo výslednej implementácii sa ukázali ako 
+zbyto£né a bolo preh©adnej²ie
  []
 
 [3]
-Overfull \hbox (5.97728pt too wide) in paragraph at lines 98--99
+Overfull \hbox (5.97728pt too wide) in paragraph at lines 104--105
 \T1/cmr/m/n/12 kontrolovaná na správne typy vzh©adom na daný operátor prípadne 
 delenie nulou pri celo£íselnom
  []
 
 
-Overfull \hbox (1.39589pt too wide) in paragraph at lines 98--99
-\T1/cmr/m/n/12 delení. Po úspe²nom ukon£ení sémantickej analýzy sa pod©a hodnot
-y psa_state volá generovanie
- []
-
-
-Overfull \hbox (16.40895pt too wide) in paragraph at lines 100--102
+Overfull \hbox (16.40895pt too wide) in paragraph at lines 108--110
 \T1/cmr/m/n/12 kód jazyka. Na za£iatku generovania sa alokujú dynamické stringy
 . Do stringu function_definitions
  []
 
 [4]
-Overfull \hbox (2.91287pt too wide) in paragraph at lines 105--106
+Overfull \hbox (2.91287pt too wide) in paragraph at lines 113--114
 \T1/cmr/m/n/12 Na generovanie názvov náve²tí a premenných vyuºívame ²truktúru u
 nique_id_t. Táto ²truktúra
  []
 
 
-Overfull \hbox (2.43848pt too wide) in paragraph at lines 105--106
+Overfull \hbox (2.43848pt too wide) in paragraph at lines 113--114
 \T1/cmr/m/n/12 atribúty potom pouºívame ako parametre do funkcie create_unique_
 variable, ktorá nám vytvorí
  []
 
 
-Overfull \hbox (13.13602pt too wide) in paragraph at lines 111--112
+Overfull \hbox (13.13602pt too wide) in paragraph at lines 119--120
 \T1/cmr/m/n/12 V na²om prípade sa jednalo o druhú variantu zadania - tabulka sy
 mbolov mala být implementována
  []
 
 
-Overfull \hbox (29.81415pt too wide) in paragraph at lines 113--114
+Overfull \hbox (29.81415pt too wide) in paragraph at lines 121--122
 []\T1/cmr/m/n/12 Tabu©ku symbolov sme teda implementovali jako TRP s explicitní
 m zre´azením. Ako rozpty©ovaciu
  []
 
 [5]
-Overfull \hbox (14.20578pt too wide) in paragraph at lines 117--118
+Overfull \hbox (14.20578pt too wide) in paragraph at lines 125--126
 []\T1/cmr/m/n/12 „alej dvojicu ²peciálnych atribútov, ktoré sa vyuºívajú pri sé
 mantických kontrolách dependencií
  []
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 130.
+(Font)              <12> on input line 138.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 130.
+(Font)              <8> on input line 138.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 130.
+(Font)              <6> on input line 138.
 
-Underfull \hbox (badness 2903) in paragraph at lines 132--132
+Underfull \hbox (badness 2903) in paragraph at lines 140--140
 []|\T1/cmr/m/n/12 tabu©ka symbolov, syntaktická analýza, sémantická analýza,
  []
 
 
-Underfull \hbox (badness 7468) in paragraph at lines 133--133
+Underfull \hbox (badness 7468) in paragraph at lines 141--141
 []|\T1/cmr/m/n/12 preceden£ná syntaktická a sémantická analýza, testovanie,
  []
 
 <./with_error_state.png, id=171, 849.1725pt x 1160.335pt>
 File: ./with_error_state.png Graphic file (type png)
 <use ./with_error_state.png>
-Package pdftex.def Info: ./with_error_state.png  used on input line 143.
+Package pdftex.def Info: ./with_error_state.png  used on input line 151.
 (pdftex.def)             Requested size: 435.32419pt x 594.84373pt.
 [6]
 <./LLgrammar.png, id=177, 928.46875pt x 830.10126pt>
 File: ./LLgrammar.png Graphic file (type png)
 <use ./LLgrammar.png>
-Package pdftex.def Info: ./LLgrammar.png  used on input line 145.
+Package pdftex.def Info: ./LLgrammar.png  used on input line 153.
 (pdftex.def)             Requested size: 435.32419pt x 389.21034pt.
  [7 <./with_error_state.png>]
 <./LLtable.png, id=183, 1770.615pt x 682.55pt>
 File: ./LLtable.png Graphic file (type png)
 <use ./LLtable.png>
-Package pdftex.def Info: ./LLtable.png  used on input line 147.
+Package pdftex.def Info: ./LLtable.png  used on input line 155.
 (pdftex.def)             Requested size: 483.69684pt x 186.45724pt.
 <./precedence_table.png, id=184, 820.06375pt x 366.36874pt>
 File: ./precedence_table.png Graphic file (type png)
 <use ./precedence_table.png>
-Package pdftex.def Info: ./precedence_table.png  used on input line 149.
+Package pdftex.def Info: ./precedence_table.png  used on input line 157.
 (pdftex.def)             Requested size: 483.69684pt x 216.09978pt.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 151.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 159.
  [8 <./LLgrammar.png> <./LLtable.png>] [9 <./precedence_table.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 151.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 159.
  (./dokumentace.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 151.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 151.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 159.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 159.
 Package rerunfilecheck Info: File `dokumentace.out' has not changed.
-(rerunfilecheck)             Checksum: 44DAF7FF9FC0E8993D877767026BF9E2;4200.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 151.
+(rerunfilecheck)             Checksum: 56A8679270A545020177EC1775D7B083;4204.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 159.
  ) 
 Here is how much of TeX's memory you used:
- 11494 strings out of 494553
- 164266 string characters out of 6177318
+ 11495 strings out of 494553
+ 164279 string characters out of 6177318
  250798 words of memory out of 5000000
- 15044 multiletter control sequences out of 15000+600000
+ 15045 multiletter control sequences out of 15000+600000
  15776 words of font info for 36 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 36i,9n,38p,1095b,353s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/us
-r/share/texlive/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share
+ 36i,9n,38p,870b,353s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr
+/share/texlive/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share
 /texlive/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texlive/texmf
 -dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texlive/texmf-dist/f
@@ -723,7 +717,7 @@ super/sfrm1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/s
 frm1200.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1440
 .pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></
 usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm2488.pfb>
-Output written on dokumentace.pdf (10 pages, 620622 bytes).
+Output written on dokumentace.pdf (10 pages, 622155 bytes).
 PDF statistics:
  245 PDF objects out of 1000 (max. 8388607)
  209 compressed objects within 3 object streams
