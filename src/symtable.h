@@ -17,8 +17,10 @@
 
 #include "errors.h"
 
-/* Default symtable size */
-#define  SYMTABLE_SIZE 12289
+/* Default symtable size - we chose this value because it is a prime number and secondly
+ * because it is a large enough number to keep our table load under 75% at all
+ * times (assuming we are not compiling a ridiculously big program). */
+#define SYMTABLE_SIZE 27457
 
 /**
  * @brief Represents the type of the symbol
@@ -108,6 +110,9 @@ typedef symbol_t *symtable_t[SYMTABLE_SIZE];
 /**
  * @brief The hash function used to obtain the table index for a key
  * @return Returns the table index for a specific key
+ *
+ * @note The hash function we used for our symbol table is the GNU Hash ELF
+ * function - a variant of the PJW hash function.
  */
 unsigned int symtable_hash(const char *key);
 
